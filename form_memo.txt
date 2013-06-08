@@ -1,0 +1,51 @@
+@1
+link: http://m.coa.gov.tw/outside/transaction/Search.aspx
+form_name: aspnetForm
+comment: price query form
+
+@2
+link: http://amis.afa.gov.tw/coop/allselectp1.asp?goods_code=V
+form_name:
+comment: unknown page
+
+@3
+link: http://amis.afa.gov.tw/v-asp/v101q.asp
+form_name: FrontPage_Form1
+query_arguement_1: myy #民國年份, 值從085年到112年
+query_arguement_2: mmm #月份, 值從01月到12月
+query_arguement_3: mdd #日期, 值從01日到31日
+query_arguement_4: mpno #商品代碼, 值請參考檔案
+query_arguement_5: mpnoname #商品名稱, 值請參考檔案, 未必會用到
+comment: 蔬菜單日行情查詢
+
+
+@4
+link:
+
+===
+蔬菜,產品別單日交易行情查詢表單「處理網址」：
+http://amis.afa.gov.tw/v-asp/v101r.asp
+method:POST
+
+蔬菜,單一產品單日交易行情查詢表單「處理網址」：
+http://amis.afa.gov.tw/v-asp/v103r.asp
+method:POST
+Comment: 包含代號、名稱和物件處理方式
+
+水果,市場別單日行情查詢表單「處理網址」：
+http://amis.afa.gov.tw/t-asp/v102r.asp
+method:POST
+
+水果,單一產品單日交易行情查詢表單「處理網址」：
+http://amis.afa.gov.tw/t-asp/v103r.asp
+method:POST
+Comment: 包含代號、名稱和物件處理方式
+
+花卉,產品別單日交易行情查詢表單「處理網址」：
+http://amis.afa.gov.tw/l-asp/v101r.asp
+method:POST
+
+花卉,單一產品單日交易行情查詢表單「處理網址」：
+http://amis.afa.gov.tw/l-asp/v103r.asp
+method:POST
+Comment: 包含代號、名稱和物件處理方式
