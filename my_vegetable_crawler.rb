@@ -11,9 +11,9 @@ def read_items_from_file
 	array_mpno_name = Array.new
 	File.open("txt_at_amis_vegetable.txt", "r"){ |f|
 		while line = f.gets
-			puts "line: "+line #debug
+			# puts "line: "+line #debug
 			content = line.split("\t")
-			puts "content: "+content.to_s #debug
+			# puts "content: "+content.to_s #debug
 			array_mpno_name << content[0]
 			array_mpno << (content[1].delete! "\n")
 		end
@@ -40,7 +40,7 @@ def crawl_data_and_filter(q_time, q_machanize)
 	req.add_field "User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.93 Safari/537.36"
 
 	req.set_form_data('myy' => m_year, 'mmm' => m_month, 'mdd' => m_day, 'mhidden1' => 'false', 'mpno' => m_mpno, 'mpnoname' => m_mpname)
-	# req.set_form_data('myy' => '102', 'mmm' => '06', 'mdd' => '11', 'mhidden1' => 'false', 'mpno' => 'FD', 'mpnoname' => '花胡瓜')
+	# req.set_form_data('myy' => '102', 'mmm' => '06', 'mdd' => '12', 'mhidden1' => 'false', 'mpno' => 'FD', 'mpnoname' => '花胡瓜')
 	# 蔬菜查詢網址不會檢查名稱
 
 	respond = Net::HTTP.start(target_site.host, target_site.port) do |http|
@@ -63,17 +63,17 @@ def crawl_data_and_filter(q_time, q_machanize)
 
 	# 正在過濾變成utf8編碼後的網頁，尚未成功，已經濾得差不多了
 	# Date: 20130525 
-	i = 0
 	string_array = Array.new
 	table_array.each{|table|
-		#table = table.force_encoding("utf-8")
-		# string_array << table.slice(/\>([^\>\<\\r\\n\s]|\\)+\</u)
-		if( i == 0 ) # meta data 額外處理
-			string_array << table.gsub!(/\<(\/)?[^\<]+(\")?\>/u,'').gsub!("\r\n","").gsub!(/((?<=[^ ])( ){1,2}(?=[^ ]))|&nbsp;/u,'').gsub!(/[ ]+/u,',').gsub!(/(^,)|(,$)/u,'')#.gsub!(/[　]+/u,'""')
+
+		
+		table.gsub!(/\<(\/)?[^\<]+(\")?\>/u,'').gsub!("\r\n","").gsub!(/((?<=[^ ])( ){1,2}(?=[^ ]))|&nbsp;/u,'').gsub!(/[ ]+/u,',').gsub!(/(^,)|(,$)/u,'')#.gsub!(/[　]+/u,'""')
+		if table.include? "　" # if it contains full stylish of <SPACE>, just replace it with double quote mark. 
+			string_array << table.gsub!(/[　]+/u,'""')
 		else
-			string_array << table.gsub!(/\<(\/)?[^\<]+(\")?\>/u,'').gsub!("\r\n","").gsub!(/((?<=[^ ])( ){1,2}(?=[^ ]))|&nbsp;/u,'').gsub!(/[ ]+/u,',').gsub!(/(^,)|(,$)/u,'').gsub!(/[　]+/u,'""')
+			# Here are table for whole elements are filled with values.
+			string_array << table
 		end
-		i += 1
 	}
   	# 印出來尚有問題，要消除空白和<p>！date:20130525
 	# Date: 20130527
@@ -137,12 +137,13 @@ begin
 		puts "編號: "+mpno+", 名稱: "+recv_mpname_list[i]+" 在此查詢類別不存在!" if result_signal == false
 		result_array << tmp_array if tmp_array.nil? == false
 		i += 1
-		# break
+		# break #debug
 	}
 
 	qi_time.clear # clear query time array
 	thirty_day_count += 1
 	date_today -= 1	
+	# break #debug
 end until( thirty_day_count >= 2 )
 
 result_array.flatten!
