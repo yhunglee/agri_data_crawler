@@ -9,7 +9,7 @@ def read_items_from_file
 
 	array_mpno = Array.new
 	array_mpno_name = Array.new
-	File.open("txt_at_amis_vegetable.txt", "r"){ |f|
+	File.open("./data_format_at_every_site/txt_at_amis_vegetable.txt", "r"){ |f|
 		while line = f.gets
 			# puts "line: "+line #debug
 			content = line.split("\t")
@@ -88,43 +88,77 @@ def crawl_data_and_filter(q_time, q_machanize)
 	 return true,string_array 
 end
 
+unless ARGV.length < 2 && ARGV.length > 4
+	puts "Available command: ruby myvegetable_crawler.rb <Start Date> <End Date> <Output file> [vegetable|fruit|flower]"
+	puts "Format of start and end date is using AD. yyyy-mm-dd, I will transform it to format of Republic of China."
+	puts "Available value range of start date is 1996-01-01, and we can't query someday in the future."
+	puts "Available value range of end date is greater than or equal to start date."
+	puts "-------------------------------------------------------"
+	puts "Every output file is putted at under directory of query_results. Content format is csv-style originally."
 
+	puts "Last parameter is optional, and vegetable is the implicit value."
+	return 
+end
 recv_mpno_list, recv_mpname_list = read_items_from_file()
 puts "mpno_list: "+recv_mpno_list.to_s#debug
 puts "====" #debug
 puts "mpname_list: "+recv_mpname_list.to_s #debug
 
-#qi_addr = ARGV[1] #ARGV[1] is the vegetable address
+argv_start_date = Date.parse ARGV[0] # ARGV[0] is the start date
+qs_year = argv_start_date.year #ARGV[0] is the <start date>
+qs_month = argv_start_date.month
+qs_day = argv_start_date.day
+if argv_start_date.valid_date? == false
+	puts "Error: Start date's value isn't exist in calendar."
+else
+	if qs_year < 1996
+		puts "Error: Start date must start from 1996A.D.."
+	elsif argv_start_date <=> Date.today == 1
+		puts "Error: We can't query information in the future via this program when start date is greater than today."
+	end
+	return
+end
 
-=begin
-qi_year = ARGV[2] #ARGV[2] is the starting time
-qi_month = ARGV
-qi_day # not complete
+#ARGV[1] is the ending time
+argv_end_date = Date.parse ARGV[1] # ARGV[1] is the end date
+qe_year = argv_end_date.year #ARGV[1] is the <end date>
+qe_month = argv_end_date.month
+qe_day = argv_end_date.day
+if argv_end_date.valid_date? == false
+	puts "Error: End date's value isn't exist in calendar."
+else
+	if argv_end_date <=> argv_start_date == -1
+		puts "Error: End date must greater than or equal to start date."
+	elsif argv_end_date <=> Date.today == 1
+		puts "Error: We can't query information in the future via this program when end date is greater than today."
+	end
+	return
+end
 
-=end
+#ARGV[2] is the output file
+argv_output_file = ARGV[2]
 
-#ARGV[3] is the ending time
 qi_time = Array.new
 result_array = Array.new #store result for writing to file.
 
 thirty_day_count = 0
-date_today = Date.today
+q_date = argv_start_date
 begin
-	qi_year = date_today.year - 1911
-	qi_month = date_today.month
-	qi_day = date_today.day
+	q_year = q_date.year - 1911
+	q_month = q_date.month
+	q_day = q_date.day
 
-	qi_time << qi_year.to_s #type conversion
+	qi_time << q_year.to_s #type conversion
 
-	if qi_month < 10 && qi_month > 0
-		qi_time << "0"+qi_month.to_s
+	if q_month < 10 && q_month > 0
+		qi_time << "0"+q_month.to_s # prepend 0 when month number is smaller than 10 and greater than 0
 	else
-		qi_time << qi_month.to_s
+		qi_time << q_month.to_s
 	end
-	if qi_day < 10 && qi_month > 0
-		qi_time << "0"+qi_day.to_s
+	if q_day < 10 && q_day > 0 
+		qi_time << "0"+q_day.to_s # prepend 0 when day number is smaller than 10 and greater than 0
 	else
-		qi_time << qi_day.to_s
+		qi_time << q_day.to_s
 	end
 
 	qi_machanize = Array.new
@@ -135,23 +169,27 @@ begin
 		qi_machanize[1] = recv_mpname_list[i] 
 		result_signal, tmp_array = crawl_data_and_filter(qi_time, qi_machanize)
 		puts "編號: "+mpno+", 名稱: "+recv_mpname_list[i]+" 在此查詢類別不存在!" if result_signal == false
+		puts "編號: "+mpno+", 名稱: "+recv_mpname_list[i]+" 成功抓取資料" if result_signal != false
 		result_array << tmp_array if tmp_array.nil? == false
 		i += 1
 		# break #debug
 	}
 
 	qi_time.clear # clear query time array
-	thirty_day_count += 1
-	date_today -= 1	
-	# break #debug
-end until( thirty_day_count >= 2 )
+	q_date += 1
 
-result_array.flatten!
-File.open("data_thirty_days_vegetable.txt","w"){ |f|
-	result_array.each{|element|
-		f.puts(element)
+	result_array.flatten!
+	File.open("./query_results/"+argv_output_file,"a"){ |f|
+		result_array.each{|element|
+			f.puts(element)
+		}
 	}
-}
-#可使用stdout重導向寫到檔案, at g0v hackth3n
+
+	#可使用stdout重導向寫到檔案, at g0v hackth3n
+
+
+
+	# break #debug
+end until( argv_end_date <=> q_date == -1 )
 
 
