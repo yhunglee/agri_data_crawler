@@ -49,3 +49,10 @@ method:POST
 http://amis.afa.gov.tw/l-asp/v103r.asp
 method:POST
 Comment: 包含代號、名稱和物件處理方式
+
+
+txt_at_amis_fruit.txt 格式種類：
+1. 特別: 名稱, <TAB>,<空白>, <TAB>, 代號
+2. 特別: 名稱, <TAB>, 代號
+3. 特別: 梨, <TAB>, 4029梨, <TAB>, O8 
+4. 常見: 名稱, <TAB>, 種類, <TAB>, 代號

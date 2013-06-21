@@ -5,11 +5,21 @@
 require 'net/http'
 require 'date'
 
-def read_items_from_file
+def read_items_from_file query_type
 
 	array_mpno = Array.new
 	array_mpno_name = Array.new
-	File.open("./data_format_at_every_site/txt_at_amis_vegetable.txt", "r"){ |f|
+	if query_type == 1
+		file_name = "txt_at_amis_vegetable.txt"
+	elsif query_type == 2
+		file_name = "txt_at_amis_fruit.txt"
+	elsif query_type == 3
+		file_name = "txt_at_amis_flowers.txt"
+	else
+		puts "Error: unknown query_type at method: read_items_from_file."
+		exit
+	end
+	File.open("./data_format_at_every_site/"+file_name, "r"){ |f|
 		while line = f.gets
 			# puts "line: "+line #debug
 			content = line.split("\t")
@@ -22,9 +32,19 @@ def read_items_from_file
 	return array_mpno, array_mpno_name
 end
 
-def crawl_data_and_filter(q_time, q_machanize)
+def crawl_data_and_filter(q_time, q_machanize, query_type)
 
-	target_site = URI.parse("http://amis.afa.gov.tw/v-asp/v101r.asp")
+	if query_type == 1
+		q_addr = "http://amis.afa.gov.tw/v-asp/v101r.asp"
+	elsif query_type == 2
+		q_addr = "http://amis.afa.gov.tw/t-asp/v103r.asp"
+	elsif query_type == 3
+		q_addr = "http://amis.afa.gov.tw/l-asp/v101r.asp"
+	else
+		puts "Error: unknown query_type at method: crawl_data_and_filter"
+		exit
+	end
+	target_site = URI.parse(q_addr)
 	# target_site = URI(q_addr)
 	# http://amis.afa.gov.tw/v-asp/v101q.asp is the page of vegetable query form.
 
@@ -88,8 +108,9 @@ def crawl_data_and_filter(q_time, q_machanize)
 	 return true,string_array 
 end
 
-unless ARGV.length < 2 && ARGV.length > 4
+unless ARGV.length > 2 && ARGV.length < 4
 	puts "Available command: ruby myvegetable_crawler.rb <Start Date> <End Date> <Output file> [vegetable|fruit|flower]"
+	puts "Notice: Fruit-query temporarily unavailable since problem of parse file format."
 	puts "Format of start and end date is using AD. yyyy-mm-dd, I will transform it to format of Republic of China."
 	puts "Available value range of start date is 1996-01-01, and we can't query someday in the future."
 	puts "Available value range of end date is greater than or equal to start date."
@@ -97,26 +118,24 @@ unless ARGV.length < 2 && ARGV.length > 4
 	puts "Every output file is putted at under directory of query_results. Content format is csv-style originally."
 
 	puts "Last parameter is optional, and vegetable is the implicit value."
-	return 
+	exit 
 end
-recv_mpno_list, recv_mpname_list = read_items_from_file()
-puts "mpno_list: "+recv_mpno_list.to_s#debug
-puts "====" #debug
-puts "mpname_list: "+recv_mpname_list.to_s #debug
 
 argv_start_date = Date.parse ARGV[0] # ARGV[0] is the start date
 qs_year = argv_start_date.year #ARGV[0] is the <start date>
 qs_month = argv_start_date.month
 qs_day = argv_start_date.day
-if argv_start_date.valid_date? == false
+if Date.valid_date?(qs_year, qs_month, qs_day) == false
 	puts "Error: Start date's value isn't exist in calendar."
+	exit
 else
 	if qs_year < 1996
 		puts "Error: Start date must start from 1996A.D.."
-	elsif argv_start_date <=> Date.today == 1
+		exit
+	elsif (argv_start_date <=> Date.today) == 1
 		puts "Error: We can't query information in the future via this program when start date is greater than today."
+		exit
 	end
-	return
 end
 
 #ARGV[1] is the ending time
@@ -124,19 +143,45 @@ argv_end_date = Date.parse ARGV[1] # ARGV[1] is the end date
 qe_year = argv_end_date.year #ARGV[1] is the <end date>
 qe_month = argv_end_date.month
 qe_day = argv_end_date.day
-if argv_end_date.valid_date? == false
+if Date.valid_date?(qe_year, qe_month, qe_day) == false
 	puts "Error: End date's value isn't exist in calendar."
+	exit
 else
-	if argv_end_date <=> argv_start_date == -1
+	if (argv_end_date <=> argv_start_date) == -1
 		puts "Error: End date must greater than or equal to start date."
-	elsif argv_end_date <=> Date.today == 1
+		exit
+	elsif (argv_end_date <=> Date.today) == 1
 		puts "Error: We can't query information in the future via this program when end date is greater than today."
+		exit
 	end
-	return
 end
 
 #ARGV[2] is the output file
 argv_output_file = ARGV[2]
+
+#ARGV[3] is an option for quering vegetable, fruit or flowers.
+if ARGV[3].nil?
+	q_type = 1
+else
+	argv_query_type = ARGV[3].downcase
+	case argv_query_type
+	when "vegetable"
+		q_type = 1
+	when "fruit"
+		q_type = 2
+	when "flowers"
+		q_type = 3
+	else
+		puts "Error: Parameter of query_type must be vegetable, fruit or flowers. I don't care UPCASE or downcase."
+		exit
+	end
+end
+
+
+recv_mpno_list, recv_mpname_list = read_items_from_file(q_type)
+puts "mpno_list: "+recv_mpno_list.to_s#debug
+puts "====" #debug
+puts "mpname_list: "+recv_mpname_list.to_s #debug
 
 qi_time = Array.new
 result_array = Array.new #store result for writing to file.
@@ -148,7 +193,11 @@ begin
 	q_month = q_date.month
 	q_day = q_date.day
 
-	qi_time << q_year.to_s #type conversion
+	if q_year < 100
+		qi_time << "0"+q_year.to_s # prepend 0 when year number is smaller than 100
+	else
+		qi_time << q_year.to_s #type conversion
+	end
 
 	if q_month < 10 && q_month > 0
 		qi_time << "0"+q_month.to_s # prepend 0 when month number is smaller than 10 and greater than 0
@@ -167,7 +216,7 @@ begin
 		puts "i: "+ i.to_s # for debug
 		qi_machanize[0] = mpno.to_s
 		qi_machanize[1] = recv_mpname_list[i] 
-		result_signal, tmp_array = crawl_data_and_filter(qi_time, qi_machanize)
+		result_signal, tmp_array = crawl_data_and_filter(qi_time, qi_machanize, q_type)
 		puts "編號: "+mpno+", 名稱: "+recv_mpname_list[i]+" 在此查詢類別不存在!" if result_signal == false
 		puts "編號: "+mpno+", 名稱: "+recv_mpname_list[i]+" 成功抓取資料" if result_signal != false
 		result_array << tmp_array if tmp_array.nil? == false
@@ -190,6 +239,6 @@ begin
 
 
 	# break #debug
-end until( argv_end_date <=> q_date == -1 )
+end until( (argv_end_date <=> q_date) == -1 )
 
 
