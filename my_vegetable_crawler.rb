@@ -156,6 +156,9 @@ else
 	end
 end
 
+#For showing how many days will be crawled
+total_days_will_be_processing = (argv_end_date - argv_start_date).to_i + 1
+
 #ARGV[2] is the output file
 argv_output_file = ARGV[2]
 
@@ -179,6 +182,7 @@ end
 
 
 recv_mpno_list, recv_mpname_list = read_items_from_file(q_type)
+total_mpno_number = recv_mpno_list.size # for showing total number of be processced mpno
 puts "mpno_list: "+recv_mpno_list.to_s#debug
 puts "====" #debug
 puts "mpname_list: "+recv_mpname_list.to_s #debug
@@ -186,13 +190,13 @@ puts "mpname_list: "+recv_mpname_list.to_s #debug
 qi_time = Array.new
 result_array = Array.new #store result for writing to file.
 
-thirty_day_count = 0
+count_day = 1
 q_date = argv_start_date
 begin
 	q_year = q_date.year - 1911
 	q_month = q_date.month
 	q_day = q_date.day
-
+	
 	if q_year < 100
 		qi_time << "0"+q_year.to_s # prepend 0 when year number is smaller than 100
 	else
@@ -211,28 +215,34 @@ begin
 	end
 
 	qi_machanize = Array.new
-	i = 0
+	count_mpno = 0
 	recv_mpno_list.each{ |mpno|
-		puts "i: "+ i.to_s # for debug
+		puts "本次查詢範圍是民國 "+(argv_start_date.year - 1911).to_s+" 年 "+(argv_start_date.month).to_s+" 月 "+(argv_start_date.day).to_s+" 號 至 "+(argv_end_date.year - 1911).to_s+" 年 "+(argv_end_date.month).to_s+" 月 "+(argv_end_date.day).to_s+" 號."
+		puts "現在處理的是第 "+count_day.to_s+"/"+total_days_will_be_processing.to_s+" 天"	
+		puts "現在處理的是民國 "+q_year.to_s+" 年 "+q_month.to_s+" 月 "+q_day.to_s+" 號的第 "+(count_mpno + 1).to_s+"/"+total_mpno_number.to_s+" 個"
 		qi_machanize[0] = mpno.to_s
-		qi_machanize[1] = recv_mpname_list[i] 
+		qi_machanize[1] = recv_mpname_list[count_mpno] 
 		result_signal, tmp_array = crawl_data_and_filter(qi_time, qi_machanize, q_type)
-		puts "編號: "+mpno+", 名稱: "+recv_mpname_list[i]+" 在此查詢類別不存在!" if result_signal == false
-		puts "編號: "+mpno+", 名稱: "+recv_mpname_list[i]+" 成功抓取資料" if result_signal != false
+		puts "編號: "+mpno+", 名稱: "+recv_mpname_list[count_mpno]+" 在此查詢類別不存在!" if result_signal == false
+		puts "編號: "+mpno+", 名稱: "+recv_mpname_list[count_mpno]+" 成功抓取資料" if result_signal != false
 		result_array << tmp_array if tmp_array.nil? == false
-		i += 1
-		# break #debug
+		count_mpno += 1
+		puts "===================================="
 	}
 
 	qi_time.clear # clear query time array
 	q_date += 1
+	count_day += 1 # for counting we have procceed how many days.
 
+	puts "寫入查詢結果中，請勿中斷程式......"
 	result_array.flatten!
 	File.open("./query_results/"+argv_output_file,"a"){ |f|
 		result_array.each{|element|
 			f.puts(element)
 		}
 	}
+	puts "寫入完畢."
+	puts "===================================="
 
 	#可使用stdout重導向寫到檔案, at g0v hackth3n
 
