@@ -108,7 +108,7 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 	 return true,string_array 
 end
 
-unless ARGV.length > 2 && ARGV.length < 4
+unless ARGV.length > 2 && ARGV.length < 5
 	puts "Available command: ruby myvegetable_crawler.rb <Start Date> <End Date> <Output file> [vegetable|fruit|flower]"
 	puts "Notice: Fruit-query temporarily unavailable since problem of parse file format."
 	puts "Format of start and end date is using AD. yyyy-mm-dd, I will transform it to format of Republic of China."
