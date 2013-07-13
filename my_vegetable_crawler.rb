@@ -80,14 +80,23 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 
 
 	
-
+	meta_signal = 0
 	# 正在過濾變成utf8編碼後的網頁，尚未成功，已經濾得差不多了
 	# Date: 20130525 
 	string_array = Array.new
 	table_array.each{|table|
 
-		
-		table.gsub!(/\<(\/)?[^\<]+(\")?\>/u,'').gsub!("\r\n","").gsub!(/((?<=[^ ])( ){1,2}(?=[^ ]))|&nbsp;/u,'').gsub!(/[ ]+/u,',').gsub!(/(^,)|(,$)/u,'')#.gsub!(/[　]+/u,'""')
+		# 2013/07/13 Fixed bug: FA0 台北一 會少一個空字串 	
+		table.gsub!(/\<(\/)?[^\<]+(\")?\>/u,'').gsub!("\r\n","").gsub!(/((?<=[^ ])( ){1,2}(?=[^ ]))/u,'').gsub!(/[ ]+/u,',').gsub!(/(^,)|(,$)/u,'')#.gsub!(/[　]+/u,'""')
+		if meta_signal == 0 # deal with pattern: ,&nbsp; 
+			meta_signal = 1
+		elsif meta_signal == 1
+			table.gsub!(/,&nbsp;/u, ',""')
+			table.gsub!(/&nbsp;/u, '')
+			meta_signal = 0
+		end
+		# 2013/07/13 Fixed bug: FA0 台北一 會少一個空字串 	
+
 		if table.include? "　" # if it contains full stylish of <SPACE>, just replace it with double quote mark. 
 			string_array << table.gsub!(/[　]+/u,'""')
 		else
