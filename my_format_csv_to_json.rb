@@ -50,11 +50,11 @@
 						stored_json_string.concat( "{" )
 						for i in 0..8 do
 							if transaction_price_csv_array[transaction_count].eql? "null"
-								stored_json_string << transaction_price_csv_array[i] + "\":" + transaction_price_csv_array[transaction_count] +", \""
+								stored_json_string << "\"" + transaction_price_csv_array[i] + "\":" + transaction_price_csv_array[transaction_count] +", "
 							elsif transaction_price_csv_array[transaction_count] =~ /[+-]?[0-9]+[.]?[0-9]*$/u
-								stored_json_string << transaction_price_csv_array[i] + "\":" + transaction_price_csv_array[transaction_count] + ", \""
+								stored_json_string << "\"" + transaction_price_csv_array[i] + "\":" + transaction_price_csv_array[transaction_count] + ", "
 							else
-								stored_json_string << "\"" + transaction_price_csv_array[i] + "\":\"" + transaction_price_csv_array[transaction_count] + "\", \""
+								stored_json_string << "\"" + transaction_price_csv_array[i] + "\":\"" + transaction_price_csv_array[transaction_count] + "\", "
 							end
 							transaction_count += 1
 						end
@@ -62,10 +62,11 @@
 						# print for column of 增減% 
 						i = 9
 						if transaction_price_csv_array[transaction_count].eql? "null"
-							stored_json_string << transaction_price_csv_array[i] + "\":" + transaction_price_csv_array[transaction_count] +"}"
+							stored_json_string << "\"" + transaction_price_csv_array[i] + "\":" + transaction_price_csv_array[transaction_count] +"}"
 						else transaction_price_csv_array[transaction_count] =~ /[+-]?[0-9]+[.]?[0-9]*$/u
-							stored_json_string << transaction_price_csv_array[i] + "\":" + transaction_price_csv_array[transaction_count] + "}"
+							stored_json_string << "\"" + transaction_price_csv_array[i] + "\":" + transaction_price_csv_array[transaction_count] + "}"
 						end
+						transaction_count += 1
 						# print for column of 增減% 
 
 						if j != quotient # if it still has unprocessed transaction markets, append comma symbol.
