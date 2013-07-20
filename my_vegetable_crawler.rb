@@ -250,6 +250,7 @@ begin
 			f.puts(element)
 		}
 	}
+	result_array.clear
 	puts "寫入完畢."
 	puts "===================================="
 
