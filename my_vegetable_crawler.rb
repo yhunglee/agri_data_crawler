@@ -124,7 +124,7 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 	# Date: 20130608
 	# 為空白的處理別欄位資料加上雙引號, 以表示有此欄位。
 	 puts string_array.to_s	#debug
-	 # sleep 2 # sleep 2 seconds for decreasing payload of amis_website
+	 sleep 2 # sleep 2 seconds for decreasing payload of amis_website
 	 return true,string_array 
 end
 
