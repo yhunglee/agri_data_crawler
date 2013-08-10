@@ -1,4 +1,3 @@
-./query_results/vegetable_amis_Jan2013.json
 query_results/*
 my_rm_duplicate_lines.rb
 

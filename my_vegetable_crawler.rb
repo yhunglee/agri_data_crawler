@@ -63,11 +63,22 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 	# req.set_form_data('myy' => '102', 'mmm' => '06', 'mdd' => '12', 'mhidden1' => 'false', 'mpno' => 'FD', 'mpnoname' => '花胡瓜')
 	# 蔬菜查詢網址不會檢查名稱
 
-	respond = Net::HTTP.start(target_site.host, target_site.port) do |http|
+	count_retry = 0
+	begin
+		respond = Net::HTTP.start(target_site.host, target_site.port) do |http|
 
-		#respond = Net::HTTP.post_form(target_site, {'myy' => '100', 'mmm' => '11', 'mdd' => '10', 'mhidden1' => 'false', 'mpno' => 'FB', 'mpnoname' => '康乃馨' })
-		http.request(req)
+			#respond = Net::HTTP.post_form(target_site, {'myy' => '100', 'mmm' => '11', 'mdd' => '10', 'mhidden1' => 'false', 'mpno' => 'FB', 'mpnoname' => '康乃馨' })
+			http.request(req)
+		end
+	rescue Timeout::Error, Errno::EINVAL, Errno::ECONNRESET, EOFError,
+	       Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError => e
+		puts "Timeout:Error or something happened."
+		puts "We will retry."
+		count_retry += 1
+		sleep 1 # sleep one second for later retry
+		retry if count_retry < 5 # only retry 5 times.
 	end
+	count_retry = 0 # count retry times when every single crawling
 	
 	return false,nil if respond.body.encode('UTF-8', 'BIG5', :invalid => :replace, :undef => :replace, :replace => ' ').slice(/\<table[^$]*\<\/table\>/u).nil?
 	
