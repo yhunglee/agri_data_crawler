@@ -4,7 +4,7 @@
 1. 本軟體專案僅是提供市場交易資料和簡易獲取交易資料的工具，並無意圖影響交易市場行情。若有其他軟體專案、開發者或不特定之個人和團體，基於本軟體專案或是本軟體專案衍生的各種軟體專案、活動，進行影響交易市場行情之一切行為，本軟體專案概不負責。
 2. 本軟體專案公布的市場交易資料Raw data皆是來自中華民國政府農產業部門相關網站公布的資料，皆相依於資料來源中各網站的資料正確性和完整性。
 3. 本軟體專案並無能力、人力...等等泛稱資源的項目，去保證資料的正確性、完整性，所以若您因為使用本軟體專案提供的市場交易資料和簡易獲取交易資料的工具，造成您名譽上或實質上的任何損失，本軟體專案概不負責。若您無法接受這項聲明，敬請不要使用本軟體專案提供的任何項目，謝謝。
-4. 程式碼授權採用BSD 3-Clause License授權條款；尚在研議獲取的市場交易資料之授權條款。
+4. 程式碼授權採用BSD 3-Clause License授權條款；市場交易資料之授權條款<a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/tw/deed.zh_TW"><img alt="創用 CC 授權條款" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/3.0/tw/88x31.png" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">臺灣農產品市場大盤價格情報</span>由<a xmlns:cc="http://creativecommons.org/ns#" href="https://github.com/yhunglee/agri_data_crawler" property="cc:attributionName" rel="cc:attributionURL">Howardsun</a>製作，以<a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/tw/deed.zh_TW">創用CC 姓名標示-相同方式分享 3.0 台灣 授權條款</a>釋出。
 
 * 目標：提供開發者Raw data，方便運用至預想之發展，例如視覺化資料、分析價格情報趨勢......等等用途。
 
