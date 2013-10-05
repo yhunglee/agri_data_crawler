@@ -120,6 +120,9 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 		if table.include? "　" # if it contains full stylish of <SPACE>, just replace it with double quote mark. 
 			if query_type == 1 # for vegetable
 				string_array << table.gsub!(/[　]+/u,'""')
+			elsif query_type == 2 #for fruits
+				# need to implement
+				
 			elsif query_type == 3 #for flowers
 				string_array << table.gsub!(/[　]+/u,'')
 			end
@@ -144,7 +147,7 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 end
 
 unless ARGV.length > 2 && ARGV.length < 5
-	puts "Available command: ruby myvegetable_crawler.rb <Start Date> <End Date> <Output file> [vegetable|fruit|flower]"
+	puts "Available command: ruby myvegetable_crawler.rb <Start Date> <End Date> <Output file> [vegetable|fruit|flowers]"
 	puts "Notice: Fruit-query temporarily unavailable since problem of parse file format."
 	puts "Format of start and end date is using AD. yyyy-mm-dd, I will transform it to format of Republic of China."
 	puts "Available value range of start date is 1996-01-01, and we can't query someday in the future."

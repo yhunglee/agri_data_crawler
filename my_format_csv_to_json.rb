@@ -10,6 +10,12 @@
 		stored_json_string = String.new # store a json data that have proceed.
 		line_indicator = 0 # indicator we are processing meta data or transaction price
 		record_count = 0 # reference for json_string_array
+		if ARGV[2].nil? || ARGV[2].eql?("vegetable")
+			type_item = 0 # 0 means vegetable
+		elsif ARGV[2].eql?("flowers")
+			type_item = 2 # 2 means flowers
+		end
+
 		while line = fp.gets
 
 			line.chomp!
@@ -19,11 +25,24 @@
 				origin_array[line_indicator].split(/[,:]/u).each{ |meta_element|
 					meta_data_csv_array << meta_element
 				} # split meta under delimiter: comma, colon
-				stored_json_string = "{ \"" + meta_data_csv_array[2] + \
-					"\":\"" + meta_data_csv_array[3] + "\", \"" + \
-					meta_data_csv_array[0] + "\":\"" + meta_data_csv_array[1] + \
-					"\", \"" + meta_data_csv_array[4] + "\":\"" + meta_data_csv_array[5] + \
-					"\", \"" + meta_data_csv_array[6] + "\":\"" + meta_data_csv_array[7] + "\", " 
+				case type_item
+					when 0
+						stored_json_string = "{ \"" + meta_data_csv_array[2] + \
+							"\":\"" + meta_data_csv_array[3] + "\", \"" + \
+							meta_data_csv_array[0] + "\":\"" + meta_data_csv_array[1] + \
+							"\", \"" + meta_data_csv_array[4] + "\":\"" + meta_data_csv_array[5] + \
+							"\", \"" + meta_data_csv_array[6] + "\":\"" + meta_data_csv_array[7] + "\", " 
+					when 2
+						stored_json_string = "{ \"" + meta_data_csv_array[8] + \
+						"\":\"" + meta_data_csv_array[9] + "\", \"" + \
+						meta_data_csv_array[0] + "\":\"" + meta_data_csv_array[1] + \
+						"\", \"" + meta_data_csv_array[4] + "\":\"" + meta_data_csv_array[5] + \
+						"\", \"" + meta_data_csv_array[2] + "\":\"" + meta_data_csv_array[3] + \
+						"\", \"" + meta_data_csv_array[6] + "\":\"" + meta_data_csv_array[7] + "\", "
+
+				else
+					puts "encounter error when dealing meta_data_csv_array."
+				end
 				json_string_array[record_count] = stored_json_string
 
 				meta_data_csv_array.clear
@@ -41,14 +60,24 @@
 				size_transaction_price_csv_array = transaction_price_csv_array.size
 				stored_json_string = json_string_array[record_count]
 				stored_json_string.concat( "\"交易市場價格資料\":[" )
-				transaction_count = 10 # start from 10
-				quotient = size_transaction_price_csv_array / 10
+				case type_item
+					when 0 # 0 means vegetable
+						transaction_count = 10 # index count of price data array start from 10
+						divisor = 10
+					when 2 # 2 means flowers
+						transaction_count = 11 # index count of price data array start from 11
+						divisor = 11
+					else
+						exit
+				end
+				quotient = size_transaction_price_csv_array / divisor
 				i = 0
 				j = 2
 				if quotient >= 2
 					for j in 2..quotient do # because contains column names, we ignore first 10.
 						stored_json_string.concat( "{" )
-						for i in 0..8 do
+						for i in 0..(divisor-2) do 
+						# for loop will run (divisor-1) times from index 0 to divisor-2 .
 							if transaction_price_csv_array[transaction_count].eql? "null"
 								stored_json_string << "\"" + transaction_price_csv_array[i] + "\":" + transaction_price_csv_array[transaction_count] +", "
 							elsif transaction_price_csv_array[transaction_count] =~ /[+-]?[0-9]+[.]?[0-9]*$/u
@@ -60,7 +89,7 @@
 						end
 
 						# print for column of 增減% 
-						i = 9
+						i = divisor-1
 						if transaction_price_csv_array[transaction_count].eql? "null"
 							stored_json_string << "\"" + transaction_price_csv_array[i] + "\":" + transaction_price_csv_array[transaction_count] +"}"
 						else transaction_price_csv_array[transaction_count] =~ /[+-]?[0-9]+[.]?[0-9]*$/u
@@ -75,7 +104,7 @@
 					end # append json string with quotient-times
 				end
 
-				stored_json_string << " ]"
+				stored_json_string << " ] }"
 
 
 				json_string_array[record_count] = stored_json_string
