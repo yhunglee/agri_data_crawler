@@ -168,11 +168,12 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 		# 2013/09/30 Fixed bug: Ruby 1.9.3p374 String class concate too many gsub!(), which over 3 times, will sometimes report the string variable is nil:NilClass.
 		# So I divide one statement into two statements.  
 		table = table.gsub!(/\<(\/)?[^\<]+(\")?\>/u,'').gsub!("\r\n","").gsub(/((?<=[^ ])( ){1,2}(?=[^ ]))/u,'')
+		puts table #debug
 		table.gsub!(/[ ]+/u,',').gsub!(/(^,)|(,$)/u,'')#.gsub!(/[　]+/u,'""')
 		# 2013/09/30 Fixed bug: Ruby 1.9.3p374 String class concate too many gsub!(), which over 3 times, will sometimes report the string variable is nil:NilClass.
 		# So I divide one statement into two statements.  
 
-		# puts table #debug
+		puts table #debug
 		# puts "data class: "+ table.class.to_s #debug
 		if meta_signal == 0 # deal with pattern: ,&nbsp; 
 			meta_signal = 1
@@ -193,10 +194,17 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 				table.gsub!(/[　]+/u,'""')
 				if nil != table.index(/[^,]\"\"/u)
 					# Fix bug for [A2香蕉,芭蕉紅香蕉""]-like, [K4龍眼,龍眼乾帶殼""]-like and [O99梨,西洋梨進口""]-like.  
-					string_array << table.gsub!(/\"\"/u,'')
-				else
-					string_array << table
+					table.gsub!(/\"\"/u,'')
 				end
+
+				if 9 == table.split(/[,:]/u).size
+					# Fix bug of fruit meta_data for items whose have only 9 elements separated by comma and colon.
+					# For example, X-series and A2. 	
+					table.sub!(",總交易量", ",\"\",總交易量")
+					
+				end
+
+				string_array << table
 
 			elsif query_type == 3 #for flowers
 
