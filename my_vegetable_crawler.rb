@@ -24,8 +24,36 @@ def read_items_from_file query_type
 			# puts "line: "+line #debug
 			content = line.split("\t")
 			# puts "content: "+content.to_s #debug
-			array_mpno_name << content[0]
-			array_mpno << (content[1].delete! "\n")
+			if query_type == 2
+				# For fruit
+				
+				tmp_item_name_array = Array.new 
+				# For storing mpno_name and its detail type.
+
+				if content[1].eql?("　")
+					# skip content[1] for storing into array_mpno_name
+					array_mpno << (content[2].delete! "\n")
+					tmp_item_name_array << content[0]
+					array_mpno_name << tmp_item_name_array
+
+				elsif 2 == content.size && content[1][/([A-Z]|[0-9])+/u] != nil
+					array_mpno << (content[1].delete! "\n")
+					# This is for fruit item: [藍莓\t46] 和 [其他\tZZZZZ] ...etc.
+					tmp_item_name_array << content[0]
+					array_mpno_name << tmp_item_name_array
+
+				else
+					# for storing mpno_name of [椰子\t進口\t119]-like items
+					array_mpno << (content[2].delete! "\n")
+					tmp_item_name_array << content[0] << content[1]
+					array_mpno_name << tmp_item_name_array
+				end
+
+			else
+				# For vegetable and flowers
+				array_mpno_name << content[0]
+				array_mpno << (content[1].delete! "\n")
+			end
 		end
 	}
 
@@ -34,11 +62,11 @@ end
 
 def crawl_data_and_filter(q_time, q_machanize, query_type)
 
-	if query_type == 1
+	if query_type == 1 # vegetable
 		q_addr = "http://amis.afa.gov.tw/v-asp/v101r.asp"
-	elsif query_type == 2
+	elsif query_type == 2 # fruit
 		q_addr = "http://amis.afa.gov.tw/t-asp/v103r.asp"
-	elsif query_type == 3
+	elsif query_type == 3 # flowers
 		q_addr = "http://amis.afa.gov.tw/l-asp/v101r.asp"
 	else
 		puts "Error: unknown query_type at method: crawl_data_and_filter"
@@ -59,9 +87,47 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 	req.delete "User-Agent"
 	req.add_field "User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.93 Safari/537.36"
 
-	req.set_form_data('myy' => m_year, 'mmm' => m_month, 'mdd' => m_day, 'mhidden1' => 'false', 'mpno' => m_mpno, 'mpnoname' => m_mpname)
+	if query_type == 2
+		# for fruits
+		if m_mpname.length > 1
+			#  This means containing both item name and its detail type. 
+			req.set_form_data('myy' => m_year, 'mmm' => m_month, 'mdd' => m_day, 'mhidden1' => 'false', 'mpno' => m_mpno, \
+					'mpnoname' => ( (m_mpname[0].length > 4)?( m_mpname[0][0,4]):(m_mpname[0]) ), \
+					'mpnokind' => ( (m_mpname[0].length > 4)?( m_mpname[0][4,( ( (m_mpname[0].length - 8) > 4)?( 4 ):( m_mpname[0].length - 4) )] ):( (m_mpname[1].length > 4)?(m_mpname[1][0,4]):(m_mpname[1]) ) ), \
+					'mtrtname' => ( (m_mpname[1].length > 4)?( m_mpname[1][4,( ( (m_mpname[1].length - 8) > 4)?( 4 ):( m_mpname[1].length - 4) )] ):( '' ) ) \
+					)
+			# Use so many tenary if-expressions because we want to act like a human 
+			# sending requests via browsers with items which are [香蕉\t芭蕉紅芭蕉\tA2]-like and [柚子\t西施柚進口\tH69]-like .
+
+			# The fruit-query's HTML page has some constraints in input field of query form:
+			# a. Field: mpnoname can only contain 4 words at most. If words, which will filled in this field, are greater than 4, remainders would be filled in field: mpnokind and mtrtname by 4 words sequentially.
+			# b. Field: mpnokind can only contain 4 words at most. If words, which will filled in this field, are greater than 4, remainders would be filled in field: mtrtname by 4 words sequentially.
+			# c. Field: mtrtname can only contain 6 words at most. Seldom use this field.
+			# d. Every word in above fields are considered double-byte, which include digits and symbols.
+
+		else
+			# This means only contains item name
+
+			req.set_form_data('myy' => m_year, 'mmm' => m_month, 'mdd' => m_day, 'mhidden1' => 'false', 'mpno' => m_mpno, \
+					'mpnoname' => ( (m_mpname[0].length > 4)?( m_mpname[0][0,4]):(m_mpname[0]) ), \
+					'mpnokind' => ( (m_mpname[0].length > 4)?( m_mpname[0][4,( ( (m_mpname[0].length - 8) > 4)?( 4 ):( m_mpname[0].length - 4) )] ):( '' ) ), \
+					'mtrtname' => ( (m_mpname[0].length > 8)?( m_mpname[0][8,( ( (m_mpname[0].length - 8) > 6)?( 6 ):( m_mpname[0].length - 8) )] ):( '' ) ) \
+					)
+			# Use so many tenary if-expressions because we want to act like a human 
+			# sending requests via browsers with items which are [葡萄無子進口\tS49]-like.
+
+			# The fruit-query's HTML page has some constraints in input field of query form:
+			# a. Field: mpnoname can only contain 4 words at most. If words, which will filled in this field, are greater than 4, remainders would be filled in field: mpnokind and mtrtname by 4 words sequentially.
+			# b. Field: mpnokind can only contain 4 words at most. If words, which will filled in this field, are greater than 4, remainders would be filled in field: mtrtname by 4 words sequentially.
+			# c. Field: mtrtname can only contain 6 words at most. Seldom use this field.
+			# d. Every word in above fields are considered double-byte, which include digits and symbols.
+		end
+	else
+		# for vegetable and flowers
+		req.set_form_data('myy' => m_year, 'mmm' => m_month, 'mdd' => m_day, 'mhidden1' => 'false', 'mpno' => m_mpno, 'mpnoname' => m_mpname)
 	# req.set_form_data('myy' => '102', 'mmm' => '06', 'mdd' => '12', 'mhidden1' => 'false', 'mpno' => 'FD', 'mpnoname' => '花胡瓜')
-	# 蔬菜查詢網址不會檢查名稱
+		# 蔬菜查詢網址不會檢查名稱
+	end
 
 	count_retry = 0
 	begin
@@ -106,8 +172,8 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 		# 2013/09/30 Fixed bug: Ruby 1.9.3p374 String class concate too many gsub!(), which over 3 times, will sometimes report the string variable is nil:NilClass.
 		# So I divide one statement into two statements.  
 
-		puts table #debug
-		puts "data class: "+ table.class.to_s #debug
+		# puts table #debug
+		# puts "data class: "+ table.class.to_s #debug
 		if meta_signal == 0 # deal with pattern: ,&nbsp; 
 			meta_signal = 1
 		elsif meta_signal == 1
@@ -119,12 +185,17 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 
 		if table.include? "　" # if it contains full stylish of <SPACE>, just replace it with double quote mark. 
 			if query_type == 1 # for vegetable
+
 				string_array << table.gsub!(/[　]+/u,'""')
+
 			elsif query_type == 2 #for fruits
-				# need to implement
-				
+
+				string_array << table.gsub!(/[　]+/u,'""')
+
 			elsif query_type == 3 #for flowers
+
 				string_array << table.gsub!(/[　]+/u,'')
+
 			end
 
 		else
@@ -261,8 +332,18 @@ begin
 		qi_machanize[0] = mpno.to_s
 		qi_machanize[1] = recv_mpname_list[count_mpno] 
 		result_signal, tmp_array = crawl_data_and_filter(qi_time, qi_machanize, q_type)
-		puts "編號: "+mpno+", 名稱: "+recv_mpname_list[count_mpno]+" 在此查詢類別不存在!" if result_signal == false
-		puts "編號: "+mpno+", 名稱: "+recv_mpname_list[count_mpno]+" 成功抓取資料" if result_signal != false
+
+		if recv_mpname_list[count_mpno].class != Array
+
+			puts "編號: "+mpno+", 名稱: "+recv_mpname_list[count_mpno]+" 在此查詢類別不存在!" if result_signal == false
+			puts "編號: "+mpno+", 名稱: "+recv_mpname_list[count_mpno]+" 成功抓取資料" if result_signal != false
+			
+		else
+
+			puts "編號: "+mpno+", 名稱: "+recv_mpname_list[count_mpno].to_s+" 在此查詢類別不存在!" if result_signal == false
+			puts "編號: "+mpno+", 名稱: "+recv_mpname_list[count_mpno].to_s+" 成功抓取資料" if result_signal != false
+
+		end
 		result_array << tmp_array if tmp_array.nil? == false
 		count_mpno += 1
 		puts "===================================="
