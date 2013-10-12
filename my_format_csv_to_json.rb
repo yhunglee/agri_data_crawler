@@ -14,6 +14,8 @@
 			type_item = 0 # 0 means vegetable
 		elsif ARGV[2].eql?("flowers")
 			type_item = 2 # 2 means flowers
+		elsif ARGV[2].eql?("fruit")
+			type_item = 1 # 1 means fruit
 		end
 
 		while line = fp.gets
@@ -26,13 +28,13 @@
 					meta_data_csv_array << meta_element
 				} # split meta under delimiter: comma, colon
 				case type_item
-					when 0
+					when 0 # vegetable
 						stored_json_string = "{ \"" + meta_data_csv_array[2] + \
 							"\":\"" + meta_data_csv_array[3] + "\", \"" + \
 							meta_data_csv_array[0] + "\":\"" + meta_data_csv_array[1] + \
 							"\", \"" + meta_data_csv_array[4] + "\":\"" + meta_data_csv_array[5] + \
 							"\", \"" + meta_data_csv_array[6] + "\":\"" + meta_data_csv_array[7] + "\", " 
-					when 2
+					when 2 # flowers
 						stored_json_string = "{ \"" + meta_data_csv_array[8] + \
 						"\":\"" + meta_data_csv_array[9] + "\", \"" + \
 						meta_data_csv_array[0] + "\":\"" + meta_data_csv_array[1] + \
@@ -40,6 +42,13 @@
 						"\", \"" + meta_data_csv_array[2] + "\":\"" + meta_data_csv_array[3] + \
 						"\", \"" + meta_data_csv_array[6] + "\":\"" + meta_data_csv_array[7] + "\", "
 
+					when 1 # fruit
+						# need to implement for meta data
+						stored_json_string = "{ \"" + meta_data_csv_array[2] + \
+							"\":\"" + meta_data_csv_array[3] + "\", \"" + \
+							meta_data_csv_array[0] + "\":\"" + meta_data_csv_array[1] + \
+							"\", \"" + meta_data_csv_array[4] + "\":\"" + meta_data_csv_array[5] + \
+							"\", \"" + meta_data_csv_array[6] + "\":\"" + meta_data_csv_array[7] + "\", " 
 				else
 					puts "encounter error when dealing meta_data_csv_array."
 				end
@@ -67,6 +76,9 @@
 					when 2 # 2 means flowers
 						transaction_count = 11 # index count of price data array start from 11
 						divisor = 11
+					when 1 # 1 means fruit
+						transaction_count = 9 # index count of price data array start from 9
+						divisor = 9
 					else
 						exit
 				end

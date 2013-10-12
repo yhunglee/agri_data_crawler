@@ -189,8 +189,14 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 				string_array << table.gsub!(/[　]+/u,'""')
 
 			elsif query_type == 2 #for fruits
-
-				string_array << table.gsub!(/[　]+/u,'""')
+				
+				table.gsub!(/[　]+/u,'""')
+				if nil != table.index(/[^,]\"\"/u)
+					# Fix bug for [A2香蕉,芭蕉紅香蕉""]-like, [K4龍眼,龍眼乾帶殼""]-like and [O99梨,西洋梨進口""]-like.  
+					string_array << table.gsub!(/""/u,'')
+				else
+					string_array << table
+				end
 
 			elsif query_type == 3 #for flowers
 
