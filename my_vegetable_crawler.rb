@@ -168,12 +168,12 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 		# 2013/09/30 Fixed bug: Ruby 1.9.3p374 String class concate too many gsub!(), which over 3 times, will sometimes report the string variable is nil:NilClass.
 		# So I divide one statement into two statements.  
 		table = table.gsub!(/\<(\/)?[^\<]+(\")?\>/u,'').gsub!("\r\n","").gsub(/((?<=[^ ])( ){1,2}(?=[^ ]))/u,'')
-		puts table #debug
+		# puts table #debug
 		table.gsub!(/[ ]+/u,',').gsub!(/(^,)|(,$)/u,'')#.gsub!(/[　]+/u,'""')
 		# 2013/09/30 Fixed bug: Ruby 1.9.3p374 String class concate too many gsub!(), which over 3 times, will sometimes report the string variable is nil:NilClass.
 		# So I divide one statement into two statements.  
 
-		puts table #debug
+		# puts table #debug
 		# puts "data class: "+ table.class.to_s #debug
 		if meta_signal == 0 # deal with pattern: ,&nbsp; 
 			meta_signal = 1
