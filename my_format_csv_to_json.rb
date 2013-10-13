@@ -43,11 +43,10 @@
 						"\", \"" + meta_data_csv_array[6] + "\":\"" + meta_data_csv_array[7] + "\", "
 
 					when 1 # fruit
-						# need to implement for meta data
 						stored_json_string = "{ \"" + meta_data_csv_array[2] + \
 							"\":\"" + meta_data_csv_array[3] + "\", \"" + \
-							"\"品種\":\"" + meta_data_csv_array[4] + "\", \"" + \
-							"\"處理別\":\"" + meta_data_csv_array[5] + "\", \"" + \
+							"品種\":\"" + meta_data_csv_array[4] + "\", \"" + \
+							"處理別\":\"" + meta_data_csv_array[5] + "\", \"" + \
 							meta_data_csv_array[0] + "\":\"" + meta_data_csv_array[1] + \
 							"\", \"" + meta_data_csv_array[6] + "\":\"" + meta_data_csv_array[7] + \
 							"\", \"" + meta_data_csv_array[8] + "\":\"" + meta_data_csv_array[9] + "\", " 
