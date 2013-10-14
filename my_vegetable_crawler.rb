@@ -163,6 +163,11 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 	string_array = Array.new
 	table_array.each{|table|
 
+		# 2013/10/14 發現fruit bug: 桃園縣的水果資料沒提供天氣資料，那欄會是空白的，
+		# 所以要注重抓水果資料的天氣欄位。尚未修好。
+		# 2013/10/13 發現fruit bug: 抓蘋果系列(X09,X19,X29,...etc)的資料會有query form和query result的名稱不同的情況，
+		# 應該要訂定使用fruit query時的特別條件，處理產品名稱中的代號、品種和處理別。尚未修好。
+
 		# 2013/07/13 Fixed bug: FA0 台北一 會少一個空字串 	
 		# table.gsub!(/\<(\/)?[^\<]+(\")?\>/u,'').gsub!("\r\n","").gsub!(/((?<=[^ ])( ){1,2}(?=[^ ]))/u,'').gsub!(/[ ]+/u,',').gsub!(/(^,)|(,$)/u,'')#.gsub!(/[　]+/u,'""')
 		# 2013/09/30 Fixed bug: Ruby 1.9.3p374 String class concate too many gsub!(), which over 3 times, will sometimes report the string variable is nil:NilClass.
