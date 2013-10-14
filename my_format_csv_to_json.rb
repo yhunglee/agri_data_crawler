@@ -45,8 +45,8 @@
 					when 1 # fruit
 						stored_json_string = "{ \"" + meta_data_csv_array[2] + \
 							"\":\"" + meta_data_csv_array[3] + "\", \"" + \
-							"品種\":\"" + meta_data_csv_array[4] + "\", \"" + \
-							"處理別\":\"" + meta_data_csv_array[5] + "\", \"" + \
+							"品種\":\"" + ((meta_data_csv_array[4].eql?("\"\""))?(""):(meta_data_csv_array[4])) + "\", \"" + \
+							"處理別\":\"" + ((meta_data_csv_array[5].eql?("\"\""))?(""):(meta_data_csv_array[5])) + "\", \"" + \
 							meta_data_csv_array[0] + "\":\"" + meta_data_csv_array[1] + \
 							"\", \"" + meta_data_csv_array[6] + "\":\"" + meta_data_csv_array[7] + \
 							"\", \"" + meta_data_csv_array[8] + "\":\"" + meta_data_csv_array[9] + "\", " 
@@ -93,7 +93,8 @@
 						# for loop will run (divisor-1) times from index 0 to divisor-2 .
 							if transaction_price_csv_array[transaction_count].eql? "null"
 								stored_json_string << "\"" + transaction_price_csv_array[i] + "\":" + transaction_price_csv_array[transaction_count] +", "
-							elsif transaction_price_csv_array[transaction_count] =~ /[+-]?[0-9]+[.]?[0-9]*$/u
+							elsif nil != (transaction_price_csv_array[transaction_count] =~ /[+-]?[0-9]+[.]?[0-9]*$/u)
+								# 2013/10/13 written: unreachable, so strange!
 								stored_json_string << "\"" + transaction_price_csv_array[i] + "\":" + transaction_price_csv_array[transaction_count] + ", "
 							else
 								stored_json_string << "\"" + transaction_price_csv_array[i] + "\":\"" + transaction_price_csv_array[transaction_count] + "\", "
@@ -105,7 +106,9 @@
 						i = divisor-1
 						if transaction_price_csv_array[transaction_count].eql? "null"
 							stored_json_string << "\"" + transaction_price_csv_array[i] + "\":" + transaction_price_csv_array[transaction_count] +"}"
-						else transaction_price_csv_array[transaction_count] =~ /[+-]?[0-9]+[.]?[0-9]*$/u
+						elsif nil != (transaction_price_csv_array[transaction_count] =~ /[+-]?[0-9]+[.]?[0-9]*$/u) 
+							# 2013/10/13 written: unreachable, so strange!
+#
 							stored_json_string << "\"" + transaction_price_csv_array[i] + "\":" + transaction_price_csv_array[transaction_count] + "}"
 						end
 						transaction_count += 1
