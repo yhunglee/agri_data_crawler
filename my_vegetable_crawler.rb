@@ -164,7 +164,7 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 	table_array.each{|table|
 
 		# 2013/10/14 發現fruit bug: 桃園縣的水果資料沒提供天氣資料，那欄會是空白的，
-		# 所以要注重抓水果資料的天氣欄位。尚未修好。
+		# 所以要注重抓水果資料的天氣欄位。尚未修好, ex: 51百香果。天氣種類：晴天、陰天、雨天、颱風
 		# 2013/10/13 發現fruit bug: 抓蘋果系列(X09,X19,X29,...etc)的資料會有query form和query result的名稱不同的情況，
 		# 應該要訂定使用fruit query時的特別條件，處理產品名稱中的代號、品種和處理別。尚未修好。
 
@@ -198,7 +198,7 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 				
 				table.gsub!(/[　]+/u,'""')
 				if nil != table.index(/[^,]\"\"/u)
-					# Fix bug for [A2香蕉,芭蕉紅香蕉""]-like, [K4龍眼,龍眼乾帶殼""]-like and [O99梨,西洋梨進口""]-like.  
+					# Fix bug for [A2香蕉,芭蕉紅香蕉""]-like, [K4龍眼,龍眼乾帶殼""]-like and [O99梨,西洋梨進口""]-like.  Remove double qoute in name. 
 					table.gsub!(/\"\"/u,'')
 				end
 
@@ -209,6 +209,9 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 					
 				end
 
+				if 18 >= table.split(/[,]/u).size
+					# Fix bug of losing weather information, like 51百香果.
+				end
 				string_array << table
 
 			elsif query_type == 3 #for flowers
