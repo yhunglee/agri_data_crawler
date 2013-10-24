@@ -163,8 +163,6 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 	string_array = Array.new
 	table_array.each{|table|
 
-		# 2013/10/14 發現fruit bug: 桃園縣的水果資料沒提供天氣資料，那欄會是空白的，
-		# 所以要注重抓水果資料的天氣欄位。尚未修好, ex: 51百香果。天氣種類：晴天、陰天、雨天、颱風
 		# 2013/10/13 發現fruit bug: 抓蘋果系列(X09,X19,X29,...etc)的資料會有query form和query result的名稱不同的情況，
 		# 應該要訂定使用fruit query時的特別條件，處理產品名稱中的代號、品種和處理別。尚未修好。
 
@@ -173,7 +171,7 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 		# 2013/09/30 Fixed bug: Ruby 1.9.3p374 String class concate too many gsub!(), which over 3 times, will sometimes report the string variable is nil:NilClass.
 		# So I divide one statement into two statements.  
 		table = table.gsub!(/\<(\/)?[^\<]+(\")?\>/u,'').gsub!("\r\n","").gsub(/((?<=[^ ])( ){1,2}(?=[^ ]))/u,'')
-		# puts table #debug
+		# puts "test 1:"+table #debug
 		table.gsub!(/[ ]+/u,',').gsub!(/(^,)|(,$)/u,'')#.gsub!(/[　]+/u,'""')
 		# 2013/09/30 Fixed bug: Ruby 1.9.3p374 String class concate too many gsub!(), which over 3 times, will sometimes report the string variable is nil:NilClass.
 		# So I divide one statement into two statements.  
@@ -209,9 +207,7 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 					
 				end
 
-				if 18 >= table.split(/[,]/u).size
-					# Fix bug of losing weather information, like 51百香果.
-				end
+
 				string_array << table
 
 			elsif query_type == 3 #for flowers
@@ -222,6 +218,98 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 
 		else
 			# Here are table for whole elements are filled with values.
+
+			# 2013/10/14 發現fruit bug: 桃園縣的水果資料沒提供天氣資料，那欄會是空白的，
+			# 所以要注重抓水果資料的天氣欄位。尚未修好, ex: 51百香果。天氣種類：晴天、陰天、雨天、颱風
+			# 2013/10/24 written: Fix fruit 天氣資訊bug
+			if query_type == 2 # for fruits
+
+				if 17 <= table.split(/[,]/u).size # 正常要考慮大於18, 但想到一種水果當天可能只有桃園縣的交易資料，所以改定成大於或等於17
+					# Fix bug of losing weather information, like 51百香果.
+					puts "fruitttttttttttttttttttttttttttttttttttttttttt"#debug
+					tmp_array = Array.new 
+					tmp_array = table.split(/[,]/u)
+					table_size = tmp_array.size
+					weather_count = 10 # 從第一個地區的天氣資訊開始檢查
+					while weather_count < table_size
+						puts "tmp_array[#{weather_count}]: "+tmp_array[weather_count] #debug
+						if nil == tmp_array[weather_count].match(/([\-]|[\+\-]?[0-9]+(.)?[0-9]*)/u)
+							# 如果weather_count這個位置不是數字(包含正負)，也不是無資料(-)
+							
+							if nil != tmp_array[weather_count].match(/[晴天|雨天|陰天|颱風]/u)
+								# 是天氣資訊
+								weather_count += 9
+							else
+								# 不是天氣資訊, 預期是鄉鎮名, 除非有上面沒記錄到的天氣資訊, 例如冰雹、下雪...etc 
+								# 目前(20131024 written)觀測交易記錄只有四種天氣資訊：晴天、雨天、陰天、颱風
+
+								if nil != tmp_array[weather_count + 1].match(/([\-]|[\+\-]?[0-9]*(.)?[0-9]*)/u)
+									# 如果weather_count的下一個位置是數字或是無資料(-)，
+									# 則在weather_count現在的位置新增一個空字串，
+									tmp_array[weather_count] << ",\"\""
+									weather_count += 10
+
+								else
+									# 如果weather_count的下一個位置不是數字也不是無資料(-)，
+									#  則檢查weather_count的前八個位置是否是數字或無資料
+									if nil != tmp_array[weather_count - 8].match(/([\-]|[\+\-]?[0-9]*(.)?[0-9]*)/u)
+										# 如果weather_count的前八個位置是數字或是無資料(-)，
+										# 則weather_count的位置減8 
+										weather_count -= 8
+										puts "test1" #debug
+									else
+								
+										if nil != tmp_array[weather_count - 8].match(/[晴天|雨天|陰天|颱風]/u)
+											# 如果weather_count的前八個位置是天氣資訊，
+											# 則weather_count加10，前進下一個市場資料或是結束這個水果當天交易資料
+											weather_count += 10
+										else
+											# 如果weather_count的前八個位置依然是縣市鄉鎮名，
+											# 則weather_count減8 
+											weather_count -= 8
+										end
+									end
+								end
+
+							end
+
+						else
+							# 如果weather_count這個位置是數字(包含正負)，或是無資料(-)
+							
+							if nil == tmp_array[weather_count - 1].match(/([\-]|[\+\-]?[0-9]*(.)?[0-9]*)/u)
+								# 如果weather_count的前一個位置不是數字也不是無資料(-)，
+								# 則檢查是不是天氣資訊
+								if nil != tmp_array[weather_count - 1].match(/[晴天|雨天|陰天|颱風]/u)
+									# 如果weather_count的前一個位置是天氣資訊，
+									# 則weather_count += 8
+									weather_count += 8
+								else
+									# 如果weather_count的前一個位置是鄉鎮名，
+									# 則新增空字串到weather_count的前一個位置尾端，
+									# 並且weather_count現在的位置加8 
+									tmp_array[weather_count - 1] << ",\"\"" 
+									weather_count += 8
+								end
+							else
+								# 如果weather_count的前一個位置依然是數字，或是無資料(-)，
+								# 則weather_count 減1 
+								weather_count -= 1
+								puts "test2" #debug
+							end
+						end
+					end
+
+					element_count_for_tmp_array = 0
+					table.clear # 清掉舊的字串
+					while element_count_for_tmp_array < (tmp_array.size - 1)
+						table << (tmp_array[element_count_for_tmp_array] +",")
+						element_count_for_tmp_array += 1
+					end
+					table << tmp_array[element_count_for_tmp_array]
+
+				end
+			end
+
 			string_array << table
 		end
 
