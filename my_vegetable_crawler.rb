@@ -165,17 +165,28 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 
 		# 2013/10/13 發現fruit bug: 抓蘋果系列(X09,X19,X29,...etc)的資料會有query form和query result的名稱不同的情況，
 		# 應該要訂定使用fruit query時的特別條件，處理產品名稱中的代號、品種和處理別。尚未修好。
+		# 2013/10/29 Written: Fix 2013/10/13 Fruit's bug. 
 
 		# 2013/07/13 Fixed bug: FA0 台北一 會少一個空字串 	
 		# table.gsub!(/\<(\/)?[^\<]+(\")?\>/u,'').gsub!("\r\n","").gsub!(/((?<=[^ ])( ){1,2}(?=[^ ]))/u,'').gsub!(/[ ]+/u,',').gsub!(/(^,)|(,$)/u,'')#.gsub!(/[　]+/u,'""')
 		# 2013/09/30 Fixed bug: Ruby 1.9.3p374 String class concate too many gsub!(), which over 3 times, will sometimes report the string variable is nil:NilClass.
 		# So I divide one statement into two statements.  
-		table = table.gsub!(/\<(\/)?[^\<]+(\")?\>/u,'').gsub!("\r\n","").gsub(/((?<=[^ ])( ){1,2}(?=[^ ]))/u,'')
-		# puts "test 1:"+table #debug
-		table.gsub!(/[ ]+/u,',').gsub!(/(^,)|(,$)/u,'')#.gsub!(/[　]+/u,'""')
+		if query_type != 2 
+			table = table.gsub!(/\<(\/)?[^\<]+(\")?\>/u,'').gsub!("\r\n","").gsub(/((?<=[^ ])( ){1,2}(?=[^ ]))/u,'')
+			# puts "test 1:"+table #debug
+			table.gsub!(/[ ]+/u,',').gsub!(/(^,)|(,$)/u,'')#.gsub!(/[　]+/u,'""')
 		# 2013/09/30 Fixed bug: Ruby 1.9.3p374 String class concate too many gsub!(), which over 3 times, will sometimes report the string variable is nil:NilClass.
-		# So I divide one statement into two statements.  
+		# So I divide one statement into two statements. 
+		# 2013/10/29 Written: Sorry, this is my misunderstanding about return value of String.gsub() and String.gsub!(). 
 
+		else # if query_type == 2 # means fruit
+
+			table = table.gsub!(/\<(\/)?[^\<]+(\")?\>/u,'').gsub!("\r\n","").gsub(/((?<=[^ \d\+\-])( ){1,}(?=[^ \d\+\-]))/u,',') # <- 最後一個gsub()過濾品種和處理別
+			# puts "test 1:"+table #debug
+			table = table.gsub(/((?<=[^ ])( ){1,2}(?=[^ ]))/u,'') # <- 承上一行, 像vegetable和flowers一樣，過濾每欄之間的空白
+			table.gsub!(/[ ]+/u,',').gsub!(/(^,)|(,$)/u,'')#.gsub!(/[　]+/u,'""')
+
+		end
 		# puts table #debug
 		# puts "data class: "+ table.class.to_s #debug
 		if meta_signal == 0 # deal with pattern: ,&nbsp; 
@@ -193,22 +204,9 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 				string_array << table.gsub!(/[　]+/u,'""')
 
 			elsif query_type == 2 #for fruits
-				
-				table.gsub!(/[　]+/u,'""')
-				if nil != table.index(/[^,]\"\"/u)
-					# Fix bug for [A2香蕉,芭蕉紅香蕉""]-like, [K4龍眼,龍眼乾帶殼""]-like and [O99梨,西洋梨進口""]-like.  Remove double qoute in name. 
-					table.gsub!(/\"\"/u,'')
-				end
+			
 
-				if 9 == table.split(/[,:]/u).size
-					# Fix bug of fruit meta_data for items whose have only 9 elements separated by comma and colon.
-					# For example, X-series and A2. 	
-					table.sub!(",總交易量", ",\"\",總交易量")
-					
-				end
-
-
-				string_array << table
+				string_array << table.gsub!(/[　]+/u,'""')
 
 			elsif query_type == 3 #for flowers
 
@@ -232,7 +230,7 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 					table_size = tmp_array.size
 					weather_count = 10 # 從第一個地區的天氣資訊開始檢查
 					while weather_count < table_size
-						puts "tmp_array[#{weather_count}]: "+tmp_array[weather_count] #debug
+						# puts "tmp_array[#{weather_count}]: "+tmp_array[weather_count] #debug
 						if nil == tmp_array[weather_count].match(/([\-]|[\+\-]?[0-9]+(.)?[0-9]*)/u)
 							# 如果weather_count這個位置不是數字(包含正負)，也不是無資料(-)
 							
@@ -256,7 +254,6 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 										# 如果weather_count的前八個位置是數字或是無資料(-)，
 										# 則weather_count的位置減8 
 										weather_count -= 8
-										puts "test1" #debug
 									else
 								
 										if nil != tmp_array[weather_count - 8].match(/[晴天|雨天|陰天|颱風]/u)
@@ -294,7 +291,6 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 								# 如果weather_count的前一個位置依然是數字，或是無資料(-)，
 								# 則weather_count 減1 
 								weather_count -= 1
-								puts "test2" #debug
 							end
 						end
 					end
