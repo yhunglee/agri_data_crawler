@@ -205,8 +205,15 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 
 			elsif query_type == 2 #for fruits
 			
+				table.gsub!(/[　]+/u, '""')
 
-				string_array << table.gsub!(/[　]+/u,'""')
+				if 9 == table.split(/[,;]/u).size
+					# This is fix bug for [C6佛利檬,"",總交易量:]-like item: Only 9 elements.
+					# Meta-data must have 10 elements.
+					table.sub!(",總交易量", ",\"\",總交易量")
+				end
+
+				string_array << table
 
 			elsif query_type == 3 #for flowers
 
@@ -324,10 +331,9 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 end
 
 unless ARGV.length > 2 && ARGV.length < 5
-	puts "Available command: ruby myvegetable_crawler.rb <Start Date> <End Date> <Output file> [vegetable|fruit|flowers]"
-	puts "Notice: Fruit-query temporarily unavailable since problem of parse file format."
+	puts "Available command: ruby my_vegetable_crawler.rb <Start Date> <End Date> <Output file> [vegetable|fruit|flowers]"
 	puts "Format of start and end date is using AD. yyyy-mm-dd, I will transform it to format of Republic of China."
-	puts "Available value range of start date is 1996-01-01, and we can't query someday in the future."
+	puts "Available value range of start date is 1996-01-01, and we can't query someday that in the future."
 	puts "Available value range of end date is greater than or equal to start date."
 	puts "-------------------------------------------------------"
 	puts "Every output file is putted at under directory of query_results. Content format is csv-style originally."
