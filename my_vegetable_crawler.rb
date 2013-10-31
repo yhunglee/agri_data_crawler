@@ -207,7 +207,7 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 			
 				table.gsub!(/[　]+/u, '""')
 
-				if 9 == table.split(/[,;]/u).size
+				if 9 == table.split(/[,:]/u).size
 					# This is fix bug for [C6佛利檬,"",總交易量:]-like item: Only 9 elements.
 					# Meta-data must have 10 elements.
 					table.sub!(",總交易量", ",\"\",總交易量")
