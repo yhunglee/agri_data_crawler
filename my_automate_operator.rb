@@ -63,6 +63,7 @@ end
 
 #ARGV[2] is the name format of output file
 argv_output_file = ARGV[2] + "_"
+puts "argv_output_file: "+argv_output_file #debug
 
 #ARGV[3] is an option for quering vegetable, fruit or flowers.
 if ARGV[3].nil?
@@ -85,7 +86,7 @@ end
 
 cmd_start_date = argv_start_date
 abbr_month_names = Array.new
-abbr_month_names = "" # for empty
+abbr_month_names << "" # for empty
 abbr_month_names << "Jan" # 1
 abbr_month_names << "Feb" # 2
 abbr_month_names << "Mar" # 3
@@ -133,6 +134,7 @@ while (-1 == (cmd_start_date <=> argv_end_date)) || (0 == (cmd_start_date <=> ar
 		cmd_end_date = Date.new(tmp_end_year, tmp_end_month, tmp_end_day)
 		i = cmd_start_date.month # i is index for getting abbr month name
 		cmd_output_file = String.new(argv_output_file + abbr_month_names[i] + cmd_start_date.year.to_s + ".csv")
+		puts "cmd_output_file: "+cmd_output_file #debug
 		# Crawling data
 		case q_type
 		when 1 # vegetable
@@ -152,7 +154,7 @@ while (-1 == (cmd_start_date <=> argv_end_date)) || (0 == (cmd_start_date <=> ar
 
 		# Converting csv to json
 		puts "Converting csv to json"
-		cmd_convert_to_json_file = cmd_output_file.sub(".csv", ".json")
+		cmd_convert_to_json_file = cmd_output_file.sub(/\.csv/u, ".json")
 		case q_type
 		when 1 # vegetable
 		
