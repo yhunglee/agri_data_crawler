@@ -21,7 +21,7 @@
 
 * 目前提供：CSV（自2013-06-21開始提供），JSON（自2013-07-13開始提供）。
 
-* 資料下載處：[蔬菜1996年1月到2013年7月] ( https://mega.co.nz/#!zVUVGbYa!e4EyKjLq7VGJDaH-tEh7Cnw1ONMQ7tDjp9vcNdrs_Gc ) 、[花卉類不含盆花1996年1月到2013年7月] (https://mega.co.nz/#!DQU3USpa!D6Ie1i1S0bYOvxPWU4NNsyb5NAlG4iSGeL9HWXd8ojU)
+* 資料下載處：[蔬菜1996年1月到2013年7月] ( https://mega.co.nz/#!zVUVGbYa!e4EyKjLq7VGJDaH-tEh7Cnw1ONMQ7tDjp9vcNdrs_Gc ) 、[花卉類不含盆花1996年1月到2013年7月] (https://mega.co.nz/#!DQU3USpa!D6Ie1i1S0bYOvxPWU4NNsyb5NAlG4iSGeL9HWXd8ojU)、[水果1996年1月到2013年7月] (https://mega.co.nz/#!7AtGyAxb!eZEQAW8uIhrt4-V1_1VR7wymZ34ASOFZ6VvNss3jXcw)
 
 ***
 
