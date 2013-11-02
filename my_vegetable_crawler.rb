@@ -142,7 +142,8 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 		puts "We will retry."
 		count_retry += 1
 		sleep 1 # sleep one second for later retry
-		retry if count_retry < 5 # only retry 5 times.
+		puts "Now will start #{count_retry} retry"
+		retry #if count_retry < 5 # only retry 5 times.
 	end
 	count_retry = 0 # count retry times when every single crawling
 	
