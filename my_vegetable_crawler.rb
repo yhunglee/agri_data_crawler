@@ -237,39 +237,44 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 					table_size = tmp_array.size
 					weather_count = 10 # 從第一個地區的天氣資訊開始檢查
 					while weather_count < table_size
-						# puts "tmp_array[#{weather_count}]: "+tmp_array[weather_count] #debug
-						if nil == tmp_array[weather_count].match(/([\-]|[\+\-]?[0-9]+(.)?[0-9]*)/u)
+						puts "tmp_array[#{weather_count}]: "+tmp_array[weather_count] #debug
+						if nil == (tmp_array[weather_count] =~ /([\-]|[\+\-]?[0-9]+(.)?[0-9]*)/u)
 							# 如果weather_count這個位置不是數字(包含正負)，也不是無資料(-)
 							
-							if nil != tmp_array[weather_count].match(/[晴天|雨天|陰天|颱風]/u)
+							if nil != (tmp_array[weather_count] =~ /[晴天|雨天|陰天|颱風]/u)
 								# 是天氣資訊
+								puts "test 1: tmp_array[weather_count] 是天氣資訊" #Debug 
 								weather_count += 9
 							else
 								# 不是天氣資訊, 預期是鄉鎮名, 除非有上面沒記錄到的天氣資訊, 例如冰雹、下雪...etc 
 								# 目前(20131024 written)觀測交易記錄只有四種天氣資訊：晴天、雨天、陰天、颱風
 
-								if nil != tmp_array[weather_count + 1].match(/([\-]|[\+\-]?[0-9]*(.)?[0-9]*)/u)
+								if nil != (tmp_array[weather_count + 1] =~ /([\-]|[\+\-]?[0-9]+(.)?[0-9]*)/u)
 									# 如果weather_count的下一個位置是數字或是無資料(-)，
 									# 則在weather_count現在的位置新增一個空字串，
+									puts "test 2: tmp_array[weather_count] 不是天氣資訊, weather_count + 1的位置是數字或無資料" # debug 
 									tmp_array[weather_count] << ",\"\""
 									weather_count += 10
 
 								else
 									# 如果weather_count的下一個位置不是數字也不是無資料(-)，
 									#  則檢查weather_count的前八個位置是否是數字或無資料
-									if nil != tmp_array[weather_count - 8].match(/([\-]|[\+\-]?[0-9]*(.)?[0-9]*)/u)
+									if nil != (tmp_array[weather_count - 8] =~ /([\-]|[\+\-]?[0-9]+(.)?[0-9]*)/u)
 										# 如果weather_count的前八個位置是數字或是無資料(-)，
 										# 則weather_count的位置減8 
+									puts "test 3: tmp_array[weather_count] 不是天氣資訊, weather_count - 8的位置是數字或無資料" # debug 
 										weather_count -= 8
 									else
 								
-										if nil != tmp_array[weather_count - 8].match(/[晴天|雨天|陰天|颱風]/u)
+										if nil != (tmp_array[weather_count - 8] =~ /[晴天|雨天|陰天|颱風]/u)
 											# 如果weather_count的前八個位置是天氣資訊，
 											# 則weather_count加10，前進下一個市場資料或是結束這個水果當天交易資料
+											puts "test 4: tmp_array[weather_count] 不是天氣資訊, weather_count - 8的位置是天氣資訊" # debug 
 											weather_count += 10
 										else
 											# 如果weather_count的前八個位置依然是縣市鄉鎮名，
 											# 則weather_count減8 
+											puts "test 5: tmp_array[weather_count] 不是天氣資訊, weather_count - 8的位置是鄉鎮名" # debug 
 											weather_count -= 8
 										end
 									end
@@ -278,26 +283,57 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 							end
 
 						else
-							# 如果weather_count這個位置是數字(包含正負)，或是無資料(-)
+							# 若weather_count這個位置可能是數字(包含正負)或是無資料(-)，
+							# 則繼續看weather_count的前一個位置
 							
-							if nil == tmp_array[weather_count - 1].match(/([\-]|[\+\-]?[0-9]*(.)?[0-9]*)/u)
+							if nil == (tmp_array[weather_count - 1] =~ /([\-]|[\+\-]?[0-9]+(.)?[0-9]*)/u)
 								# 如果weather_count的前一個位置不是數字也不是無資料(-)，
 								# 則檢查是不是天氣資訊
-								if nil != tmp_array[weather_count - 1].match(/[晴天|雨天|陰天|颱風]/u)
+								if nil != (tmp_array[weather_count - 1] =~ /[晴天|雨天|陰天|颱風]/u)
 									# 如果weather_count的前一個位置是天氣資訊，
 									# 則weather_count += 8
+									puts "test 6: tmp_array[weather_count] 不是天氣資訊, weather_count - 1的位置是天氣資訊" # debug 
 									weather_count += 8
 								else
 									# 如果weather_count的前一個位置是鄉鎮名，
 									# 則新增空字串到weather_count的前一個位置尾端，
 									# 並且weather_count現在的位置加8 
+									puts "test 7: tmp_array[weather_count] 不是天氣資訊, weather_count - 1的位置是鄉鎮名" # debug 
 									tmp_array[weather_count - 1] << ",\"\"" 
 									weather_count += 8
 								end
 							else
+								# 這個else-expression block預期weather_count的前一個位置只有兩種情況：a)鄉鎮名, b)數字或無資料，
+								# 用刪去法，從1)天氣資訊、2)數字或無資料、3)鄉鎮名這三種資訊，鎖定非(數字或無資料)和非(天氣資訊)，以確定weather_count的前一個位置是鄉鎮名。
 								# 如果weather_count的前一個位置依然是數字，或是無資料(-)，
-								# 則weather_count 減1 
-								weather_count -= 1
+								# 則在weather_count的前二個位置字串尾端補上
+								# 兩個double qoutes，以表示空白的鄉鎮名和天氣資訊； 
+								# 又或者是weather_count的前一個位置是鄉鎮市名，則weather_count的前一個位置補上double qoute，以表示空白的天氣資訊。 
+
+
+								if nil != (tmp_array[weather_count - 1] =~ /(([\-])|([\+\-]?[0-9]+(.)?[0-9]*))/u)
+								# 2013/11/02 written:針對weather_count的前一個位置應對策略，
+								# 我們因為遭遇到C1椪柑在民國85年4月23號的單一產品單一交易行情，
+								# 多一欄沒有市場名稱和天氣資訊的資料，所以
+								# 要新增兩個double quote當做市場名稱和天氣資訊，並且跳到下一筆市場交易資料預期的天氣欄位，所以weather_count要加7。
+								# 2013/11/02 written: 這個else-statement block不處理連續沒有市場名稱與天氣資訊的情況，
+								# 因為我預期只有一筆C1椪柑的市場價格特殊價格資料，
+								# 專對C1椪柑在民國85年4月23號的單一產品單一交易行情的處理。
+									# 如果weather_count的前一個位置確定是數字或無資料，
+									# 則在weather_count的前二個位置補上兩個
+									# double-qoute，以表示鄉鎮名和天氣資訊。
+ 
+									puts "test 8: tmp_array[weather_count] 不是天氣資訊, weather_count - 1的位置是數字或無資料, tmp_array[weather_count-1]: #{tmp_array[weather_count - 1]}" # debug 
+									tmp_array[weather_count - 2] << ",\"\",\"\""
+									weather_count += 7
+								else
+									# 在缺乏天氣資訊的交易市場名稱後面加上一對double qoute，
+									# 用以表示缺乏天氣資訊，例如桃園縣的交易資料就缺乏天氣資訊。 	
+									puts "test 9: tmp_array[weather_count] 不是天氣資訊, weather_count - 1的位置是鄉鎮名" # debug 
+									tmp_array[weather_count - 1] << ",\"\""
+									weather_count += 8
+								end
+								
 							end
 						end
 					end
