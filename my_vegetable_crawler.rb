@@ -137,6 +137,7 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 			http.request(req)
 		end
 	rescue Timeout::Error, Errno::EINVAL, Errno::ECONNRESET, EOFError,
+		   Errno::EHOSTUNREACH, Errno::ECONNREFUSED, SocketError, #for DNS-server unvailable
 	       Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError => e
 		puts "Timeout:Error or something happened."
 		puts "We will retry."
