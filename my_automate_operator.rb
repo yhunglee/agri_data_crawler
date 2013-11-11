@@ -69,6 +69,8 @@ puts "argv_output_file: "+argv_output_file #debug
 #ARGV[3] is an option for quering vegetable, fruit or flowers.
 if ARGV[3].nil?
 	q_type = 1
+	onlyconvertojson = false
+	# false of onlyconvertojson means we do both crawling data from websites and conversion files from csv to json.
 else
 	argv_query_type = ARGV[3].downcase
 	case argv_query_type
@@ -81,6 +83,7 @@ else
 	when "onlyconvertojson"
 		q_type = 1 # for vegetable
 		onlyconvertojson = true
+		# true of onlyconvertojson means we only do conversion files from csv to json.
 	else
 		puts "Error: Parameter of query_type must be vegetable, fruit or flowers. I don't care UPCASE or downcase."
 		exit
@@ -89,12 +92,14 @@ end
 
 if ARGV[4].nil? # ARGV[4] is a flag for turning off crawling data.
 	onlyconvertojson = false
+	# false of onlyconvertojson means we do both crawling data from websites and conversion files from csv to json.
 else
 
 	argv_flag_of_onlyconvertojson = ARGV[4].downcase
 	case argv_flag_of_onlyconvertojson
 	when "onlyconvertojson"
 		onlyconvertojson = true
+		# true of onlyconvertojson means we only do conversion files from csv to json.
 	else
 		puts "Error: Parameter of onlyconvertojson must be setted onlyconvertojson. I don't care UPCASE or downcase."
 		exit
