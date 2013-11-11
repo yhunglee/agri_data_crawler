@@ -8,15 +8,16 @@
 
 require 'date'
 
-unless ARGV.length > 2 && ARGV.length < 5
-	puts "Available command: ruby my_automate_operator.rb <Start Date:YYYY-MM-01> <End Date:YYYY-MM-28> <Name format of output file> [vegetable|fruit|flowers]"
+unless ARGV.length > 2 && ARGV.length < 6
+	puts "Available command: ruby my_automate_operator.rb <Start Date:YYYY-MM-01> <End Date:YYYY-MM-28> <Name format of output file> [vegetable|fruit|flowers] [onlyconvertojson]"
 	puts "Format of start and end date is using AD. YYYY-MM-DD, I will transform it to format of Republic of China."
 	puts "Available value range of start date is 1996-01, and we can't query someday that in the future."
 	puts "Available value range of end date is greater than or equal to start date."
 	puts "Name format of output file is {vegetable|fruit|flowers}_amis_. I will append MONTH and YEAR."
 	puts "-------------------------------------------------------"
 	puts "Every output file is putted at under directory of query_results. Content format is csv-style originally."
-	puts "Last parameter is optional, and vegetable is the implicit value."
+	puts "Kind of parameter:vegetable|fruit|flowers is optional, and vegetable is the implicit value."
+	puts "Parameter of onlyconvertojson is optional, and the implicit value is doing both generating csv-file and conversion from csv to json. Explict value is only do the task converting from existed csv files to json ones."
 	exit
 end
 
@@ -77,12 +78,29 @@ else
 		q_type = 2
 	when "flowers"
 		q_type = 3
+	when "onlyconvertojson"
+		q_type = 1 # for vegetable
+		onlyconvertojson = true
 	else
 		puts "Error: Parameter of query_type must be vegetable, fruit or flowers. I don't care UPCASE or downcase."
 		exit
 	end
 end
 
+if ARGV[4].nil? # ARGV[4] is a flag for turning off crawling data.
+	onlyconvertojson = false
+else
+
+	argv_flag_of_onlyconvertojson = ARGV[4].downcase
+	case argv_flag_of_onlyconvertojson
+	when "onlyconvertojson"
+		onlyconvertojson = true
+	else
+		puts "Error: Parameter of onlyconvertojson must be setted onlyconvertojson. I don't care UPCASE or downcase."
+		exit
+	end
+
+end
 
 cmd_start_date = argv_start_date
 abbr_month_names = Array.new
@@ -103,54 +121,63 @@ while (-1 == (cmd_start_date <=> argv_end_date)) || (0 == (cmd_start_date <=> ar
 
 	begin
 
-		tmp_end_year = cmd_start_date.year
-		tmp_end_month = cmd_start_date.month
-	
-		if 2 == cmd_start_date.month
-			if cmd_start_date.leap?
-				tmp_end_day = 29
-			else
-				tmp_end_day = 28
-			end
-		else
-
-			if cmd_start_date.month >= 8
-				if (0 == cmd_start_date.month % 2)
-					tmp_end_day = 31
-				else
-					tmp_end_day = 30
-				end
-			else
-
-				if 0 == cmd_start_date.month % 2
-					tmp_end_day = 30
-				else
-					tmp_end_day = 31
-				end
-			end
-
-		end
-
-		cmd_end_date = Date.new(tmp_end_year, tmp_end_month, tmp_end_day)
 		i = cmd_start_date.month # i is index for getting abbr month name
 		cmd_output_file = String.new(argv_output_file + abbr_month_names[i] + cmd_start_date.year.to_s + ".csv")
 		puts "cmd_output_file: "+cmd_output_file #debug
-		# Crawling data
-		case q_type
-		when 1 # vegetable
-			system("ruby my_vegetable_crawler.rb #{cmd_start_date} #{cmd_end_date} #{cmd_output_file}")	
-		when 2 # fruit
-			system("ruby my_vegetable_crawler.rb #{cmd_start_date} #{cmd_end_date} #{cmd_output_file} fruit")	
+	
+		# if turning off flag of onlyconvertojson
+		if onlyconvertojson == false
 
-		when 3 # flowers
-			system("ruby my_vegetable_crawler.rb #{cmd_start_date} #{cmd_end_date} #{cmd_output_file} flowers")	
+			# Generating cmd_query_end_date
+			tmp_end_year = cmd_start_date.year
+			tmp_end_month = cmd_start_date.month
+			if 2 == cmd_start_date.month
+				if cmd_start_date.leap?
+					tmp_end_day = 29
+				else
+					tmp_end_day = 28
+				end
+			else
 
-		else
+				if cmd_start_date.month >= 8
+					if (0 == cmd_start_date.month % 2)
+						tmp_end_day = 31
+					else
+						tmp_end_day = 30
+					end
+				else
 
-			puts "Error: Parameter of query_type must be vegetable, fruit or flowers. I don't care UPCASE or downcase."
-			exit
+					if 0 == cmd_start_date.month % 2
+						tmp_end_day = 30
+					else
+						tmp_end_day = 31
+					end
+				end
+
+			end
+
+			cmd_end_date = Date.new(tmp_end_year, tmp_end_month, tmp_end_day)
+			# Generating cmd_query_end_date
+
+			# Crawling data
+			case q_type
+			when 1 # vegetable
+				system("ruby my_vegetable_crawler.rb #{cmd_start_date} #{cmd_end_date} #{cmd_output_file}")	
+			when 2 # fruit
+				system("ruby my_vegetable_crawler.rb #{cmd_start_date} #{cmd_end_date} #{cmd_output_file} fruit")	
+
+			when 3 # flowers
+				system("ruby my_vegetable_crawler.rb #{cmd_start_date} #{cmd_end_date} #{cmd_output_file} flowers")	
+
+			else
+
+				puts "Error: Parameter of query_type must be vegetable, fruit or flowers. I don't care UPCASE or downcase."
+				exit
+			end
+			# Crawling data
+
 		end
-		# Crawling data
+		# if turning off flag of onlyconvertojson
 
 		# Converting csv to json
 		puts "Converting csv to json"
