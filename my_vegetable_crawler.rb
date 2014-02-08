@@ -173,7 +173,7 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 		# table.gsub!(/\<(\/)?[^\<]+(\")?\>/u,'').gsub!("\r\n","").gsub!(/((?<=[^ ])( ){1,2}(?=[^ ]))/u,'').gsub!(/[ ]+/u,',').gsub!(/(^,)|(,$)/u,'')#.gsub!(/[　]+/u,'""')
 		# 2013/09/30 Fixed bug: Ruby 1.9.3p374 String class concate too many gsub!(), which over 3 times, will sometimes report the string variable is nil:NilClass.
 		# So I divide one statement into two statements.  
-		if query_type != 2 
+		if query_type != 2 #means vegetable or flowers
 			table = table.gsub!(/\<(\/)?[^\<]+(\")?\>/u,'').gsub!("\r\n","").gsub(/((?<=[^ ])( ){1,2}(?=[^ ]))/u,'')
 			# puts "test 1:"+table #debug
 			table.gsub!(/[ ]+/u,',').gsub!(/(^,)|(,$)/u,'')#.gsub!(/[　]+/u,'""')
@@ -191,19 +191,99 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 		end
 		# puts table #debug
 		# puts "data class: "+ table.class.to_s #debug
-		if meta_signal == 0 # deal with pattern: ,&nbsp; 
-			meta_signal = 1
-		elsif meta_signal == 1
+		if meta_signal == 1 # deal with pattern: ,&nbsp;
+			# 1 means market transaction data
 			table.gsub!(/,&nbsp;/u, ',""')
 			table.gsub!(/&nbsp;/u, '')
-			meta_signal = 0
 		end
 		# 2013/07/13 Fixed bug: FA0 台北一 會少一個空字串 	
 
 		if table.include? "　" # if it contains full stylish of <SPACE>, just replace it with double quote mark. 
 			if query_type == 1 # for vegetable
 
-				string_array << table.gsub!(/[　]+/u,'""')
+				table.gsub!(/[　]+/u,'""') # remove full stylish of <SPACE>
+
+				if meta_signal == 1 # 1 means market transaction data
+					# 2014/02/05 written: 解決1996年4月1日蔬菜類代號LJ「芥菜仁」台北二市場的缺平均價和交易量增減%的欄位。
+					# 備註：本項問題也可能會出現在沒有全型空白的蔬菜類「處理別」欄位，
+					# 故也要在下方if-else區塊處理。
+					# 更理想的作法，抽出驗證欄位數量的程式功能，在蔬菜類、水果類和盆花類都使用驗證欄位數量的功能函式。
+					# 目前因為時間有限，暫時只在這個處理全形空白if-else區塊，驗證蔬菜類欄位數量。 
+					# 用每個交易市場名稱正常的欄位數量驗證是否缺少欄位。
+					location_start_position = 10 # 市場交易名稱的陣列起始位置
+					tmp_array = Array.new 
+					tmp_array = table.split(/[,]/u)
+					location_count = location_start_position # 從第一個地區的市場名稱開始檢查
+					table_size = tmp_array.size
+
+					while location_count < table_size
+						if table_size == 20
+							break
+						end
+						if nil == (tmp_array[location_count] =~ /([\-]|[\+\-]?[0-9]+(.)?[0-9]*)/u)
+							# 如果location_count這個位置不是數字（包含正負），也不是無資料(-)
+							# 那麼就有可能是市場名稱、品種名稱和處理別這三種欄位。
+							previous_location = location_count - 1
+							if ((nil == (tmp_array[previous_location] =~ /([\-]|[\+\-]?[0-9]+(.)?[0-9]*)/u)) && (0 != (tmp_array[previous_location] <=> "增減%")))
+								# 如果location_count的前一個位置同樣也不是數字（包含正負）、無資料（-）和增減%欄位
+								# 那麼location_location就有可能是品種名稱或處理別欄位。
+								location_count -= 2
+							else
+								# 如果location_count的前一個位置是數字（包含正負）或是無資料（-），
+								# 那麼location_count的位置是市場名稱欄位，需要進一步檢查確定是不是市場名稱欄位。
+								nextOnePosition = location_count + 1
+								nextTwoPosition = location_count + 2
+								if ((nil == (tmp_array[nextOnePosition] =~ /([\-]|[\+\-]?[0-9]+(.)?[0-9]*)/u)) && (nil == (tmp_array[nextTwoPosition] =~ /([\-]|[\+\-]?[0-9]+(.)?[0-9]*)/u)))
+									# 如果location_count的下一個位置和下下一個位置都不是數字（包含正負）和無資料（-），
+									# 那麼location_count的位置必定是市場名稱欄位，所以我們可以前進到下10個位置，
+									# 進行下一回合的驗證資料欄位數量。
+								
+									if table_size > 20
+										# 每筆資料有10個元素，table前10個是欄位名稱, 後10個是欄位內容
+										# 如果資料量大於一筆, 則進行下一回合的驗證資料欄位數量
+										location_count += 10
+									elsif table_size == 20
+								    	# 如果資料量只有一筆, 則不做任何事並離開驗證資料欄位數量的功能
+										# do nothing
+										break
+									else
+
+								    	# 如果資料量只有一筆, 而且缺少欄位內容，則在本筆資料新增缺少的欄位內容，
+										# 並且離開驗證資料欄位數量的功能
+										tmp_array.insert(17, "-") # 在本筆資料新增平均價增減%的內容
+										tmp_array << "-" #在本筆資料新增交易量增減%的內容
+										break
+									end
+								else
+									# 如果location_count的下一個位置和下下一個位置是數字（包含正負）或是無資料（-），
+									# 代表location_count的位置現在可能是品種名稱或處理別欄位，
+									# 那麼要在前一筆資料補上欄位。
+
+									tmp_array.insert(previous_location, "-")#在本筆資料的前一筆資料新增平均價增減%欄位的內容
+									location_count += 1 # 因為在前一筆資料新增平均價增減%的欄位，所以tmp_array總數量增加1，相對地location_count若要持續指到市場名稱欄位，勢必要加1
+									tmp_array.insert(location_count, "-")#在本筆資料的前一筆資料新增交易量增減%欄位的內容
+									location_count += 1 # 因為在前一筆資料新增交易量增減%欄位的內容，所以tmp_array總數量增加1，相對地location_count要繼續指到本筆資料的市場名稱欄位，勢必要加1
+								end
+							end
+
+						else
+							# 如果location_count這個位置是數字（包含正負）、無資料(-)，
+							# 則location_count減1
+							location_count -= 1
+
+						end
+					end
+					# 2014/02/08 written: 已將tmp_array存到table裡面。  
+					element_count_for_tmp_array = 0
+					table.clear #清掉舊的字串				
+					while element_count_for_tmp_array < (tmp_array.size - 1)
+						table << (tmp_array[element_count_for_tmp_array] +",")
+						element_count_for_tmp_array += 1
+					end
+					table << tmp_array[element_count_for_tmp_array]
+
+				end
+				string_array << table
 
 			elsif query_type == 2 #for fruits
 			
@@ -352,6 +432,13 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 			end
 
 			string_array << table
+		end
+
+		if meta_signal == 0 # 0 means meta data
+			meta_signal = 1
+		elsif meta_signal == 1 # deal with pattern: ,&nbsp;
+			# 1 means market transaction data
+			meta_signal = 0
 		end
 
 	}
