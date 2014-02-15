@@ -217,53 +217,58 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 					table_size = tmp_array.size
 
 					while location_count < table_size
-						if table_size == 20
-							break
-						end
-						if nil == (tmp_array[location_count] =~ /([\-]|[\+\-]?[0-9]+(.)?[0-9]*)/u)
+						if (nil == (tmp_array[location_count] =~ /([\-]|[\+\-]?[0-9]+(.)?[0-9]*|[\+\-]?[\*]+)/u))
 							# 如果location_count這個位置不是數字（包含正負），也不是無資料(-)
 							# 那麼就有可能是市場名稱、品種名稱和處理別這三種欄位。
+							# 2014/02/09 written: pattern新增[\+\-]?[\*]+ 是因為1996/04/01的LG芹菜，在鳳山區青梗的交易量增減%欄位出現+***這樣的內容。 
+							puts "At tmp_array[location_count]不是數字、也不是無資料" #debug
 							previous_location = location_count - 1
-							if ((nil == (tmp_array[previous_location] =~ /([\-]|[\+\-]?[0-9]+(.)?[0-9]*)/u)) && (0 != (tmp_array[previous_location] <=> "增減%")))
-								# 如果location_count的前一個位置同樣也不是數字（包含正負）、無資料（-）和增減%欄位
-								# 那麼location_location就有可能是品種名稱或處理別欄位。
-								location_count -= 2
-							else
-								# 如果location_count的前一個位置是數字（包含正負）或是無資料（-），
-								# 那麼location_count的位置是市場名稱欄位，需要進一步檢查確定是不是市場名稱欄位。
-								nextOnePosition = location_count + 1
-								nextTwoPosition = location_count + 2
-								if ((nil == (tmp_array[nextOnePosition] =~ /([\-]|[\+\-]?[0-9]+(.)?[0-9]*)/u)) && (nil == (tmp_array[nextTwoPosition] =~ /([\-]|[\+\-]?[0-9]+(.)?[0-9]*)/u)))
-									# 如果location_count的下一個位置和下下一個位置都不是數字（包含正負）和無資料（-），
-									# 那麼location_count的位置必定是市場名稱欄位，所以我們可以前進到下10個位置，
-									# 進行下一回合的驗證資料欄位數量。
-								
-									if table_size > 20
-										# 每筆資料有10個元素，table前10個是欄位名稱, 後10個是欄位內容
-										# 如果資料量大於一筆, 則進行下一回合的驗證資料欄位數量
-										location_count += 10
-									elsif table_size == 20
-								    	# 如果資料量只有一筆, 則不做任何事並離開驗證資料欄位數量的功能
-										# do nothing
-										break
+							if nil == (tmp_array[previous_location] =~ /([\-]|[\+\-]?[0-9]+(.)?[0-9]*|[\+\-]?[\*]+)/u)
+								if 0 != (tmp_array[previous_location] <=> "增減％")
+									# do something 區分市場名稱和品種和處理別。
+									nextOnePosition = location_count + 1
+									nextTwoPosition = location_count + 2
+									if nil == (tmp_array[nextOnePosition] =~ /([\-]|[\+\-]?[0-9]+(.)?[0-9]*|[\+\-]?[\*]+)/u)
+										# 2014/02/09 written: pattern新增[\+\-]?[\*]+ 是因為1996/04/01的LG芹菜，在鳳山區青梗的交易量增減%欄位出現+***這樣的內容。 
+										if nil == (tmp_array[nextTwoPosition] =~ /([\-]|[\+\-]?[0-9]+(.)?[0-9]*)|[\+\-]?[\*]+/u)
+											# location_count位置是市場名稱
+											# 進行下一回合的驗證資料欄位數量
+											location_count += 10
+										else # location_count位置是品種名稱
+											previous_location -= 1
+											tmp_array.insert(previous_location, "-")
+											previous_location += 2 
+											tmp_array.insert(previous_location, "-")
+											location_count += 10
+										end
 									else
-
-								    	# 如果資料量只有一筆, 而且缺少欄位內容，則在本筆資料新增缺少的欄位內容，
-										# 並且離開驗證資料欄位數量的功能
-										tmp_array.insert(17, "-") # 在本筆資料新增平均價增減%的內容
-										tmp_array << "-" #在本筆資料新增交易量增減%的內容
-										break
+										# location_count位置是處理別
+										previous_location -= 2
+										tmp_array.insert(previous_location, "-")
+										previous_location += 2
+										tmp_array.insert(previous_location, "-")
+										location_count += 10
 									end
-								else
-									# 如果location_count的下一個位置和下下一個位置是數字（包含正負）或是無資料（-），
-									# 代表location_count的位置現在可能是品種名稱或處理別欄位，
-									# 那麼要在前一筆資料補上欄位。
 
-									tmp_array.insert(previous_location, "-")#在本筆資料的前一筆資料新增平均價增減%欄位的內容
-									location_count += 1 # 因為在前一筆資料新增平均價增減%的欄位，所以tmp_array總數量增加1，相對地location_count若要持續指到市場名稱欄位，勢必要加1
-									tmp_array.insert(location_count, "-")#在本筆資料的前一筆資料新增交易量增減%欄位的內容
-									location_count += 1 # 因為在前一筆資料新增交易量增減%欄位的內容，所以tmp_array總數量增加1，相對地location_count要繼續指到本筆資料的市場名稱欄位，勢必要加1
+								else # if location_count的前一個位置內容是"增減％"
+									if table_size == 20
+										#已預設location_count的位置是市場名稱
+										break # do nothing
+									elsif table_size < 20
+										#已預設location_count的位置是市場名稱
+										tmp_array.insert(17, "-")
+										tmp_array << "-"
+										break
+									else # if table_size > 20
+										location_count += 10	
+									end
 								end
+
+							else
+								# 如果previous_location是數字（包含正負）、無資料
+								# 而且location_count可能是市場名稱、品種名稱和處理別這三種，
+								# 那麼可確定是location_count位置是市場名稱
+								location_count += 10
 							end
 
 						else
