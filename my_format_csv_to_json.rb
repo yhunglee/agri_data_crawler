@@ -18,6 +18,9 @@
 			type_item = 1 # 1 means fruit
 		end
 
+		 # 2014/02/18 written: 修改JSON格式。not complete and not begin
+		json_string_array << "[ " # "[" means JSON file's start point.
+		record_count += 1
 		while line = fp.gets
 
 			line.chomp!
@@ -93,23 +96,26 @@
 						# for loop will run (divisor-1) times from index 0 to divisor-2 .
 							if transaction_price_csv_array[transaction_count].eql? "null"
 								stored_json_string << "\"" + transaction_price_csv_array[i] + "\":" + transaction_price_csv_array[transaction_count] +", "
-							elsif nil != (transaction_price_csv_array[transaction_count] =~ /[+-]?[0-9]+[.]?[0-9]*$/u)
+							elsif nil != (transaction_price_csv_array[transaction_count] =~ /[\+\-]?[0-9]+[.]?[0-9]*$/u)
 								# 2013/10/13 written: unreachable, so strange!
+								# 2014/02/25 written: have modified R.E. for correct numbers, need to confirm later.
 								stored_json_string << "\"" + transaction_price_csv_array[i] + "\":" + transaction_price_csv_array[transaction_count] + ", "
 							else
 								stored_json_string << "\"" + transaction_price_csv_array[i] + "\":\"" + transaction_price_csv_array[transaction_count] + "\", "
 							end
 							transaction_count += 1
-						end
+						end # for-end
 
 						# print for column of 增減% 
 						i = divisor-1
 						if transaction_price_csv_array[transaction_count].eql? "null"
 							stored_json_string << "\"" + transaction_price_csv_array[i] + "\":" + transaction_price_csv_array[transaction_count] +"}"
-						elsif nil != (transaction_price_csv_array[transaction_count] =~ /[+-]?[0-9]+[.]?[0-9]*$/u) 
+						elsif nil != (transaction_price_csv_array[transaction_count] =~ /[\+\-]?[0-9]+[.]?[0-9]*$/u) 
 							# 2013/10/13 written: unreachable, so strange!
-#
+							# 2014/02/25 written: have modified R.E. for correct numbers, need to confirm later.
 							stored_json_string << "\"" + transaction_price_csv_array[i] + "\":" + transaction_price_csv_array[transaction_count] + "}"
+						else
+							stored_json_string << "\"" + transaction_price_csv_array[i] + "\": \"***\"}" 
 						end
 						transaction_count += 1
 						# print for column of 增減% 
@@ -117,22 +123,31 @@
 						if j != quotient # if it still has unprocessed transaction markets, append comma symbol.
 							stored_json_string << ", "
 						end
-					end # append json string with quotient-times
-				end
+					end # for-end # append json string with quotient-times
+				end # if-end
 
 				stored_json_string << " ] }"
 
+				if !(fp.eof?) 
+					#如果還沒處理完全部檔案內容，則表示要在這筆JSON資料結尾補上逗號
+					# 2014/02/25 written: 寫完還沒確認執行結果
+					stored_json_string << ", \n"
+				end
 
 				json_string_array[record_count] = stored_json_string
 				# puts json_string_array[record_count] #debug
 				record_count += 1
 				transaction_price_csv_array.clear
-				
+			
 				puts "正在轉換第 " + record_count.to_s + " 筆"
 				line_indicator = 0
 				#  break #debug
-			end
-		end
+
+			end # for if-end
+		end #for while-end
+		# 2014/03/02 written: 檔案結尾已補上陣列的右括弧符號
+		json_string_array << "] "
+		record_count += 1
 	}
 
 	puts "===================================="
