@@ -180,6 +180,7 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 		# 2013/09/30 Fixed bug: Ruby 1.9.3p374 String class concate too many gsub!(), which over 3 times, will sometimes report the string variable is nil:NilClass.
 		# So I divide one statement into two statements. 
 		# 2013/10/29 Written: Sorry, this is my misunderstanding about return value of String.gsub() and String.gsub!(). 
+		# 2014/03/23 Written: 花卉網頁資料不知何時開始多最高價的欄位資料，可能會使抓取資料錯誤。本敘述寫在這邊不表示可能會在這邊出錯，只是先寫在這裡，待執行錯誤再檢視敘述。
 
 		else # if query_type == 2 # means fruit
 
@@ -531,6 +532,96 @@ else
 	end
 end
 
+def query_results_transform( q_type, results )
+# use to get summary and market-based information of every item.
+# 2014/03/04 written: not complete
+# 2014/03/23 written: coding this function complete. NEED to testing this one.
+	summary = Array.new
+	marketBased_info = Array.new
+	sizeOfResults = results.size # total number of lines
+	tmp_string_array = Array.new
+	tmp_string = String.new
+	tmp_summary_array = Array.new
+	j = 0
+
+	case q_type
+	
+		when 1 # means vegetable
+			column_number_of_meta_data = 10
+		when 2 # means fruit
+			column_number_of_meta_data = 11
+		when 3 # means flowers
+			column_number_of_meta_data = 9
+		else
+			exit
+	end
+
+	for i in 0...sizeOfResults do
+
+		
+		if 0 == (i % 2) # for meta data of items daily
+			tmp_summary_array = results[i].split(/[,:\/]/u)
+			case q_type
+				when 1 # means vegetable
+					summary << (tmp_summary_array[3] + "," + \
+							tmp_summary_array[1] + "," + \
+							tmp_summary_array[5] + "," + \
+							tmp_summary_array[7])
+					#Summary格式:{代號&產品名稱}, 交易日期, 總交易量, 總平均價 
+
+					marketBased_info[j] = tmp_summary_array[3] + "," + \
+										  tmp_summary_array[1] + "," # storing item's name and transaction date into transaction market data
+					# marketBased_info格式：{代號與產品名稱}, 交易日期, 市場名稱, 品種名稱, 處理別, 上價, 中價, 下價, 平均價, 平均價增減%, 交易量, 交易量增減%
+				when 2 # means fruit
+					summary << (tmp_summary_array[3] + "," + \
+							tmp_summary_array[4] + "," + \
+							tmp_summary_array[5] + "," + \
+							tmp_summary_array[1] + "," + \
+							tmp_summary_array[7] + "," + \
+							tmp_summary_array[9])
+					#Summary格式：{代號&產品名稱}, 品種名稱, 處理別, 交易日期, 總交易量, 總平均價
+
+					marketBased_info[j] = tmp_summary_array[3] + "," + \
+										  tmp_summary_array[1] + "," # storing item's name and transaction date into transaction market data
+					# marketBased_info格式：{代號與產品名稱}, 交易日期, 市場名稱, 天氣, 上價, 中價, 下價, 平均價, 平均價增減%, 交易量, 交易量增減%
+				when 3 # means flowers
+					summary << (tmp_summary_array[10] + "," + \
+						tmp_summary_array[1] + "," + \
+						tmp_summary_array[6] + "," + \
+						tmp_summary_array[3] + "," + \
+						tmp_summary_array[8])
+					#Summary格式：{代號&產品名稱}, 交易日期, 總交易量, 總平均價, 總殘貨量
+
+					marketBased_info[j] = tmp_summary_array[10] + "," + \
+										  tmp_summary_array[1] + "," # storing item's name and transaction date into transaction market data
+					# marketBased_info格式：{代號與產品名稱}, 交易日期, 市場名稱, 品種名稱, 最高價, 上價, 中價, 下價, 平均價, 平均價增減%, 交易量, 交易量增減%, 殘貨量
+				else
+					puts "Error when extracting summary."
+					exit
+			end
+
+		else # for transaction market data for every item.
+
+
+
+			sizeOfLineInTransaction = results[i].split(/,/u).size # get total column number for transaction market data in every item.
+			upperBound_of_sizeOfLineInTransaction = sizeOfLineInTransaction - column_number_of_meta_data
+			tmp_string_array = results[i].split(/,/u)[column_number_of_meta_data - 1, upperBound_of_sizeOfLineInTransaction] # extract actually transaction data from ones containing description of transaction market data in every item.
+
+			# append nest transaction market data to one line 
+			element_count_for_tmp_string_array = 0
+			while element_count_for_tmp_string_array < upperBound_of_sizeOfLineInTransaction - 1
+				marketBased_info[j].concat(tmp_string_array[element_count_for_tmp_string_array] + "," )
+				element_count_for_tmp_string_array += 1
+			end
+			marketBased_info[j].concat(tmp_string_array[element_count_for_tmp_string_array])
+			# append nest transaction market data to one line 
+				
+			j += 1
+		end
+	end
+	return summary, marketBased_info
+end
 
 recv_mpno_list, recv_mpname_list = read_items_from_file(q_type)
 total_mpno_number = recv_mpno_list.size # for showing total number of be processced mpno
@@ -601,7 +692,26 @@ begin
 		result_array.each{|element|
 			f.puts(element)
 		}
+	} # write detail-version information
+
+	summary_result_array = Array.new
+	marketBased_result_array = Array.new
+	summary_result_array, marketBased_result_array = query_results_transform( q_type, result_array )
+	# 2014/03/04 written: write summary-version of information, which are about every item in every market.
+	File.open("./query_results/summary_"+argv_output_file,"a"){ |f|
+		summary_result_array.each{ |element|
+			f.puts(element)
+		}
 	}
+	# 2014/03/04 written: write summary-version of information, which are about every item in every market.
+
+	# 2014/03/04 written: write market-based information of every item whose exclude summary-version.
+	File.open("./query_results/marketBased_"+argv_output_file,"a"){ |f|
+		marketBased_result_array.each{ |element|
+			f.puts(element)
+		}
+	}
+	# 2014/03/04 written: write market-based information of every item whose exclude summary-version.
 	result_array.clear
 	puts "寫入完畢."
 	puts "===================================="

@@ -46,7 +46,7 @@ end
 argv_end_date = Date.parse ARGV[1] # ARGV[1] is the end date
 qe_year = argv_end_date.year #ARGV[1] is the <end date>
 qe_month = argv_end_date.month
-qe_day = 28
+qe_day = argv_end_date.day
 if Date.valid_date?(qe_year, qe_month, qe_day) == false
 	puts "Error: End date's value isn't exist in calendar."
 	exit

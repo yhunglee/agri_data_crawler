@@ -1,8 +1,147 @@
 # encoding: utf-8
 # Author: howardsun
 # Create date: 2013/07/12
+def only_summary_csv_to_json_transform( q_type, csv_file_name)
+# same as function: only_marketBased_data_csv_to_json_transform.
+# 2014/03/30 written: need to test.
 
+	summary_json_string_array = Array.new
+	summary_stored_json_string = String.new
+
+	splited_string_array = Array.new
+
+	summary_json_string_array << "["
+
+	File.open("./query_results/summary_"+csv_file_name, "r"){ |fp|
+		while line = fp.gets
+
+			line = line.chomp #去除最右邊的換行符號
+			splited_string_array = line.split(/,/u) #取得分開後的summary每欄資料
+			case q_type
+				when 0 # means vegetable
+					#Summary格式:{代號&產品名稱}, 交易日期, 總交易量, 總平均價 
+					summary_stored_json_string = "{\"產品名稱\":\""+ splited_string_array[0] + "\", \"交易日期\":\"" + splited_string_array[1] + "\", \"總交易量\":\"" + \
+					splited_string_array[2]  + "\", \"總平均價\":\"" + splited_string_array[3] + "\"}" 
+				when 1 # means fruit
+					#Summary格式：{代號&產品名稱}, 品種名稱, 處理別, 交易日期, 總交易量, 總平均價
+					summary_stored_json_string = "{\"產品名稱\":\""+ splited_string_array[0] + "\", \"品種名稱\":\"" + splited_string_array[1] + "\", \"處理別\":\"" + \
+					splited_string_array[2]  + "\", \"交易日期\":\"" + splited_string_array[3] + "\", \"總交易量\":\"" + splited_string_array[4] + "\",\"總平均價\":\"" + \
+					splited_string_array[5] + "\"}" 
+				when 2 # means flowers
+					#Summary格式：{代號&產品名稱}, 交易日期, 總交易量, 總平均價, 總殘貨量
+					summary_stored_json_string = "{\"產品名稱\":\""+ splited_string_array[0] + "\", \"交易日期\":\"" + splited_string_array[1] + "\", \"總交易量\":\"" + \
+					splited_string_array[2]  + "\", \"總平均價\":\"" + splited_string_array[3] + "\", \"總殘貨量\":\"" + splited_string_array[4] + "\"}"
+				else
+					puts "未知的農產品種類, 已停止轉換格式。"
+					exit
+			end
+
+			if !(fp.eof?)
+				#如果還沒處理完全部檔案內容，則表示要在這筆JSON資料結尾補上逗號
+				summary_stored_json_string << ", \n"
+			end
+			splited_string_array.clear # 清除本回合取得的summary csv資料
+
+			summary_json_string_array << summary_stored_json_string 
+		end # read string from csv file, and then store them into after reorganizing into json format.
+
+		summary_json_string_array << "]" # represent end of json format summary.
+	}
+
+	# write json content to file
+	puts "===================================="
+	puts "寫入summary轉換結果中，請勿中斷程式......"
+	File.open("./query_results/summary_"+ARGV[1], "a"){ |json_output_file|
+		summary_json_string_array.each{ |element|
+			json_output_file.puts(element)
+		}
+	}
+	puts "summary json寫入完畢."
+	puts "===================================="
+	# write json content to file
+	
+end
+
+def only_marketBased_data_csv_to_json_transform( q_type, csv_file_name )
+# same as function: only_summary_csv_to_json_transform.
+# 2014/03/30 written: need to test.
+
+	marketBased_json_string_array = Array.new
+	marketBased_stored_json_string = String.new
+	splited_string_array = Array.new
+
+	marketBased_json_string_array << "["
+
+	File.open("./query_results/marketBased_"+csv_file_name, "r"){ |fp|
+		while line = fp.gets
+
+			line = line.chomp #移除最右邊的換行符號
+			splited_string_array = line.split(/,/u) #取得分開後的marketBased每欄資料
+			case q_type
+				when 0 # means vegetable
+					# marketBased_info格式：{代號與產品名稱}, 交易日期, 市場名稱, 品種名稱, 處理別, 上價, 中價, 下價, 平均價, 平均價增減%, 交易量, 交易量增減%
+					marketBased_stored_json_string = "{\"產品名稱\":\"" + splited_string_array[0] + "\", \"交易日期\":\"" + \
+					splited_string_array[1] + "\", \"市場名稱\":\"" + splited_string_array[2] + "\", \"品種名稱\":\"" + \
+					splited_string_array[3] + "\", \"處理別\":\"" + splited_string_array[4] + "\", \"上價\":\"" + \
+					splited_string_array[5] + "\", \"中價\":\"" + splited_string_array[6] + "\", \"下價\":\"" + \
+					splited_string_array[7] + "\", \"平均價\":\"" + splited_string_array[8] + "\", \"平均價增減%\":\"" + \
+					splited_string_array[9] + "\", \"交易量\":\"" + splited_string_array[10] + "\", \"交易量增減%\":\"" + \
+					splited_string_array[11] + "\"}"
+				when 1 # means fruit
+					# marketBased_info格式：{代號與產品名稱}, 交易日期, 市場名稱, 天氣, 上價, 中價, 下價, 平均價, 平均價增減%, 交易量, 交易量增減%
+					marketBased_stored_json_string = "{\"產品名稱\":\"" + split_string_array[0] + "\", \"交易日期\":\"" + \
+					splited_string_array[1] + "\", \"市場名稱\":\"" + splited_string_array[2] + "\", \"天氣\":\"" + \
+					splited_string_array[3] + "\", \"上價\":\"" + splited_string_array[4] + "\", \"中價\":\"" + \
+					splited_string_array[5] + "\", \"下價\":\"" + splited_string_array[6] + "\", \"平均價\":\"" + \
+					splited_string_array[7] + "\", \"平均價增減%\":\"" + splited_string_array[8] + "\", \"交易量\":\"" + \
+					splited_string_array[9] + "\", \"交易量增減%\":\"" + splited_string_array[10] + "\"}"
+				when 2 # means flowers
+					# marketBased_info格式：{代號與產品名稱}, 交易日期, 市場名稱, 品種名稱, 最高價, 上價, 中價, 下價, 平均價, 平均價增減%, 交易量, 交易量增減%, 殘貨量
+					marketBased_stored_json_string = "{\"產品名稱\":\"" + split_string_array[0] + "\", \"交易日期\":\"" + \
+					splited_string_array[1] + "\", \"市場名稱\":\"" + splited_string_array[2] + "\", \"品種名稱\":\"" + \
+					splited_string_array[3] + "\", \"最高價\":\"" + splited_string_array[4] + "\", \"上價\":\"" + \
+					splited_string_array[5] + "\", \"中價\":\"" + splited_string_array[6] + "\", \"下價\":\"" + \
+					splited_string_array[7] + "\", \"平均價\":\"" + splited_string_array[8] + "\", \"平均價增減%\":\"" + \
+					splited_string_array[9] + "\", \"交易量\":\"" + splited_string_array[10] + "\", \"交易量增減%\":\"" + \
+					splited_string_array[11] + "\", \"殘貨量\":\"" + splited_string_array[12] + "\"}"
+				else
+					puts "未知的農產品種類, 已停止轉換格式。"
+					exit
+			end
+
+			if !(fp.eof?)
+				#如果還沒處理完全部檔案內容，則表示要在這筆JSON資料結尾補上逗號
+				marketBased_stored_json_string << ", \n"
+			end
+
+			splited_string_array.clear #清除本回合取得的marketBased csv 資料
+
+			marketBased_json_string_array << marketBased_stored_json_string
+		end # read string from csv file, and then store them into after reorganizing into json format.
+
+		marketBased_json_string_array << "]" # represent end of json format marketBased data.
+	}
+
+	# write json content to file
+	puts "===================================="
+	puts "寫入marketBased_data轉換結果中，請勿中斷程式......"
+	File.open("./query_results/marketBased_"+ARGV[1], "a"){ |json_output_file|
+		marketBased_json_string_array.each{ |element|
+			json_output_file.puts(element)
+		}
+	}
+	puts "marketBased data json寫入完畢."
+	puts "===================================="
+	# write json content to file
+end
+
+	type_item = 0 # used to verify processing item_type
 	json_string_array = Array.new # store many json data within an array.
+	if ARGV[0].include? "/"
+		csv_file_name = ARGV[0].split(/\//u).last # get the csv file name
+	else 
+		csv_file_name = ARGV[0]
+	end
 	File.open(ARGV[0],"r"){ |fp|
 		origin_array = Array.new(2) # original csv data in a file. Only including meta data and transaction_price.
 		meta_data_csv_array = Array.new # store meta data, whose commas are removed, from file.
@@ -18,7 +157,7 @@
 			type_item = 1 # 1 means fruit
 		end
 
-		 # 2014/02/18 written: 修改JSON格式。not complete and not begin
+		 # 2014/02/18 written: 修改JSON格式。
 		json_string_array << "[ " # "[" means JSON file's start point.
 		record_count += 1
 		while line = fp.gets
@@ -135,7 +274,6 @@
 				end
 
 				json_string_array[record_count] = stored_json_string
-				# puts json_string_array[record_count] #debug
 				record_count += 1
 				transaction_price_csv_array.clear
 			
@@ -160,4 +298,9 @@
 
 	puts "寫入完畢."
 	puts "===================================="
+
+
+	only_summary_csv_to_json_transform( type_item, csv_file_name )
+	only_marketBased_data_csv_to_json_transform( type_item, csv_file_name )
+
 
