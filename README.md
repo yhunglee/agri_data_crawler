@@ -27,7 +27,7 @@
 
 * my_automate_operator.rb程式執行指令說明：
 命令列指令：
-<pre><code>ruby myautomator.rb <StartDate> <EndDate> <OutputFileName> <QueryKindName> [onlyconvertojson] </code></pre>
+<pre><code>ruby myautomator.rb \<StartDate\> \<EndDate\> \<OutputFileName\> \<QueryKindName\> [onlyconvertojson] </code></pre>
 查詢開始日期最早只能是1996年1月1日，查詢結束日期最晚只能是查詢時的當天；輸出檔名請自行輸入名稱，程式會自動按月份存檔；查詢種類目前有蔬菜、水果、花卉；若在命令列的最後輸入onlyconvertojson，只會轉換本機現有的csv檔案成json檔，並不會從網路抓取資料。
 
 * 資料格式說明：
