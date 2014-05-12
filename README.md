@@ -1,4 +1,4 @@
-#臺灣農產品市場大盤價格情報（原名：臺灣農產品價格情報）
+# 臺灣農產品市場大盤價格情報（原名：臺灣農產品價格情報）
  
 * 聲明：
 1. 本軟體專案僅是提供市場交易資料和簡易獲取交易資料的工具，並無意圖影響交易市場行情。若有其他軟體專案、開發者或不特定之個人和團體，基於本軟體專案或是本軟體專案衍生的各種軟體專案、活動，進行影響交易市場行情之一切行為，本軟體專案概不負責。
@@ -25,8 +25,10 @@
 )、[花卉類不含盆花1996年1月到2013年7月] (https://mega.co.nz/#!DQU3USpa!D6Ie1i1S0bYOvxPWU4NNsyb5NAlG4iSGeL9HWXd8ojU)、[花卉類不含盆花2013年8月到10月](https://mega.co.nz/#!6E1VTJIb!dsDragWb1M-NQwoOk11jyl3FpnNObZK_1Lz_5o3cuZg
 )、[水果1996年1月到2013年7月] (https://mega.co.nz/#!7AtGyAxb!eZEQAW8uIhrt4-V1_1VR7wymZ34ASOFZ6VvNss3jXcw)、[水果2013年8月到10月](https://mega.co.nz/#!7VNVnLLQ!Vq_KRH68-09jQlJgvXaW7gPgR9hPRyhJQxGjN6zmr_I)
 
-* 程式執行指令說明：
-
+* my_automate_operator.rb程式執行指令說明：
+命令列指令：
+<pre><code>ruby myautomator.rb <StartDate> <EndDate> <OutputFileName> <QueryKindName> [onlyconvertojson] </code></pre>
+查詢開始日期最早只能是1996年1月1日，查詢結束日期最晚只能是查詢時的當天；輸出檔名請自行輸入名稱，程式會自動按月份存檔；查詢種類目前有蔬菜、水果、花卉；若在命令列的最後輸入onlyconvertojson，只會轉換本機現有的csv檔案成json檔，並不會從網路抓取資料。
 
 * 資料格式說明：
 

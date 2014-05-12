@@ -10,6 +10,7 @@ require 'date'
 
 unless ARGV.length > 2 && ARGV.length < 6
 	puts "Available command: ruby my_automate_operator.rb <Start Date:YYYY-MM-01> <End Date:YYYY-MM-28> <Name format of output file> [vegetable|fruit|flowers] [onlyconvertojson]"
+	puts "RECOMMEND: QUERY From first day of every month to last one in the month."
 	puts "Format of start and end date is using AD. YYYY-MM-DD, I will transform it to format of Republic of China."
 	puts "Available value range of start date is 1996-01, and we can't query someday that in the future."
 	puts "Available value range of end date is greater than or equal to start date."
@@ -21,36 +22,29 @@ unless ARGV.length > 2 && ARGV.length < 6
 	exit
 end
 
-argv_start_date = Date.parse ARGV[0] # ARGV[0] is the start date
-qs_year = argv_start_date.year #ARGV[0] is the <Start date>
-qs_month = argv_start_date.month
-qs_day = 1
-if Date.valid_date?(qs_year, qs_month, qs_day) == false
-	puts "Error: Start date's value isn't exist in calendar."
-	exit
-else
-	
-	if qs_year < 1996
+begin
+	argv_start_date = Date.parse ARGV[0] # ARGV[0] is the start date
+	if argv_start_date.year < 1996
 
 		puts "Error: Start date must start from 1996A.D.."
 		exit
-	elsif (Date.new(qs_year, qs_month, qs_day) <=> Date.today) == 1
+	elsif (argv_start_date <=> Date.today) == 1
 
 		puts "Error: We can't query information in the future via this program when start date is greater than today."
 		exit
 	end
+rescue ArgumentError
+	puts "Error: Start date's value isn't exist in calendar."
+	exit
+	
 end
 
 
 #ARGV[1] is the ending time
-argv_end_date = Date.parse ARGV[1] # ARGV[1] is the end date
-qe_year = argv_end_date.year #ARGV[1] is the <end date>
-qe_month = argv_end_date.month
-qe_day = argv_end_date.day
-if Date.valid_date?(qe_year, qe_month, qe_day) == false
-	puts "Error: End date's value isn't exist in calendar."
-	exit
-else
+begin
+	argv_end_date = Date.parse ARGV[1] # ARGV[1] is the end date
+	#ARGV[1] is the <end date>
+
 	if (argv_end_date <=> argv_start_date) == -1
 		puts "Error: End date must greater than or equal to start date."
 		exit
@@ -59,6 +53,9 @@ else
 		puts "Error: We can't query information in the future via this program when end date is greater than today."
 		exit
 	end
+rescue ArgumentError
+	puts "Error: End date's value isn't exist in calendar."
+	exit
 end
 
 
@@ -122,6 +119,7 @@ abbr_month_names << "Sep" # 9
 abbr_month_names << "Oct" # 10
 abbr_month_names << "Nov" # 11
 abbr_month_names << "Dec" # 12
+month_count = 0 # count times for every pass month
 while (-1 == (cmd_start_date <=> argv_end_date)) || (0 == (cmd_start_date <=> argv_end_date))
 
 	begin
@@ -136,26 +134,79 @@ while (-1 == (cmd_start_date <=> argv_end_date)) || (0 == (cmd_start_date <=> ar
 			# Generating cmd_query_end_date
 			tmp_end_year = cmd_start_date.year
 			tmp_end_month = cmd_start_date.month
+			month_diff = argv_end_date.month - cmd_start_date.month # consider example: query time interval from 2000/2/24 to 2000/3/12
+			day_diff = (argv_end_date - cmd_start_date).to_i
+
 			if 2 == cmd_start_date.month
+
 				if cmd_start_date.leap?
-					tmp_end_day = 29
+
+					if day_diff >= 29
+						tmp_end_day = 29
+					else
+						if month_diff > 0 # consider example: query time interval from 2000/2/24 to 2000/3/12
+							tmp_end_day = 29
+						else
+							tmp_end_day = argv_end_date.day
+						end
+					end
 				else
-					tmp_end_day = 28
+					if day_diff >= 28
+						tmp_end_day = 28
+					else
+						if month_diff > 0 # consider example: query time interval from 2000/2/24 to 2000/3/12
+							tmp_end_day = 28
+						else
+							tmp_end_day = argv_end_date.day
+						end
+					end
 				end
 			else
 
 				if cmd_start_date.month >= 8
 					if (0 == cmd_start_date.month % 2)
-						tmp_end_day = 31
+						if day_diff >= 31
+							tmp_end_day = 31
+						else
+							if month_diff > 0 # consider example: query time interval from 2000/2/24 to 2000/3/12
+								tmp_end_day = 31
+							else
+								tmp_end_day = argv_end_date.day
+							end
+						end
 					else
-						tmp_end_day = 30
+						if day_diff >= 30
+							tmp_end_day = 30
+						else
+							if month_diff > 0 # consider example: query time interval from 2000/2/24 to 2000/3/12
+								tmp_end_day = 30
+							else
+								tmp_end_day = argv_end_date.day
+							end
+						end
 					end
-				else
+				else # if cmd_start_date.month < 8
 
 					if 0 == cmd_start_date.month % 2
-						tmp_end_day = 30
+						if day_diff >= 30
+							tmp_end_day = 30
+						else
+							if month_diff > 0 # consider example: query time interval from 2000/2/24 to 2000/3/12
+								tmp_end_day = 30
+							else
+								tmp_end_day = argv_end_date.day
+							end
+						end
 					else
-						tmp_end_day = 31
+						if day_diff >= 31
+							tmp_end_day = 31
+						else
+							if month_diff > 0 # consider example: query time interval from 2000/2/24 to 2000/3/12
+								tmp_end_day = 31
+							else
+								tmp_end_day = argv_end_date.day
+							end
+						end
 					end
 				end
 
@@ -205,7 +256,10 @@ while (-1 == (cmd_start_date <=> argv_end_date)) || (0 == (cmd_start_date <=> ar
 		# Converting csv to json
 
 		cmd_start_date = cmd_start_date.next_month()
-	
+		month_count += 1
+		if month_count > 0
+			cmd_start_date = Date.new(cmd_start_date.year, cmd_start_date.month, 1) # setting day to 1 because after first month we have queried, we need to start from first day of new month for querying.
+		end
 	end
 
 end
