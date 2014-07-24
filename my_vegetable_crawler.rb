@@ -150,6 +150,10 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 	
 	return false,nil if respond.body.encode('UTF-8', 'BIG5', :invalid => :replace, :undef => :replace, :replace => ' ').slice(/\<table[^$]*\<\/table\>/u).nil?
 	
+	sleep 7
+	puts "Behave like human."
+
+
 	table_string = String.new
 	table_string << respond.body.encode('UTF-8', 'BIG5', :invalid => :replace, :undef => :replace, :replace => ' ').slice(/\<table[^$]*\<\/table\>/u)
 	# puts "table_string"+table_string #debug
