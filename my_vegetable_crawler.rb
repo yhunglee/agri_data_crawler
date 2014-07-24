@@ -142,7 +142,7 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 		puts "Timeout:Error or something happened."
 		puts "We will retry."
 		count_retry += 1
-		sleep 1 # sleep one second for later retry
+		sleep 10 # sleep one second for later retry
 		puts "Now will start #{count_retry} retry"
 		retry #if count_retry < 5 # only retry 5 times.
 	end
@@ -606,18 +606,49 @@ def query_results_transform( q_type, results )
 
 			sizeOfLineInTransaction = results[i].split(/,/u).size # get total column number for transaction market data in every item.
 			upperBound_of_sizeOfLineInTransaction = sizeOfLineInTransaction - column_number_of_meta_data
-			tmp_string_array = results[i].split(/,/u)[column_number_of_meta_data - 1, upperBound_of_sizeOfLineInTransaction] # extract actually transaction data from ones containing description of transaction market data in every item.
+			tmp_string_array = results[i].split(/,/u)[column_number_of_meta_data, upperBound_of_sizeOfLineInTransaction] # extract actually transaction data from ones containing description of transaction market data in every item.
 
 			# append nest transaction market data to one line 
 			element_count_for_tmp_string_array = 0
-			while element_count_for_tmp_string_array < upperBound_of_sizeOfLineInTransaction - 1
-				marketBased_info[j].concat(tmp_string_array[element_count_for_tmp_string_array] + "," )
+			while element_count_for_tmp_string_array < upperBound_of_sizeOfLineInTransaction
+
+				if 0 != (element_count_for_tmp_string_array % column_number_of_meta_data)
+					if (column_number_of_meta_data - 1) != (element_count_for_tmp_string_array % column_number_of_meta_data)
+
+						marketBased_info[j].concat(tmp_string_array[element_count_for_tmp_string_array] + "," )
+
+					else # 當遇到一筆市場資料的最後一欄
+						marketBased_info[j].concat(tmp_string_array[element_count_for_tmp_string_array])
+						
+					end
+				else # if 0 == (element_count_for_tmp_string_array % column_number_of_meta_data)
+
+					if element_count_for_tmp_string_array != 0 # to avoid skipping the first market price data.
+						j += 1
+					end
+
+					case q_type
+						when 1 # means vegetable
+							marketBased_info[j] = tmp_summary_array[3] + "," + \
+												  tmp_summary_array[1] + "," # storing item's name and transaction date into transaction market data
+							# marketBased_info格式：{代號與產品名稱}, 交易日期, 市場名稱, 品種名稱, 處理別, 上價, 中價, 下價, 平均價, 平均價增減%, 交易量, 交易量增減%
+						when 2 # means fruit
+							marketBased_info[j] = tmp_summary_array[3] + "," + \
+										  		  tmp_summary_array[1] + "," # storing item's name and transaction date into transaction market data
+							# marketBased_info格式：{代號與產品名稱}, 交易日期, 市場名稱, 天氣, 上價, 中價, 下價, 平均價, 平均價增減%, 交易量, 交易量增減%
+						when 3 # means flowers
+							marketBased_info[j] = tmp_summary_array[10] + "," + \
+								       			  tmp_summary_array[1] + "," # storing item's name and transaction date into transaction market data
+							# marketBased_info格式：{代號與產品名稱}, 交易日期, 市場名稱, 品種名稱, 最高價, 上價, 中價, 下價, 平均價, 平均價增減%, 交易量, 交易量增減%, 殘貨量
+						else
+							exit
+					end
+					marketBased_info[j].concat(tmp_string_array[element_count_for_tmp_string_array] + "," )
+				end
 				element_count_for_tmp_string_array += 1
 			end
-			marketBased_info[j].concat(tmp_string_array[element_count_for_tmp_string_array])
 			# append nest transaction market data to one line 
-				
-			j += 1
+			j += 1	
 		end
 	end
 	return summary, marketBased_info
