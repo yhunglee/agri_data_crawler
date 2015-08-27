@@ -28,13 +28,20 @@
 * 目前提供：CSV（自2013-06-21開始提供），JSON（自2013-07-13開始提供）。
 
 * 資料下載處：[蔬菜1996年1月到2013年7月] ( https://mega.co.nz/#!zVUVGbYa!e4EyKjLq7VGJDaH-tEh7Cnw1ONMQ7tDjp9vcNdrs_Gc ) 、[蔬菜2013年8月到10月](https://mega.co.nz/#!PYdRXBCT!FeWniDMzd6aQIzur0NFbQUk-QhB6ubSA5z2ngvimzKk
-)、[花卉類不含盆花1996年1月到2013年7月] (https://mega.co.nz/#!DQU3USpa!D6Ie1i1S0bYOvxPWU4NNsyb5NAlG4iSGeL9HWXd8ojU)、[花卉類不含盆花2013年8月到10月](https://mega.co.nz/#!6E1VTJIb!dsDragWb1M-NQwoOk11jyl3FpnNObZK_1Lz_5o3cuZg
+)、[蔬菜1996年1月到2013年10月單日交易價格Postgresql資料庫備份](https://mega.nz/#!zN1gVKzB!XQXpVLRdoIlcEF9M0P-A_z1I55EahpEctcd6Bn0DpaU)、[蔬菜1996年1月到2013年10月單日全台各市場交易價格Postgresql資料庫備份](https://mega.nz/#!eFcGURDZ!GrBH_thnIXWUoOCdHf3FDfrGjVb_gezq99oJZS6lChw)
+、[花卉類不含盆花1996年1月到2013年7月] (https://mega.co.nz/#!DQU3USpa!D6Ie1i1S0bYOvxPWU4NNsyb5NAlG4iSGeL9HWXd8ojU)、[花卉類不含盆花2013年8月到10月](https://mega.co.nz/#!6E1VTJIb!dsDragWb1M-NQwoOk11jyl3FpnNObZK_1Lz_5o3cuZg
 )、[水果1996年1月到2013年7月] (https://mega.co.nz/#!7AtGyAxb!eZEQAW8uIhrt4-V1_1VR7wymZ34ASOFZ6VvNss3jXcw)、[水果2013年8月到10月](https://mega.co.nz/#!7VNVnLLQ!Vq_KRH68-09jQlJgvXaW7gPgR9hPRyhJQxGjN6zmr_I)
 
 * my_automate_operator.rb程式執行指令說明：
 命令列指令：
-<pre><code>ruby myautomator.rb &lt;StartDate&gt; &lt;EndDate&gt; &lt;OutputFileName&gt; &lt;QueryKindName&gt; [onlyconvertojson] </code></pre>
+<pre><code>ruby my_automate_operator.rb &lt;StartDate&gt; &lt;EndDate&gt; &lt;OutputFileName&gt; &lt;QueryKindName&gt; [onlyconvertojson] </code></pre>
 查詢開始日期最早只能是1996年1月1日，查詢結束日期最晚只能是查詢時的當天；輸出檔名請自行輸入名稱，程式會自動按月份存檔；查詢種類目前有蔬菜、水果、花卉；若在命令列的最後輸入onlyconvertojson，只會轉換本機現有的csv檔案成json檔，並不會從網路抓取資料。
+<pre><code>ruby reorganize_rawdata_to_db.rb -i INPUTFILE -o OUTPUTFILE -k INPUTKIND</code></pre>
+-i是輸入檔案的參數，INPUTFILE可以包含輸入檔案的目錄路徑；-o是輸出檔案的參數，OUTPUTFILE只能是輸出檔案的前綴名稱，不能包含檔案的目錄路徑，且輸出檔案會強制放在query_results這個資料夾下，INPUTKIND是告訴城市依照蔬菜，水果或花卉的格式處理資料。
+reorganize_rawdata_to_db.rb執行結果會分別產生OUTPUTFILE-overview.csv和OUTPUTFILE-specified.csv兩類檔案，可運用autocomplete_repeat_commands.rb讀取這些檔案以批量輸入資料庫。reorganize_rawdata_to_db.rb --help會顯示操作說明的英文版。
+
+<pre><code>ruby autocomplete_repeat_commands.rb -b BEGINMONTH -e ENDMONTH -i INPUTFILE_PREFIX -o OUTPUTFILE_PREFIX </code></pre>
+-b 是批量輸入月份檔案的開始月份參數，BEGINMONTH的格式是月份的英文名前三個字元與西元年份四個字元，例如Aug2013；-e是批量輸入月份檔案的結束月份參數，ENDMONTH的格式是月份的英文名前三個字元與西元年份四個字元，例如Oct2013。-i是輸入檔案的參數，INPUTFILE_PREFIX僅能使用輸入檔案的前綴名稱，程式會自動加上月份與年份的後綴字，可以包含檔案的目錄路徑，例如query_results/vegetable_amis_；-o是輸出檔案的參數，OUTPUTFILE_PREFIX只能是輸出檔案的前綴名稱，程式會自動加上月份與年份的後綴字，不能包含檔案的目錄路徑，例如:vegetable_，且輸出檔案會強制放在query_results這個資料夾之下。
 
 * 資料格式說明：
 
