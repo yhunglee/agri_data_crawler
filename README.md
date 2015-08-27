@@ -16,6 +16,12 @@
 * 預計涵蓋品項範圍：蔬菜、水果、花卉、盆花、家禽、漁產、畜產......等等，會持續擴展範圍。
  
 * 目前涵蓋範圍：蔬菜（自2013-06-21開始提供功能），水果（自2013-10-12開始提供功能），花卉（自2013-07-13開始提供功能）。
+1. my_vegetable_crawler.rb：用於抓取資料，可以提供蔬菜，水果和花卉的資料抓取。
+2. my_automate_operator.rb ：用於下指令給my_vegetable_crawler.rb，可指定長時間資料區段的抓取。
+3. reorganize_rawdata_to_db.rb：用於整理my_vegetable_crawler.rb產生的CSV格式檔案，以便由autocomplete_repeat_commands.rb匯入postgresql資料庫。（目前只完成整理蔬菜，尚未完成水果和花卉的整理）
+4. autocomplete_repeat_commands.rb：向reorganize_rawdata_to_db.rb下達指令，指定長時間資料區間的檔案匯入postgresql資料庫。
+5. my_format_csv_to_json.rb：用於轉換CSV格式到JSON格式。由於轉換到JSON的結果果不符正統JSON及可匯入資料庫格式，現已停用，建議不使用這份程式進行轉換。
+6. my_rm_duplicate_lines.rb：以每列為單位，用以刪除重複的資料。由於已經忘記何時會用到這份程式，現已停用，建議不使用它。
  
 * 目前類似且具代表性的網站：中華民國行政院農業委員會的農業化行動平台 http://m.coa.gov.tw/  。
 
