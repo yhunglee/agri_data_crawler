@@ -27,10 +27,9 @@
 
 * 目前提供：CSV（自2013-06-21開始提供），JSON（自2013-07-13開始提供）。
 
-* 資料下載處：[蔬菜1996年1月到2013年7月] ( https://mega.co.nz/#!zVUVGbYa!e4EyKjLq7VGJDaH-tEh7Cnw1ONMQ7tDjp9vcNdrs_Gc ) 、[蔬菜2013年8月到10月](https://mega.co.nz/#!PYdRXBCT!FeWniDMzd6aQIzur0NFbQUk-QhB6ubSA5z2ngvimzKk
-)、[蔬菜1996年1月到2013年10月單日交易價格Postgresql資料庫備份](https://mega.nz/#!zN1gVKzB!XQXpVLRdoIlcEF9M0P-A_z1I55EahpEctcd6Bn0DpaU)、[蔬菜1996年1月到2013年10月單日全台各市場交易價格Postgresql資料庫備份](https://mega.nz/#!eFcGURDZ!GrBH_thnIXWUoOCdHf3FDfrGjVb_gezq99oJZS6lChw)
-、[花卉類不含盆花1996年1月到2013年7月] (https://mega.co.nz/#!DQU3USpa!D6Ie1i1S0bYOvxPWU4NNsyb5NAlG4iSGeL9HWXd8ojU)、[花卉類不含盆花2013年8月到10月](https://mega.co.nz/#!6E1VTJIb!dsDragWb1M-NQwoOk11jyl3FpnNObZK_1Lz_5o3cuZg
-)、[水果1996年1月到2013年7月] (https://mega.co.nz/#!7AtGyAxb!eZEQAW8uIhrt4-V1_1VR7wymZ34ASOFZ6VvNss3jXcw)、[水果2013年8月到10月](https://mega.co.nz/#!7VNVnLLQ!Vq_KRH68-09jQlJgvXaW7gPgR9hPRyhJQxGjN6zmr_I)
+* 資料下載處：[蔬菜1996年1月到2013年10月單日交易價格Postgresql資料庫備份](https://drive.google.com/file/d/0B6LCYMv5HpdWemswYUlpMnlXZ1U/view?usp=sharing)、[蔬菜1996年1月到2013年10月單日全台各市場交易價格Postgresql資料庫備份](https://drive.google.com/file/d/0B6LCYMv5HpdWSjk1VFdoMThoWXc/view?usp=sharing)
+、[花卉類不含盆花1996年1月到2013年7月] (https://drive.google.com/file/d/0B6LCYMv5HpdWaUozZ1pUVEtkcDQ/view?usp=sharing)、[花卉類不含盆花2013年8月到10月](https://drive.google.com/file/d/0B6LCYMv5HpdWU1ZGbXNtUmo2QkU/view?usp=sharing
+)、[水果1996年1月到2013年7月] (https://drive.google.com/file/d/0B6LCYMv5HpdWS2lPSTYzU2lHdEk/view?usp=sharing)、[水果2013年8月到10月](https://drive.google.com/file/d/0B6LCYMv5HpdWVUI1cmQ5aktkdVk/view?usp=sharing)
 
 * my_automate_operator.rb程式執行指令說明：
 命令列指令：
