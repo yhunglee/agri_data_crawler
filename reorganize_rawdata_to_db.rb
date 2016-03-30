@@ -2,6 +2,8 @@
 # Author: yhunglee
 # This script is only for reorganizing the raw data in directory: query_results into format of database-compatible, which are postgresql and mysql.
 # The script will deal with vegetable, fruit and flowers from all-in-one-table csv file to separate-table csv file.
+# Note: This file can be execuated by autocomplete_repeat_commands.rb.
+
 require 'optparse'
 require 'csv'
 

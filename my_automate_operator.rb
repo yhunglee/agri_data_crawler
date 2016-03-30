@@ -4,6 +4,8 @@
 #
 # ************************************
 #  This is a robot for crawling data of long times, which are considered in months, and converting csv to json.
+#  It will issue commands to my_vegetable_crawler.rb heavily for aquiring data of long-term time period from a website.
+#  We could assign what it would acquire such vegetable, fruit and flowers 
 # ************************************
 
 require 'date'

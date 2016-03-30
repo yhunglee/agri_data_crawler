@@ -1,6 +1,12 @@
 # encoding: utf-8
 # Author: yhunglee
 # Date: 20150815
+# Objective: Do massive tasks of transforming overview and specified market files from original csv format to compact with relational databases format such as postgres and mysql through function: execuate_repeat_command
+# It also imports generated database-compacted files to postgresql using function: import_csvfiles_to_db. This function only works with database-compacted files.
+# It will interact with reorganize_rawdata_to_db.rb heavily.
+# If you only want to do tasks of importing existed database-compacted files, please disable the function: execuate_repeat_command through masking its execuation.
+# Before using this file, you have to set up postgres, create an user named Howard, create a database named mytest, create two tables in mytest database named overview_vegetable and specified_vegetable.
+# The structure of two tables should be name, code, total_average_price, total_transaction_quantity and name, code, transaction_date, trade_location, kind, detail_processing_type, upper_price, middle_price, and lower_price, average_price, trade_quantity columns respectly.
 require 'optparse'
 require 'pg'
 
@@ -18,16 +24,12 @@ end
 def import_csvfiles_to_db(overviewfilenames, specifiedfilenames)
 
 	conn = PG.connect(dbname: 'mytest', user: 'Howard')
-
 	overviewfilenames.each{ |overviewFile|
 		conn.exec("COPY overview_vegetable(name,code,date,total_average_price,total_transaction_quantity) from '#{Dir.pwd}/query_results/#{overviewFile}' WITH (DELIMITER ',', FORMAT csv, QUOTE '\"', ENCODING 'UTF8')")
 	}
-
-=begin
 	specifiedfilenames.each{ |specifiedFile|
 		conn.exec("COPY specified_vegetable(name,code,transaction_date,trade_location, kind, detail_processing_type, upper_price, middle_price, lower_price, average_price, trade_quantity) from '#{Dir.pwd}/query_results/#{specifiedFile}' WITH (DELIMITER ',', FORMAT csv ,QUOTE '\"', ENCODING 'UTF8')")
 	}
-=end
 end 
 
 def initial_start_and_end_month_year(begintime, endtime)
@@ -90,7 +92,8 @@ def initial_start_and_end_month_year(begintime, endtime)
 	end
 
 	return beExecuteTimearray
-end 
+end
+
 def execuate_repeat_command(runTimearray, inputfileprefix, outputfileprefix)
 
 	inputfilesuffix = ".csv"

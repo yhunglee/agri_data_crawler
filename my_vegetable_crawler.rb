@@ -1,6 +1,7 @@
 # encoding: utf-8
 # Author: howardsun
 # Date: 2013/03/10
+# Crawling data of vegetables, fruits and flowers from a website of Taiwan government.
 
 require 'net/http'
 require 'date'
@@ -722,6 +723,11 @@ begin
 	count_day += 1 # for counting we have procceed how many days.
 
 	puts "寫入查詢結果中，請勿中斷程式......"
+
+	if !(Dir.exist? "./query_results")
+		Dir.mkdir "./query_results"
+	end # if there is no directory named query_results, it will create an one.
+
 	result_array.flatten!
 	File.open("./query_results/"+argv_output_file,"a"){ |f|
 		result_array.each{|element|
