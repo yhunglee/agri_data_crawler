@@ -12,11 +12,11 @@
 ## 資料來源
 * 中華民國政府農產業部門相關網站公布的資料。
 1. http://amis.afa.gov.tw
-陸續加入中。
+陸續加入中。   
 
 
 ## 預計涵蓋品項範圍：
-蔬菜、水果、花卉、盆花、家禽、漁產、畜產......等等，會持續擴展範圍。
+蔬菜、水果、花卉、盆花、家禽、漁產、畜產......等等，會持續擴展範圍。  
  
 ## 目前涵蓋範圍
 * 蔬菜（自2013-06-21開始提供功能），水果（自2013-10-12開始提供功能），花卉（自2013-07-13開始提供功能）。
@@ -37,23 +37,23 @@
  
 
 * my_automate_operator.rb程式執行指令說明：
-<pre>命令列指令：</pre>
+命令列指令  
 <pre><code>ruby my_automate_operator.rb &lt;StartDate&gt; &lt;EndDate&gt; &lt;OutputFileName&gt; &lt;vegetable|fruit|flowers&gt; [onlyconvertojson] </code></pre>
-查詢開始日期最早只能是1996年1月1日，查詢結束日期最晚只能是查詢時的當天；輸出檔名請自行輸入名稱，程式會自動按月份存檔；查詢種類目前有蔬菜、水果、花卉；若在命令列的最後輸入onlyconvertojson，只會轉換本機現有的csv檔案成json檔，並不會從網路抓取資料。
+查詢開始日期最早只能是1996年1月1日，查詢結束日期最晚只能是查詢時的當天；輸出檔名請自行輸入名稱，程式會自動按月份存檔；查詢種類目前有蔬菜、水果、花卉；若在命令列的最後輸入onlyconvertojson，只會轉換本機現有的csv檔案成json檔，並不會從網路抓取資料。   
 * reorganize_rawdata_to_db.rb程式執行指令說明：
-<pre>命令列指令：</pre>
+命令列指令   
 <pre><code>ruby reorganize_rawdata_to_db.rb -i INPUTFILE -o OUTPUTFILE -k INPUTKIND</code></pre>
 -i是輸入檔案的參數，INPUTFILE可以包含輸入檔案的目錄路徑；-o是輸出檔案的參數，OUTPUTFILE只能是輸出檔案的前綴名稱，不能包含檔案的目錄路徑，且輸出檔案會強制放在query_results這個資料夾下，INPUTKIND是告訴城市依照蔬菜，水果或花卉的格式處理資料。
-reorganize_rawdata_to_db.rb執行結果會分別產生OUTPUTFILE-overview.csv和OUTPUTFILE-specified.csv兩類檔案，可運用autocomplete_repeat_commands.rb讀取這些檔案以批量輸入資料庫。reorganize_rawdata_to_db.rb --help會顯示操作說明的英文版。
+reorganize_rawdata_to_db.rb執行結果會分別產生OUTPUTFILE-overview.csv和OUTPUTFILE-specified.csv兩類檔案，可運用autocomplete_repeat_commands.rb讀取這些檔案以批量輸入資料庫。reorganize_rawdata_to_db.rb --help會顯示操作說明的英文版。   
 * autocomplete_repeat_commands.rb程式執行指令說明：
-<pre>命令列指令：</pre>
-<pre><code>ruby autocomplete_repeat_commands.rb -b BEGINMONTH -e ENDMONTH -i INPUTFILE_PREFIX -o OUTPUTFILE_PREFIX </code></pre>
--b 是批量輸入月份檔案的開始月份參數，BEGINMONTH的格式是月份的英文名前三個字元與西元年份四個字元，例如Aug2013；-e是批量輸入月份檔案的結束月份參數，ENDMONTH的格式是月份的英文名前三個字元與西元年份四個字元，例如Oct2013。-i是輸入檔案的參數，INPUTFILE_PREFIX僅能使用輸入檔案的前綴名稱，程式會自動加上月份與年份的後綴字，可以包含檔案的目錄路徑，例如query_results/vegetable_amis_；-o是輸出檔案的參數，OUTPUTFILE_PREFIX只能是輸出檔案的前綴名稱，程式會自動加上月份與年份的後綴字，不能包含檔案的目錄路徑，例如:vegetable_，且輸出檔案會強制放在query_results這個資料夾之下。
+命令列指令
+<pre><code>ruby autocomplete_repeat_commands.rb -b BEGINMONTH -e ENDMONTH -i INPUTFILE_PREFIX -o OUTPUTFILE_PREFIX </code></pre>  
+-b 是批量輸入月份檔案的開始月份參數，BEGINMONTH的格式是月份的英文名前三個字元與西元年份四個字元，例如Aug2013；-e是批量輸入月份檔案的結束月份參數，ENDMONTH的格式是月份的英文名前三個字元與西元年份四個字元，例如Oct2013。-i是輸入檔案的參數，INPUTFILE_PREFIX僅能使用輸入檔案的前綴名稱，程式會自動加上月份與年份的後綴字，可以包含檔案的目錄路徑，例如query_results/vegetable_amis_；-o是輸出檔案的參數，OUTPUTFILE_PREFIX只能是輸出檔案的前綴名稱，程式會自動加上月份與年份的後綴字，不能包含檔案的目錄路徑，例如:vegetable_，且輸出檔案會強制放在query_results這個資料夾之下。  
 
-## 資料格式說明：
+## 資料格式說明
 
 ### 蔬菜CSV正確格式說明
-總類：
+總類：   
 1. 每2行是一種蔬菜在某天臺灣所有大盤市場的一筆交易資料，例如第1行和第2行構成一筆交易資料。
 2. 奇數行只有4個欄位種類, 依序是交易日期、產品名稱、總交易量、總平均價，以半形冒號分開描述欄位文字與欄位值。
 3. a)奇數行是一種蔬菜在某天臺灣所有大盤市場的交易資料之概觀，總交易量和總平均價是來自各大盤市場的計算加總與平均值。
@@ -63,14 +63,14 @@ b)偶數行只有10個欄位種類, 依序是市場名稱、品種名稱、處�
 6. 如果欄位值出現\"\"，則表示在官方資料中，此欄位是空白。
 7. 完整例子請參考vegetable_amis_Sep2012.csv 。
 
-總量欄位：
-{item_id & item_name}, transaction_date, total_transaction_quantity, total_average_price
+總量欄位：   
+{item_id & item_name}, transaction_date, total_transaction_quantity, total_average_price   
 
-各市場交易價格資料欄位：
-market_name, type_name, processing_name, upper_price, middle_price, down_price, average_price, change_percentage_of_average_price, transaction_quantity, change_percentage_of_transaction_quantity
+各市場交易價格資料欄位：   
+market_name, type_name, processing_name, upper_price, middle_price, down_price, average_price, change_percentage_of_average_price, transaction_quantity, change_percentage_of_transaction_quantity   
 
 ### 花卉CSV正確格式說明
-總類：
+總類：   
 1. 每2行是一種花卉在某天台灣所有大盤市場的一筆交易資料，例如第1行和第2行構成一筆交易資料。
 2. 奇數行只有5個欄位種類, 依序是交易日期、總平均價、總交易量、總殘貨量、產品名稱（欄位名稱順序與蔬菜、水果不同），以半形冒號分開描述欄位文字與欄位值。
 3. a)奇數行是一種花卉在某天臺灣所有大盤市場的交易資料之概觀，總交易量和總平均價是來自各大盤市場的計算加總與平均值。
@@ -80,14 +80,14 @@ b)偶數行只有11個欄位種類, 依序是市場名稱、品種名稱、最�
 6. 如果欄位值出現\"\"，則表示在官方資料中，此欄位是空白。
 7. 完整例子請參考flowers_amis_Apr1996.csv 。
 
-總量欄位：
-{item_id & item_name}, transaction_date, total_transaction_quantity, total_nest_quantity, total_average_price, total_nest_quantity
+總量欄位：   
+{item_id & item_name}, transaction_date, total_transaction_quantity, total_nest_quantity, total_average_price, total_nest_quantity   
 
-各市場交易價格資料欄位：
-{item_id & item_name}, transaction_date, market_name, type_name, highest_price, upper_price, middle_price, down_price, average_price, change_percentage_of_average_price, transaction_quantity, change_percentage_of_transaction_quantity, nest_quantity
+各市場交易價格資料欄位：   
+{item_id & item_name}, transaction_date, market_name, type_name, highest_price, upper_price, middle_price, down_price, average_price, change_percentage_of_average_price, transaction_quantity, change_percentage_of_transaction_quantity, nest_quantity   
 
 ### 水果CSV正確格式說明
-總類：
+總類：   
 1. 每2行是一種水果在某天台灣所有大盤市場的一筆交易資料，例如第1行和第2行構成一筆交易資料。
 2. 奇數行只有6個欄位種類, 依序是交易日期、產品名稱、品種名、處理別、總交易量、總平均價，以半形冒號分開描述欄位文字與欄位值。
 3. a)奇數行是一種水果在某天臺灣所有大盤市場的交易資料之概觀，總交易量和總平均價是來自各大盤市場的計算加總與平均值。
@@ -97,45 +97,45 @@ b)偶數行只有11個欄位種類, 依序是市場名稱、天氣、上價、�
 6. 如果欄位值出現\"\"，則表示在官方資料中，此欄位是空白。
 7. 完整例子請參考fruit_amis_Apr1996.csv 。
 
-總量欄位：
-{item_id & item_name}, type_name, processing_name, transaction_date, total_transaction_quantity, total_average_price
+總量欄位：   
+{item_id & item_name}, type_name, processing_name, transaction_date, total_transaction_quantity, total_average_price   
 
-各市場交易價格資料欄位：
-{item_id & item_name}, transaction_date, market_name, weather, upper_price, middle_price, down_price, average_price, change_percentage_of_average_price, transaction_quantity, change_percentage_of_transaction_quantity
+各市場交易價格資料欄位：  
+{item_id & item_name}, transaction_date, market_name, weather, upper_price, middle_price, down_price, average_price, change_percentage_of_average_price, transaction_quantity, change_percentage_of_transaction_quantity   
 
 ### 蔬菜JSON正確格式說明
-總類：
+總類：  
 1. 每1行是一種蔬菜在某天臺灣所有大盤市場的一筆完整交易資料，是整合自csv格式檔的奇數行和偶數行，每1行都只有5個欄位。
 2. 前4個欄位是CSV格式檔奇數行的值，第5個欄位是交易市場價格資料，使用來自CSV格式檔的偶數行，第5個欄位值是一個JSON格式的陣列，陣列裡面每一個元素(element)都是每個大盤交易市場的資料，每個市場的資料欄位如蔬菜CSV格式敘述，所以不再贅述；如果欄位值出現null，代表原本在CSV格式檔裡面是雙引號(\"\")。
 3. 完整例子請參考vegetable_amis_Sep2012.json 。
 
-總量：
-{item_id & item_name}, transaction_date, total_transaction_quantity, total_average_price
+總量：   
+{item_id & item_name}, transaction_date, total_transaction_quantity, total_average_price   
 
-各市場交易價格資料：
-{item_id & item_name}, transaction_date, market_name, type_name, processing_type, upper_price, middle_price, down_price, average_price, change_percentage_of_average_price, transaction_quantity, change_percentage_of_transaction_quantity
+各市場交易價格資料：   
+{item_id & item_name}, transaction_date, market_name, type_name, processing_type, upper_price, middle_price, down_price, average_price, change_percentage_of_average_price, transaction_quantity, change_percentage_of_transaction_quantity    
 ### 花卉JSON正確格式說明
-總類：
+總類：   
 1. 每1行是一種花卉在某天臺灣所有大盤市場的一筆完整交易資料，是整合自csv格式檔的奇數行和偶數行，每1行都只有6個欄位。
 2. 前5個欄位是CSV格式檔奇數行的值，第6個欄位是交易市場價格資料，使用來自CSV格式檔的偶數行，第6個欄位值是一個JSON格式的陣列，陣列裡面每一個元素(element)都是每個大盤交易市場的資料，每個市場的資料欄位如花卉CSV格式敘述，所以不再贅述；如果欄位值出現null，代表原本在CSV格式檔裡面是雙引號(\"\")。
 3. 完整例子請參考flowers_amis_Sep2012.json 。
 
-總量欄位：
-{item_id & item_name}, transaction_date, total_quantity, total_average_price, total_nest_quantity
+總量欄位：   
+{item_id & item_name}, transaction_date, total_quantity, total_average_price, total_nest_quantity   
 
-各市場交易價格資料欄位：
-{item_id & item_name}, transaction_date, market_name, type_name, highest_price, upper_price, middle_price, down_price, average_price, change_percentage_of_average_price, transaction_quantity, change_percentage_of_transaction_quantity, nest_quantity
+各市場交易價格資料欄位：   
+{item_id & item_name}, transaction_date, market_name, type_name, highest_price, upper_price, middle_price, down_price, average_price, change_percentage_of_average_price, transaction_quantity, change_percentage_of_transaction_quantity, nest_quantity   
 ### 水果JSON正確格式說明
-總類：
+總類：   
 1. 每1行是一種水果在某天臺灣所有大盤市場的一筆完整交易資料，是整合自csv格式檔的奇數行和偶數行，每1行都只有7個欄位。
 2. 前6個欄位是CSV格式檔奇數行的值，第7個欄位是交易市場價格資料，使用來自CSV格式檔的偶數行，第7個欄位值是一個JSON格式的陣列，陣列裡面每一個元素(element)都是每個大盤交易市場的資料，每個市場的資料欄位如花卉CSV格式敘述，所以不再贅述；如果欄位值出現null，代表原本在CSV格式檔裡面是雙引號(\"\")。
 3. 完整例子請參考flowers_amis_Sep2012.json 。
 
-總量欄位：
-{item_id & item_name}, type_name, processing_type, transaction_date, total_transaction_quantity, total_average_price
+總量欄位：   
+{item_id & item_name}, type_name, processing_type, transaction_date, total_transaction_quantity, total_average_price   
 
-各市場交易價格資料欄位：
-{item_id & item_name}, transaction_date, market_name, weather, upper_price, middle_price, down_price, average_price, change_percentage_of_average_price, transaction_quantity, change_percentage_of_transaction_quantity
+各市場交易價格資料欄位：   
+{item_id & item_name}, transaction_date, market_name, weather, upper_price, middle_price, down_price, average_price, change_percentage_of_average_price, transaction_quantity, change_percentage_of_transaction_quantity   
 
 ***
 
