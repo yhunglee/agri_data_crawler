@@ -237,6 +237,7 @@ while (-1 == (cmd_start_date <=> argv_end_date)) || (0 == (cmd_start_date <=> ar
 		end
 		# if turning off flag of onlyconvertojson
 
+=begin
 		# Converting csv to json
 		puts "Converting csv to json"
 		cmd_convert_to_json_file = cmd_output_file.sub(/\.csv/u, ".json")
@@ -256,6 +257,7 @@ while (-1 == (cmd_start_date <=> argv_end_date)) || (0 == (cmd_start_date <=> ar
 			exit
 		end
 		# Converting csv to json
+=end
 
 		cmd_start_date = cmd_start_date.next_month()
 		month_count += 1
