@@ -39,11 +39,11 @@
 ## 設定config目錄
 * 執行autocomplete_repeat_commands.rb檔案前，請在專案家目錄之下建立config目錄，並於config目錄內，新增一個純文字檔案，名稱是accountsetting.txt，以方便本機的postgresq資料庫程式。 
 * accountsetting.rb檔案內容格式是
-<code>
+<pre><code>
 dbname=YOURDBNAME   
 user=YOURDBUSERNAME   
 password=YOURDBUSERPASSWORD   
-</code>
+</code></pre>
 
 * my_automate_operator.rb程式執行指令說明：
 命令列指令  
