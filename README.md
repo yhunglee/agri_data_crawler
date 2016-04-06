@@ -26,7 +26,8 @@
 
 * 資料下載處：[蔬菜1996年1月到2013年10月單日交易價格Postgresql資料庫備份](https://drive.google.com/file/d/0B6LCYMv5HpdWemswYUlpMnlXZ1U/view?usp=sharing)、[蔬菜1996年1月到2013年10月單日全台各市場交易價格Postgresql資料庫備份](https://drive.google.com/file/d/0B6LCYMv5HpdWSjk1VFdoMThoWXc/view?usp=sharing)
 、[花卉類不含盆花1996年1月到2013年7月] (https://drive.google.com/file/d/0B6LCYMv5HpdWaUozZ1pUVEtkcDQ/view?usp=sharing)、[花卉類不含盆花2013年8月到10月](https://drive.google.com/file/d/0B6LCYMv5HpdWU1ZGbXNtUmo2QkU/view?usp=sharing
-)、[水果1996年1月到2013年7月] (https://drive.google.com/file/d/0B6LCYMv5HpdWS2lPSTYzU2lHdEk/view?usp=sharing)、[水果2013年8月到10月](https://drive.google.com/file/d/0B6LCYMv5HpdWVUI1cmQ5aktkdVk/view?usp=sharing)
+)、[水果1996年1月到2013年7月] (https://drive.google.com/file/d/0B6LCYMv5HpdWS2lPSTYzU2lHdEk/view?usp=sharing)、[水果2013年8月到10月](https://drive.google.com/file/d/0B6LCYMv5HpdWVUI1cmQ5aktkdVk/view?usp=sharing)  
+
 ## 各程式功能說明
 1. my_vegetable_crawler.rb：用於抓取資料，可以提供蔬菜，水果和花卉的資料抓取。
 2. my_automate_operator.rb ：用於下指令給my_vegetable_crawler.rb，可指定長時間資料區段的抓取。
