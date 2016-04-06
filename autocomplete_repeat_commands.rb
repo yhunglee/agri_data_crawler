@@ -21,9 +21,63 @@ def get_csvoutputfilenames(runTimeArray, outputfileprefix)
 	return overviewCsvfilenameArray, specifiedCsvfilenameArray
 end
 
+def retrieve_connect_settings_of_postgres
+	# return dbname, user, password
+	# We assume the database is located at local machine.
+	arrayOfparameters = Array.new
+	i = 0
+	if Dir.exist?("./config") && File.exist?("./config/accountsetting.txt")
+		File.open(".config/accountsetting.txt", "r") do |f|
+			f.each_line do |line|
+				if line =~ /^dbname=/u
+					arrayOfparameters << line
+				elsif line =~ /^user=/u
+					arrayOfparameters << line
+				elsif line =~ /^password=/u
+					arrayOfparameters << line
+				else
+					puts "Stop executing."
+					abort "Format of accountsetting.txt is wrong. Format of accountsettting.txt:\ndbname=YOURDBNAME\nuser=YOURDBUSERNAME\npassword=YOURDBPASSWORD\n  Besides, this file must contain only settings for only one user."
+				end
+				i += 1
+				if i > 2 && arrayOfparameters.length == 3
+					puts "Notice: We only use first setting, and following settings in config/accountsetting.txt won't be consider."
+					break
+				elsif i > 3
+					puts "Stop executing."
+					abort "Too many unuseful settings for database connection."
+				end 
+			end 
+		end 
+	else
+		if !(Dir.exist?("./config"))
+			Dir.mkdir("./config")
+		end 
+		if !(File.exist?("./config/accountsetting.txt"))
+			File.open("./config/accountsetting.txt", "w") do |f|
+				f.puts("dbname=","user=","password=")
+			end 
+		end 
+		puts "Stop executing."
+		abort "Error: You have to define a directory named config and a file named accountsetting.txt .\n Content of accountsetting.txt:\ndbname=YOURDBNAME\nuser=YOURDBUSERNAME\npassword=YOURDBPASSWORD"
+	end
+
+	arrayOfparameters.each do |value|
+		if value =~ /^dbname=/u
+			dbname = value.sub(/^dbname=/u,"")
+		elsif value =~ /^user=/u
+			user = value.sub(/^user=/u,"")
+		elsif value =~ /^password=/u
+			password = value.sub(/^password=/u,"")
+		end
+	end 
+	return dbname, user, password
+end 
+
 def import_csvfiles_to_db(overviewfilenames, specifiedfilenames)
 
-	conn = PG.connect(dbname: 'mytest', user: 'Howard')
+	dbname, user, password = retrieve_connect_settings_of_postgres
+	conn = PG.connect(dbname: dbname, user: user, password: password)
 	overviewfilenames.each{ |overviewFile|
 		conn.exec("COPY overview_vegetable(name,code,date,total_average_price,total_transaction_quantity) from '#{Dir.pwd}/query_results/#{overviewFile}' WITH (DELIMITER ',', FORMAT csv, QUOTE '\"', ENCODING 'UTF8')")
 	}

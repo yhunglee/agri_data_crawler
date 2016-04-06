@@ -35,7 +35,15 @@
 4. autocomplete_repeat_commands.rb：向reorganize_rawdata_to_db.rb下達指令，指定長時間資料區間的檔案匯入postgresql資料庫。
 5. my_format_csv_to_json.rb：用於轉換CSV格式到JSON格式。由於轉換到JSON的結果果不符正統JSON及可匯入資料庫格式，現已停用，建議不使用這份程式進行轉換。
 6. my_rm_duplicate_lines.rb：以每列為單位，用以刪除重複的資料。由於已經忘記何時會用到這份程式，現已停用，建議不使用它。
- 
+
+## 設定config目錄
+* 執行autocomplete_repeat_commands.rb檔案前，請在專案家目錄之下建立config目錄，並於config目錄內，新增一個純文字檔案，名稱是accountsetting.txt，以方便本機的postgresq資料庫程式。 
+* accountsetting.rb檔案內容格式是
+<code>
+dbname=YOURDBNAME
+user=YOURDBUSERNAME
+password=YOURDBUSERPASSWORD
+</code>
 
 * my_automate_operator.rb程式執行指令說明：
 命令列指令  
