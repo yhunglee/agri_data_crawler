@@ -259,6 +259,11 @@ while (-1 == (cmd_start_date <=> argv_end_date)) || (0 == (cmd_start_date <=> ar
 		# Converting csv to json
 =end
 
+
+		# Run autocomplete_repeat_commands.rb
+		system("ruby autocomplete_repeat_commands.rb -b #{Date::ABBR_MONTHNAMES[cmd_start_date.month]}#{cmd_start_date.year} -e #{cmd_start_date.month}#{cmd_start_date.year} -i #{argv_output_file} -o dbimport_" )
+		# Run autocomplete_repeat_commands.rb
+
 		cmd_start_date = cmd_start_date.next_month()
 		month_count += 1
 		if month_count > 0
