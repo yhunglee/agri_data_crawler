@@ -256,7 +256,7 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 										location_count += 10
 									end
 
-								else # if location_count的前一個位置內容是"增減％"
+								else # if location_count的前一個位置內容是"增減%"
 									if table_size == 20
 										#已預設location_count的位置是市場名稱
 										break # do nothing
