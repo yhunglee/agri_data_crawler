@@ -30,7 +30,7 @@
 
 ## 各程式功能說明
 1. my_vegetable_crawler.rb：用於抓取資料，可以提供蔬菜，水果和花卉的資料抓取。
-2. my_automate_operator.rb ：用於下指令給my_vegetable_crawler.rb，可指定長時間資料區段的抓取。20160406為了讓cron task program只須用一個單一進入點，已新增流程：呼叫autocomplete_repeat_commands.rb進行短時間(一日)或長時間(一日以上)的倒入已抓取資料到postgres資料庫中。**尚未進行測試。**
+2. my_automate_operator.rb ：用於下指令給my_vegetable_crawler.rb，可指定長時間資料區段的抓取。為了讓cron task program只須用一個單一進入點，已新增流程：呼叫autocomplete_repeat_commands.rb進行短時間(一日)或長時間(一日以上)的倒入已抓取資料到postgres資料庫中。
 3. reorganize_rawdata_to_db.rb：用於整理my_vegetable_crawler.rb產生的CSV格式檔案，以便由autocomplete_repeat_commands.rb匯入postgresql資料庫。（目前只完成整理蔬菜，尚未完成水果和花卉的整理）
 4. autocomplete_repeat_commands.rb：向reorganize_rawdata_to_db.rb下達指令，指定長時間資料區間的檔案匯入postgresql資料庫。
 5. my_format_csv_to_json.rb：用於轉換CSV格式到JSON格式。由於轉換到JSON的結果果不符正統JSON及可匯入資料庫格式，現已停用，建議不使用這份程式進行轉換。
@@ -44,6 +44,7 @@ dbname=YOURDBNAME
 user=YOURDBUSERNAME   
 password=YOURDBUSERPASSWORD   
 </code></pre>
+* 空密碼不用輸入
 
 * my_automate_operator.rb程式執行指令說明：
 命令列指令  

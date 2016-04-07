@@ -27,19 +27,18 @@ def retrieve_connect_settings_of_postgres
 	arrayOfparameters = Array.new
 	i = 0
 	if Dir.exist?("./config") && File.exist?("./config/accountsetting.txt")
-		File.open(".config/accountsetting.txt", "r") do |f|
+		File.open("./config/accountsetting.txt", "r") do |f|
 			f.each_line do |line|
-				if line =~ /^dbname=/u
+				if nil != (line =~ /^dbname=/u)
 					arrayOfparameters << line
-				elsif line =~ /^user=/u
+				elsif nil != (line =~ /^user=/u)
 					arrayOfparameters << line
-				elsif line =~ /^password=/u
+				elsif nil != (line =~ /^password=/u)
 					arrayOfparameters << line
 				else
 					puts "Stop executing."
-					abort "Format of accountsetting.txt is wrong. Format of accountsettting.txt:\ndbname=YOURDBNAME\nuser=YOURDBUSERNAME\npassword=YOURDBPASSWORD\n  Besides, this file must contain only settings for only one user."
+					abort "Format of accountsetting.txt is wrong. Format of accountsettting.txt:\ndbname=YOURDBNAME\nuser=YOURDBUSERNAME\npassword=YOURDBPASSWORD\nBesides, this file must contain only settings for only one user."
 				end
-				i += 1
 				if i > 2 && arrayOfparameters.length == 3
 					puts "Notice: We only use first setting, and following settings in config/accountsetting.txt won't be consider."
 					break
@@ -47,6 +46,7 @@ def retrieve_connect_settings_of_postgres
 					puts "Stop executing."
 					abort "Too many unuseful settings for database connection."
 				end 
+				i += 1
 			end 
 		end 
 	else
@@ -62,13 +62,16 @@ def retrieve_connect_settings_of_postgres
 		abort "Error: You have to define a directory named config and a file named accountsetting.txt .\n Content of accountsetting.txt:\ndbname=YOURDBNAME\nuser=YOURDBUSERNAME\npassword=YOURDBPASSWORD"
 	end
 
+	dbname = ''
+	user = ''
+	password = ''
 	arrayOfparameters.each do |value|
-		if value =~ /^dbname=/u
-			dbname = value.sub(/^dbname=/u,"")
-		elsif value =~ /^user=/u
-			user = value.sub(/^user=/u,"")
-		elsif value =~ /^password=/u
-			password = value.sub(/^password=/u,"")
+		if nil != (value =~ /^dbname=/u)
+			dbname = value.sub(/^dbname=/u,"").strip
+		elsif nil != (value =~ /^user=/u)
+			user = value.sub(/^user=/u,"").strip
+		elsif nil != (value =~ /^password=/u)
+			password = value.sub(/^password=/u,"").strip
 		end
 	end 
 	return dbname, user, password
@@ -152,7 +155,7 @@ def execuate_repeat_command(runTimearray, inputfileprefix, outputfileprefix)
 
 	inputfilesuffix = ".csv"
 	runTimearray.each{ |runtime|
-		if true == (File::file?("./query_results"+ inputfileprefix + runtime + inputfilesuffix))
+		if true == (File.exist?("./query_results/"+ inputfileprefix + runtime + inputfilesuffix))
 			system("ruby reorganize_rawdata_to_db.rb -i #{inputfileprefix}#{runtime}#{inputfilesuffix} -o #{outputfileprefix}#{runtime}")
 		else
 			abort "Error: The input file #{inputfileprefix}#{runtime}#{inputfilesuffix} doesn't exist."
@@ -161,7 +164,6 @@ def execuate_repeat_command(runTimearray, inputfileprefix, outputfileprefix)
 	}	
 	 
 end 
-
 
 	command_options = Hash.new
 	optionParser = OptionParser.new do |opts|
