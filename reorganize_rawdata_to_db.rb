@@ -14,7 +14,7 @@ def write_to_separate_files(outputOverviewContent, outputSpecifiedContent, outpu
 	end 
 	outputOverviewFileName = outputCsvFileName + "-overview.csv"
 	outputSpecifiedFileName = outputCsvFileName + "-specified.csv"
-	if  (false == (File.file? outputOverviewFileName)) && (false == (File.file? outputSpecifiedFileName))
+	if  (false == (File::file?("./query_results/" + outputOverviewFileName))) && (false == (File::file?("./query_results/" +  outputSpecifiedFileName)))
 
 		CSV.open( "query_results/" + outputOverviewFileName , "w" ) do |csv|
 			i = 0
@@ -64,10 +64,10 @@ end
 
 def read_origin_csv_file( inputCsvFile )
 
-	if false == (File.file? inputCsvFile)
+	if false == (File::file?("./query_results/" + inputCsvFile))
 		abort "Error: The input file doesn't exist. Abort execution."
 	else
-		fileContent = File.readlines inputCsvFile
+		fileContent = File.readlines("./query_results/" + inputCsvFile)
 		fileContent 
 	end 
 end

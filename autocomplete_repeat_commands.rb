@@ -152,7 +152,7 @@ def execuate_repeat_command(runTimearray, inputfileprefix, outputfileprefix)
 
 	inputfilesuffix = ".csv"
 	runTimearray.each{ |runtime|
-		if true == (File.file?(inputfileprefix + runtime + inputfilesuffix))
+		if true == (File::file?("./query_results"+ inputfileprefix + runtime + inputfilesuffix))
 			system("ruby reorganize_rawdata_to_db.rb -i #{inputfileprefix}#{runtime}#{inputfilesuffix} -o #{outputfileprefix}#{runtime}")
 		else
 			abort "Error: The input file #{inputfileprefix}#{runtime}#{inputfilesuffix} doesn't exist."
