@@ -230,7 +230,7 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 							puts "At tmp_array[location_count]不是數字、也不是無資料" #debug
 							previous_location = location_count - 1
 							if nil == (tmp_array[previous_location] =~ /([\-]|[\+\-]?[0-9]+(.)?[0-9]*|[\+\-]?[\*]+)/u)
-								if 0 != (tmp_array[previous_location] <=> "增減％")
+								if 0 != (tmp_array[previous_location] <=> "增減%")
 									# do something 區分市場名稱和品種和處理別。
 									nextOnePosition = location_count + 1
 									nextTwoPosition = location_count + 2
