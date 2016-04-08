@@ -735,6 +735,7 @@ begin
 		}
 	} # write detail-version information
 
+=begin
 	summary_result_array = Array.new
 	marketBased_result_array = Array.new
 	summary_result_array, marketBased_result_array = query_results_transform( q_type, result_array )
@@ -753,6 +754,7 @@ begin
 		}
 	}
 	# 2014/03/04 written: write market-based information of every item whose exclude summary-version.
+=end
 	result_array.clear
 	puts "寫入完畢."
 	puts "===================================="
