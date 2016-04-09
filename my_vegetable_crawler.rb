@@ -729,7 +729,7 @@ begin
 	end # if there is no directory named query_results, it will create an one.
 
 	result_array.flatten!
-	File.open("./query_results/"+argv_output_file,"w"){ |f| # 20160406: change from a mode to w mode because we start to use cron task program with same file name.
+	File.open("./query_results/"+argv_output_file,"a"){ |f|
 		result_array.each{|element|
 			f.puts(element)
 		}
