@@ -194,7 +194,14 @@ end
 	end
 
 	optionParser.parse!
-	execuateTimeArray = initial_start_and_end_month_year(command_options[:begintime], command_options[:endtime])
+
+	execuateTimeArray = Array.new
+	if (command_options[:begintime].nil?) # for using with single day. So that crontable can use it without giving --begin MONYEAR and --end MONYEAR parameters. 
+		execuateTimeArray << (Date.today-1).to_s
+	else
+		# For using with reorganizing and importing data in many days to database.
+		execuateTimeArray = initial_start_and_end_month_year(command_options[:begintime], command_options[:endtime])
+	end 
 	execuate_repeat_command(execuateTimeArray, command_options[:inputfileprefix], command_options[:outputfileprefix])
 	overviewCsvfilenames, specifiedCsvfilenames = get_csvoutputfilenames(execuateTimeArray, command_options[:outputfileprefix])
 	import_csvfiles_to_db(overviewCsvfilenames, specifiedCsvfilenames)

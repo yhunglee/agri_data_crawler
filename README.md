@@ -48,7 +48,7 @@ password=YOURDBUSERPASSWORD
 
 * my_automate_operator.rb程式執行指令說明：
 命令列指令  
-<pre><code>ruby my_automate_operator.rb &lt;StartDate&gt; &lt;EndDate&gt; &lt;OutputFileName&gt; &lt;vegetable|fruit|flowers&gt; [onlyconvertojson] </code></pre>
+<pre><code>ruby my_automate_operator.rb &lt;StartDate&gt; &lt;EndDate&gt; &lt;OutputFileName&gt; &lt;vegetable|fruit|flowers&gt; [onlyconvertojson] </code></pre>  
 查詢開始日期最早只能是1996年1月1日，查詢結束日期最晚只能是查詢時的當天；輸出檔名請自行輸入名稱，程式會自動按月份存檔；查詢種類目前有蔬菜、水果、花卉；若在命令列的最後輸入onlyconvertojson，只會轉換本機現有的csv檔案成json檔，並不會從網路抓取資料。   
 * reorganize_rawdata_to_db.rb程式執行指令說明：
 命令列指令   
@@ -58,7 +58,10 @@ reorganize_rawdata_to_db.rb執行結果會分別產生OUTPUTFILE-overview.csv和
 * autocomplete_repeat_commands.rb程式執行指令說明：
 命令列指令
 <pre><code>ruby autocomplete_repeat_commands.rb -b BEGINMONTH -e ENDMONTH -i INPUTFILE_PREFIX -o OUTPUTFILE_PREFIX </code></pre>  
+Or
+<pre><code>ruby autocomplete_repeat_commands.rb -i INPUTFILE_PREFIX -o OUTPUTFILE_PREFIX </code></pre>  
 -b 是批量輸入月份檔案的開始月份參數，BEGINMONTH的格式是月份的英文名前三個字元與西元年份四個字元，例如Aug2013；-e是批量輸入月份檔案的結束月份參數，ENDMONTH的格式是月份的英文名前三個字元與西元年份四個字元，例如Oct2013。-i是輸入檔案的參數，INPUTFILE_PREFIX僅能使用輸入檔案的前綴名稱，程式會自動加上月份與年份的後綴字，可以包含檔案的目錄路徑，例如query_results/vegetable_amis_；-o是輸出檔案的參數，OUTPUTFILE_PREFIX只能是輸出檔案的前綴名稱，程式會自動加上月份與年份的後綴字，不能包含檔案的目錄路徑，例如:vegetable_，且輸出檔案會強制放在query_results這個資料夾之下。  
+若沒同時給予-b和-e，以及其相對應的參數值，則預設只抓取執行當日的前一天資料。
 
 ## 資料格式說明
 
