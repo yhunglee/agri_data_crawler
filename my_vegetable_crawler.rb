@@ -466,77 +466,6 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 	 return true,string_array 
 end
 
-unless ARGV.length > 2 && ARGV.length < 5
-	puts "Available command: ruby my_vegetable_crawler.rb <Start Date> <End Date> <Output file> [vegetable|fruit|flowers]"
-	puts "Format of start and end date is using AD. yyyy-mm-dd, I will transform it to format of Republic of China."
-	puts "Available value range of start date is 1996-01-01, and we can't query someday that in the future."
-	puts "Available value range of end date is greater than or equal to start date."
-	puts "-------------------------------------------------------"
-	puts "Every output file is putted at under directory of query_results. Content format is csv-style originally."
-
-	puts "Last parameter is optional, and vegetable is the implicit value."
-	exit 
-end
-
-argv_start_date = Date.parse ARGV[0] # ARGV[0] is the start date
-qs_year = argv_start_date.year #ARGV[0] is the <start date>
-qs_month = argv_start_date.month
-qs_day = argv_start_date.day
-if Date.valid_date?(qs_year, qs_month, qs_day) == false
-	puts "Error: Start date's value isn't exist in calendar."
-	exit
-else
-	if qs_year < 1996
-		puts "Error: Start date must start from 1996A.D.."
-		exit
-	elsif (argv_start_date <=> Date.today) == 1
-		puts "Error: We can't query information in the future via this program when start date is greater than today."
-		exit
-	end
-end
-
-#ARGV[1] is the ending time
-argv_end_date = Date.parse ARGV[1] # ARGV[1] is the end date
-qe_year = argv_end_date.year #ARGV[1] is the <end date>
-qe_month = argv_end_date.month
-qe_day = argv_end_date.day
-if Date.valid_date?(qe_year, qe_month, qe_day) == false
-	puts "Error: End date's value isn't exist in calendar."
-	exit
-else
-	if (argv_end_date <=> argv_start_date) == -1
-		puts "Error: End date must greater than or equal to start date."
-		exit
-	elsif (argv_end_date <=> Date.today) == 1
-		puts "Error: We can't query information in the future via this program when end date is greater than today."
-		exit
-	end
-end
-
-#For showing how many days will be crawled
-total_days_will_be_processing = (argv_end_date - argv_start_date).to_i + 1
-
-#ARGV[2] is the output file
-argv_output_file = ARGV[2]
-
-#ARGV[3] is an option for quering vegetable, fruit or flowers.
-if ARGV[3].nil?
-	q_type = 1
-else
-	argv_query_type = ARGV[3].downcase
-	case argv_query_type
-	when "vegetable"
-		q_type = 1
-	when "fruit"
-		q_type = 2
-	when "flowers"
-		q_type = 3
-	else
-		puts "Error: Parameter of query_type must be vegetable, fruit or flowers. I don't care UPCASE or downcase."
-		exit
-	end
-end
-
 def query_results_transform( q_type, results )
 # use to get summary and market-based information of every item.
 # 2014/03/04 written: not complete
@@ -658,6 +587,78 @@ def query_results_transform( q_type, results )
 	end
 	return summary, marketBased_info
 end
+
+unless ARGV.length > 2 && ARGV.length < 5
+	puts "Available command: ruby my_vegetable_crawler.rb <Start Date> <End Date> <Output file> [vegetable|fruit|flowers]"
+	puts "Format of start and end date is using AD. yyyy-mm-dd, I will transform it to format of Republic of China."
+	puts "Available value range of start date is 1996-01-01, and we can't query someday that in the future."
+	puts "Available value range of end date is greater than or equal to start date."
+	puts "-------------------------------------------------------"
+	puts "Every output file is putted at under directory of query_results. Content format is csv-style originally."
+
+	puts "Last parameter is optional, and vegetable is the implicit value."
+	exit 
+end
+
+argv_start_date = Date.parse ARGV[0] # ARGV[0] is the start date
+qs_year = argv_start_date.year #ARGV[0] is the <start date>
+qs_month = argv_start_date.month
+qs_day = argv_start_date.day
+if Date.valid_date?(qs_year, qs_month, qs_day) == false
+	puts "Error: Start date's value isn't exist in calendar."
+	exit
+else
+	if qs_year < 1996
+		puts "Error: Start date must start from 1996A.D.."
+		exit
+	elsif (argv_start_date <=> Date.today) == 1
+		puts "Error: We can't query information in the future via this program when start date is greater than today."
+		exit
+	end
+end
+
+#ARGV[1] is the ending time
+argv_end_date = Date.parse ARGV[1] # ARGV[1] is the end date
+qe_year = argv_end_date.year #ARGV[1] is the <end date>
+qe_month = argv_end_date.month
+qe_day = argv_end_date.day
+if Date.valid_date?(qe_year, qe_month, qe_day) == false
+	puts "Error: End date's value isn't exist in calendar."
+	exit
+else
+	if (argv_end_date <=> argv_start_date) == -1
+		puts "Error: End date must greater than or equal to start date."
+		exit
+	elsif (argv_end_date <=> Date.today) == 1
+		puts "Error: We can't query information in the future via this program when end date is greater than today."
+		exit
+	end
+end
+
+#For showing how many days will be crawled
+total_days_will_be_processing = (argv_end_date - argv_start_date).to_i + 1
+
+#ARGV[2] is the output file
+argv_output_file = ARGV[2]
+
+#ARGV[3] is an option for quering vegetable, fruit or flowers.
+if ARGV[3].nil?
+	q_type = 1
+else
+	argv_query_type = ARGV[3].downcase
+	case argv_query_type
+	when "vegetable"
+		q_type = 1
+	when "fruit"
+		q_type = 2
+	when "flowers"
+		q_type = 3
+	else
+		puts "Error: Parameter of query_type must be vegetable, fruit or flowers. I don't care UPCASE or downcase."
+		exit
+	end
+end
+
 
 recv_mpno_list, recv_mpname_list = read_items_from_file(q_type)
 total_mpno_number = recv_mpno_list.size # for showing total number of be processced mpno
