@@ -90,11 +90,9 @@ def import_csvfiles_to_db(overviewfilenames, specifiedfilenames, handle_type)
 			conn.exec("COPY specified_vegetable(name,code,transaction_date,trade_location, kind, detail_processing_type, upper_price, middle_price, lower_price, average_price, trade_quantity) from '#{Dir.pwd}/query_results/#{specifiedFile}' WITH (DELIMITER ',', FORMAT csv ,QUOTE '\"', ENCODING 'UTF8')")
 		}
 	elsif handle_type == "fruit"
-=begin 
 		overviewfilenames.each{ |overviewFile|
 			conn.exec("COPY overview_fruit(name,code,date,kind,process_type,total_average_price,total_transaction_quantity) from '#{Dir.pwd}/query_results/#{overviewFile}' WITH (DELIMITER ',', FORMAT csv, QUOTE '\"', ENCODING 'UTF8')")
 		}
-=end 
 
 		specifiedfilenames.each{ |specifiedFile|
 			conn.exec("COPY specified_fruit(name,code,transaction_date,kind,trade_location, weather, upper_price, middle_price, lower_price, average_price, trade_quantity) from '#{Dir.pwd}/query_results/#{specifiedFile}' WITH (DELIMITER ',', FORMAT csv ,QUOTE '\"', ENCODING 'UTF8')")
