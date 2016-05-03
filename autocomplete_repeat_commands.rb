@@ -77,16 +77,30 @@ def retrieve_connect_settings_of_postgres
 	return dbname, user, password
 end 
 
-def import_csvfiles_to_db(overviewfilenames, specifiedfilenames)
+def import_csvfiles_to_db(overviewfilenames, specifiedfilenames, handle_type)
 
 	dbname, user, password = retrieve_connect_settings_of_postgres
 	conn = PG.connect(dbname: dbname, user: user, password: password)
-	overviewfilenames.each{ |overviewFile|
-		conn.exec("COPY overview_vegetable(name,code,date,total_average_price,total_transaction_quantity) from '#{Dir.pwd}/query_results/#{overviewFile}' WITH (DELIMITER ',', FORMAT csv, QUOTE '\"', ENCODING 'UTF8')")
-	}
-	specifiedfilenames.each{ |specifiedFile|
-		conn.exec("COPY specified_vegetable(name,code,transaction_date,trade_location, kind, detail_processing_type, upper_price, middle_price, lower_price, average_price, trade_quantity) from '#{Dir.pwd}/query_results/#{specifiedFile}' WITH (DELIMITER ',', FORMAT csv ,QUOTE '\"', ENCODING 'UTF8')")
-	}
+
+	if handle_type == "vegetable"
+		overviewfilenames.each{ |overviewFile|
+			conn.exec("COPY overview_vegetable(name,code,date,total_average_price,total_transaction_quantity) from '#{Dir.pwd}/query_results/#{overviewFile}' WITH (DELIMITER ',', FORMAT csv, QUOTE '\"', ENCODING 'UTF8')")
+		}
+		specifiedfilenames.each{ |specifiedFile|
+			conn.exec("COPY specified_vegetable(name,code,transaction_date,trade_location, kind, detail_processing_type, upper_price, middle_price, lower_price, average_price, trade_quantity) from '#{Dir.pwd}/query_results/#{specifiedFile}' WITH (DELIMITER ',', FORMAT csv ,QUOTE '\"', ENCODING 'UTF8')")
+		}
+	elsif handle_type == "fruit"
+=begin 
+		overviewfilenames.each{ |overviewFile|
+			conn.exec("COPY overview_fruit(name,code,date,kind,process_type,total_average_price,total_transaction_quantity) from '#{Dir.pwd}/query_results/#{overviewFile}' WITH (DELIMITER ',', FORMAT csv, QUOTE '\"', ENCODING 'UTF8')")
+		}
+=end 
+
+		specifiedfilenames.each{ |specifiedFile|
+			conn.exec("COPY specified_fruit(name,code,transaction_date,kind,trade_location, weather, upper_price, middle_price, lower_price, average_price, trade_quantity) from '#{Dir.pwd}/query_results/#{specifiedFile}' WITH (DELIMITER ',', FORMAT csv ,QUOTE '\"', ENCODING 'UTF8')")
+		} 
+
+	end 
 end 
 
 def initial_start_and_end_month_year(begintime, endtime)
@@ -151,12 +165,12 @@ def initial_start_and_end_month_year(begintime, endtime)
 	return beExecuteTimearray
 end
 
-def execuate_repeat_command(runTimearray, inputfileprefix, outputfileprefix)
+def execuate_repeat_command(runTimearray, inputfileprefix, outputfileprefix, handle_type)
 
 	inputfilesuffix = ".csv"
 	runTimearray.each{ |runtime|
 		if true == (File.exist?("./query_results/"+ inputfileprefix + runtime + inputfilesuffix))
-			system("ruby reorganize_rawdata_to_db.rb -i #{inputfileprefix}#{runtime}#{inputfilesuffix} -o #{outputfileprefix}#{runtime}")
+			system("ruby reorganize_rawdata_to_db.rb -i #{inputfileprefix}#{runtime}#{inputfilesuffix} -o #{outputfileprefix}#{runtime} -k #{handle_type}")
 		else
 			abort "Error: The input file #{inputfileprefix}#{runtime}#{inputfilesuffix} doesn't exist."
 		end
@@ -178,13 +192,16 @@ end
 			command_options[:endtime] = value 
 		end 
 
-		opts.on("-i INPUTFILE_PREFIX", "--inputfileprefix=DIRECTORY/INPUTFILE_PREFIX", "specify which directory and what the name prefix of files is . These files must be csv-format, so the script can concate prefix with month, year and dot_csv. ") do |value|
+		opts.on("-i INPUTFILE_PREFIX", "--inputfileprefix=INPUTFILE_PREFIX", "specify which directory and what the name prefix of files is. We will put them under ./query_results directory. These files must be csv-format, so the script can concate prefix with month, year and dot_csv. ") do |value|
 			command_options[:inputfileprefix] = value
 		end
 
 		opts.on("-o OUTPUTFILE_PREFIX", "--outputfileprefix=OUTPUTFILE_PREFIX", "specify what the name prefix of output files is and then the script can concate the prefix with month, year and dot_csv. Output files will placed at query_results directory. ") do |value| 
 			command_options[:outputfileprefix] = value
 		end
+		opts.on("-k DATAKIND","--kind=DATAKIND", "told the script what kind, which are flowers, fruit and vegetable, you want it process.") do |value|
+			command_options[:kind] = value
+		end 
 
 		opts.on_tail("-h", "--help", "show options" ) do 
 			puts opts
@@ -202,6 +219,6 @@ end
 		# For using with reorganizing and importing data in many days to database.
 		execuateTimeArray = initial_start_and_end_month_year(command_options[:begintime], command_options[:endtime])
 	end 
-	execuate_repeat_command(execuateTimeArray, command_options[:inputfileprefix], command_options[:outputfileprefix])
+	execuate_repeat_command(execuateTimeArray, command_options[:inputfileprefix], command_options[:outputfileprefix], command_options[:kind])
 	overviewCsvfilenames, specifiedCsvfilenames = get_csvoutputfilenames(execuateTimeArray, command_options[:outputfileprefix])
-	import_csvfiles_to_db(overviewCsvfilenames, specifiedCsvfilenames)
+	import_csvfiles_to_db(overviewCsvfilenames, specifiedCsvfilenames, command_options[:kind])
