@@ -164,6 +164,10 @@ def parse_to_separate_csv_format( loadedFullContent, handle_type )
 					refilteredOverviewContent << beProcessStringArray[3] << beProcessStringArray[1] << beProcessStringArray[0] << beProcessStringArray[4] << beProcessStringArray[5] << beProcessStringArray[7] << beProcessStringArray[6] 
 				else # beProcessStringArray.length normally is 7
 					kind = beProcessStringArray[3] # use for specified_fruit file and table
+					if code == 'ZZZZZ'
+						# 20160504: 解決2010年9月29日ZZZZZ其他,沒有名字的bug,解法:用kind當作它的名字
+						name =  beProcessStringArray[3] # use kind as name
+					end 
 					refilteredOverviewContent << beProcessStringArray[2] << beProcessStringArray[1] << beProcessStringArray[0] << beProcessStringArray[3] << beProcessStringArray[4] << beProcessStringArray[6] << beProcessStringArray[5] 
 
 				end
