@@ -83,9 +83,11 @@ def import_csvfiles_to_db(overviewfilenames, specifiedfilenames, handle_type)
 	conn = PG.connect(dbname: dbname, user: user, password: password)
 
 	if handle_type == "vegetable"
+
 		overviewfilenames.each{ |overviewFile|
 			conn.exec("COPY overview_vegetable(name,code,date,total_average_price,total_transaction_quantity) from '#{Dir.pwd}/query_results/#{overviewFile}' WITH (DELIMITER ',', FORMAT csv, QUOTE '\"', ENCODING 'UTF8')")
 		}
+
 		specifiedfilenames.each{ |specifiedFile|
 			conn.exec("COPY specified_vegetable(name,code,transaction_date,trade_location, kind, detail_processing_type, upper_price, middle_price, lower_price, average_price, trade_quantity) from '#{Dir.pwd}/query_results/#{specifiedFile}' WITH (DELIMITER ',', FORMAT csv ,QUOTE '\"', ENCODING 'UTF8')")
 		}
