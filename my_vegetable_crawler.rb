@@ -5,13 +5,16 @@
 
 require 'net/http'
 require 'date'
+require 'watir-webdriver'
+require 'headless'
 
 def read_items_from_file query_type
 
 	array_mpno = Array.new
 	array_mpno_name = Array.new
 	if query_type == 1
-		file_name = "txt_at_amis_vegetable.txt"
+		#file_name = "txt_at_amis_vegetable.txt"
+		file_name = "test_txt_at_amis_vegetable.txt"
 	elsif query_type == 2
 		file_name = "txt_at_amis_fruit.txt"
 	elsif query_type == 3
@@ -61,10 +64,250 @@ def read_items_from_file query_type
 	return array_mpno, array_mpno_name
 end
 
+def get_remote_item_list
+end
+
+def update_item_list
+end
+
+def crawl_data(query_type, q_merchandize, q_time, infoToPrint)
+	if query_type == 1 # vegetable
+		#q_addr = "http://amis.afa.gov.tw/v-asp/v101r.asp" #210.69.71.16
+		q_addr = "210.69.71.171/veg/VegProdDayTransInfo.aspx"
+		#q_addr = "amis.afa.gov.tw/veg/VegProdDayTransInfo.aspx"
+	elsif query_type == 2 # fruit
+		#q_addr = "http://amis.afa.gov.tw/t-asp/v103r.asp" #210.69.71.16
+		q_addr = "210.69.71.171/fruit/FruitProdDayTransInfo.aspx"
+		#q_addr = "amis.afa.gov.tw/fruit/FruitProdDayTransInfo.aspx"
+	elsif query_type == 3 # flowers
+		#q_addr = "http://amis.afa.gov.tw/l-asp/v101r.asp" #210.69.71.16
+		q_addr = "210.69.71.171/flower/FlowerProdDayTransInfo.aspx"
+		#q_addr = "210.69.71.171/flower/FlowerProdDayTransInfo.aspx"
+	else
+		puts "Error: unknown query_type at method: crawl_data"
+		exit
+	end
+
+	queryResultStringArray = Array.new
+
+	headless = Headless.new
+	headless.start
+	browser = Watir::Browser.start q_addr if( (!browser) || !(browser.exist?))
+
+	startDate = infoToPrint[0]
+	endDate = infoToPrint[1]
+	currentDayCount = infoToPrint[2]
+	totalDaysWillBeProcessing = infoToPrint[3]
+	currentYear = infoToPrint[4]
+	currentMonth = infoToPrint[5]
+	currentDay = infoToPrint[6]
+	totalMpNoNumber = infoToPrint[7]
+	currentMpNoCount = 0
+
+
+	q_merchandize.each_pair{ |key, value|
+
+		puts "本次查詢範圍是民國 "+(startDate.year - 1911).to_s+" 年 "+(startDate.month).to_s+" 月 "+(startDate.day).to_s+" 號 至 "+(endDate.year - 1911).to_s+" 年 "+(endDate.month).to_s+" 月 "+(endDate.day).to_s+" 號."
+		puts "現在處理的是第 "+currentDayCount.to_s+"/"+totalDaysWillBeProcessing.to_s+" 天"	
+		puts "現在處理的是民國 "+currentYear.to_s+" 年 "+currentMonth.to_s+" 月 "+currentDay.to_s+" 號的第 "+(currentMpNoCount + 1).to_s+"/"+totalMpNoNumber.to_s+" 個"
+		browser.radio(id: 'ctl00_contentPlaceHolder_ucSolarLunar_radlSolarLunar_0', value: 'S').when_present.set # Setting date mode for solar or lunar
+		browser.execute_script('window.document.getElementById("ctl00_contentPlaceHolder_txtSTransDate").value="' + q_time[0] + '/' + q_time[1] + '/' + q_time[2] + '";') # Setting start date for query
+		browser.execute_script('window.document.getElementById("ctl00_contentPlaceHolder_txtETransDate").value="' + q_time[0] + '/' + q_time[1] + '/' + q_time[2] + '";') # Setting end date for query
+		browser.execute_script('window.document.getElementById("ctl00_contentPlaceHolder_txtMarket").value="全部市場";') # Setting value of market name
+		browser.execute_script('window.document.getElementById("ctl00_contentPlaceHolder_hfldMarketNo").value="ALL";') # Setting value of market number
+		browser.execute_script('window.document.getElementById("ctl00_contentPlaceHolder_txtProduct").title="' + key + ' ' + value + '";') # Setting product code and name for examining query
+		browser.execute_script('window.document.getElementById("ctl00_contentPlaceHolder_txtProduct").value="' + key + ' ' + value + '";') # Setting value of product code and name for posting a request 
+		browser.execute_script('window.document.getElementById("ctl00_contentPlaceHolder_hfldProductNo").value="' + key + '";') # Setting value of product number for posting a request
+		browser.execute_script('window.document.getElementById("ctl00_contentPlaceHolder_hfldProductType").value="S";') # Setting value of product type for posting a request
+		
+		# The reason I preserve the following code is to remind everybody that set() won't work for all hidden inputs if DOM tree isn't at ready state.
+		#browser.text_field(id: 'ctl00_contentPlaceHolder_txtSTransDate').set('105/05/17')
+		#browser.text_field(id: 'ctl00_contentPlaceHolder_txtETransDate').set('105/05/17')
+		#browser.textarea(id: 'ctl00_contentPlaceHolder_txtMarket').wait_until_present
+		#browser.hidden(id: 'ctl00_contentPlaceHolder_hfldMarketNo').set(value: 'ALL') #if browser.hidden(id: 'ctl00_contentPlaceHolder_hfldMarketNo').exists?
+		#browser.hidden(id: 'ctl00_contentPlaceHolder_hfldProductNo').set(value: 'FA0') #if browser.hidden(id: 'ctl00_contentPlaceHolder_hfldProductNo').exists?
+		#browser.hidden(id: 'ctl00_contentPlaceHolder_hfldProductType').set(value: 'S') #if browser.hidden(id: 'ctl00_contentPlaceHolder_hfldProductType').exists? 
+		# The reason I preserve the above code is to remind everybody that set() won't work for all hidden inputs if DOM tree isn't at ready state.
+
+		browser.button(id: 'ctl00_contentPlaceHolder_btnQuery', name: 'ctl00$contentPlaceHolder$btnQuery').wait_until_present # waiting submit button ready to click
+		browser.button(id: 'ctl00_contentPlaceHolder_btnQuery', name: 'ctl00$contentPlaceHolder$btnQuery').click # click the submit button
+
+		browser.image(alt: 'Process').wait_while_present # waiting when image of ajax procedure presenting
+		begin 
+			browser.div(id: 'ctl00_contentPlaceHolder_panel').wait_until_present # wait for ajax response
+			Watir::Wait.until{
+				browser.span(id: 'ctl00_contentPlaceHolder_lblProducts').text.include?(key + " " + value)
+			}
+			browser.div(id: 'ctl00_contentPlaceHolder_panel').tables.[](2).wait_until_present # wait for ajax response is ready to present 
+			response = [key, value, browser.div(id: 'ctl00_contentPlaceHolder_panel').tables.[](2).text] # store ajax response into variable.
+			puts "response: "+response.to_s #debug
+
+			queryResultStringArray << response 
+		rescue Watir::Exception::UnknownObjectException
+			puts "Watir::Exception::UnknownObjectException raised. We will retry."
+			retry
+		rescue Watir::Wait::TimeoutError
+			puts "Timeout for " + key + " " + value + ". We will retry."
+			retry
+		rescue Selenium::WebDriver::Error::UnhandledAlertError
+			puts "Found no data for " + key + " " + value
+			if(browser.alert.present?)
+				browser.alert.close
+			end 
+		end
+		puts "Behave like human."
+	        sleep 7	# sleep 7 seconds
+		currentMpNoCount += 1
+	}
+	browser.close
+	headless.destroy
+	return queryResultStringArray
+end
+
+def filter_data(queryType, rawDataArray, infoToPrint)
+
+	currentYear = infoToPrint[0]
+	currentMonth = infoToPrint[1]
+	currentDay = infoToPrint[2]
+
+	filteredDataArray = Array.new
+	if queryType == 1 # 1 means vegetable
+		rawDataArray.each{ |element|
+			element[2] = element[2].gsub!("市場 產品 上價 中價 下價 平均價\n(元/公斤) 跟前一\n交易日\n比較% 交易量\n(公斤) 跟前一\n交易日\n比較%\n","").gsub(",","")
+			#element[2] = element[2].gsub("\n"," ") 不需要這麼早處理, 因為還有正負號的問題
+			element[2] = element[2].gsub(/(?<=[\n])[\d]{3}[ ]/u,"") # 刪除地區市場代碼
+			element[2] = element[2].gsub(/(?<=[[\n][\u4E00-\u9FFF]+[ ]([[a-zA-Z0-9]{2}][ ][\u4E00-\u9FFF]+)?[[[[\d]+[\.]?[\d]*][ ]]{4}]][\-\+])[ ](?=([\-]?[\d]+[\.]?[\d]*)[ ]((?![\+\-][ ]?[\d]+\.?\d*)|([\d]+[\.]?[\d]*[ ](([\-\+]?[ ]?[\d]+[\.]?[\d]*)|([\-\+]?[\*]+))))(\n|$))/u,"")#2016/05/25 written: 為了面對1996/04/01的LG芹菜，在鳳山區青梗的交易量增減%欄位出現+***這樣的內容。也有面對當產品名稱欄位沒有資料時，也能正確選出平均價與前一交易日增減%欄位正負好與數字之間的空白。本行用途只是刪掉平均價與前一交易日增減％欄位 正負號與數字之間的空白。
+			element[2] = element[2].gsub(/(?<=[[\+\-]?])[ ](?=[\d]+[\.]?[\d]*(\n|$))/u,"") #刪掉交易量與前一交易日增減％欄位 正負號與數字之間的空白
+			element[2] = element[2].gsub(/[\n ]/u,",") # 用逗號取代有出現換行符號或空白符號的地方
+			puts "element[2]: "+ element[2] #debug 印出乾淨的各市場交易價格
+			searchArray = element[2].partition(/(?<=小計,)([\d]+[\.]?[\d]*,){2}(?=[\u4E00-\u9FFF]{2,3})/u)
+			arrayOfTotalTradeQuantityAndAveragePrice = searchArray[1].split(",")
+			overviewData = "交易日期:" + currentYear.to_s + "年" + currentMonth.to_s + "月" + currentDay.to_s + "日,產品名稱:" + element[0] + element[1] + ",總交易量:" + arrayOfTotalTradeQuantityAndAveragePrice[1] + "公斤,總平均價:" + arrayOfTotalTradeQuantityAndAveragePrice[0] + "/公斤"
+			parseArray = searchArray[2].gsub(/(?<=[\u4E00-\u9FFF]),([a-zA-Z0-9]{1,4}),[\u4E00-\u9FFF]+(?=,(([\u4E00-\u9FFFF])|([\d]+[\.]?[\d]*)))/u,"").split(",")
+			puts "parseArray: "+parseArray.to_s #debug
+
+			# insert empty string for processing type.
+			locationCount = 0
+			tableSize = parseArray.size
+			while locationCount < tableSize
+				if tableSize == 10
+					#do nothing
+					puts "parseArray fit size 10 and its content: " + parseArray.to_s #debug
+					break
+				elsif tableSize < 10
+					nextOnePosition = locationCount + 1 
+					nextTwoPosition = locationCount + 2
+					if( nil != (parseArray[nextOnePosition] =~ /((\"\")|[\u4E00-\u9FFF]+)/u) )
+						if( nil != (parseArray[nextTwoPosition] =~ /([\-]|[\+\-]?[\d]+[\.]?[\d]*|[\+\-]?[\*]+)/u ))
+							parseArray.insert(nextTwoPosition,"\"\"")
+							tableSize += 1
+						#else
+							#else situation shouldn't happen
+						end 
+						
+					elsif( nil != (parseArray[nextOnePosition] =~ /([\-]|[\+\-]?[\d]+[\.]?[\d]*|[\+\-]?[\*]+)/u ) )
+						if( nil != (parseArray[nextTwoPosition] =~ /([\-]|[\+\-]?[\d]+[\.]?[\d]*|[\+\-]?[\*]+)/u ))
+							parseArray.insert(nextOnePosition,"\"\"")
+							parseArray.insert(nextTwoPosition,"\"\"")
+							tableSize += 2
+						#else
+							#else situation shouldn't happen
+						end 
+					end 
+					break
+				elsif tableSize > 10
+
+					if locationCount % 10 == 0
+						precedingLocation = locationCount - 1
+						nextOnePosition = locationCount + 1 
+						nextTwoPosition = locationCount + 2
+
+						if( nil != (parseArray[locationCount] =~ /[\u4E00-\u9FFF]+/u) )
+							if ( nil != (parseArray[precedingLocation] =~ /([\-]|[\+\-]?[\d]+[\.]?[\d]*|[\+\-]?[\*]+)/u))
+
+								if( nil != (parseArray[nextOnePosition] =~ /((\"\")|[\u4E00-\u9FFF]+)/u) )
+									if( nil != (parseArray[nextTwoPosition] =~ /((\"\")|[\u4E00-\u9FFF]+)/u) )
+										locationCount += 10
+									elsif( nil != (parseArray[nextTwoPosition] =~ /([\-]|[\+\-]?[\d]+[\.]?[\d]*|[\+\-]?[\*]+)/u ))
+										parseArray.insert(nextTwoPosition,"\"\"")
+										tableSize += 1
+										locationCount += 10
+									end
+
+								elsif( nil != (parseArray[nextOnePosition] =~ /([\-]|[\+\-]?[\d]+[\.]?[\d]*|[\+\-]?[\*]+)/u ) )
+									if( nil != (parseArray[nextTwoPosition] =~ /((\"\")|[\u4E00-\u9FFF]+)/u )) 
+										swapString = (swapString.nil?)? String.new(parseArray[nextOnePosition]) : parseArray[nextOnePosition].clone
+										parseArray[nextOnePosition] = parseArray[nextTwoPosition].clone()
+										parseArray[nextTwoPosition] = swapString.clone()
+										parseArray.insert(nextTwoPosition, "\"\"")
+										tableSize += 1
+										locationCount += 10
+									elsif( nil != (parseArray[nextTwoPosition] =~ /([\-]|[\+\-]?[\d]+[\.]?[\d]*|[\+\-]?[\*]+)/u ))
+										parseArray.insert(nextOnePosition, "\"\"" )
+										parseArray.insert(nextTwoPosition, "\"\"" )
+										tableSize += 2
+										locationCount += 10
+									end
+								end
+							elsif( nil != (parseArray[precedingLocation] =~ /((\"\")|[\u4E00-\u9FFF]+)/u ) )	
+								# locationCount 位置可能是品種或是處理別
+								# 在這裡不應該發生，如果發生，一定有缺資料。
+								puts "資料有缺漏，請檢查原始網頁內容。" 
+								if( nil != (parseArray[nextOnePosition] =~ /((\"\")|[\u4E00-\u9FFF]+)/u ))
+
+									locationCount += 9
+								elsif( nil != (parseArray[nextOnePosition] =~ /([\-]|[\+\-]?[\d]+[\.]?[\d]*|[\+\-]?[\*]+)/u) )
+									locationCount += 8
+								end
+
+							end 
+						elsif( nil != (parseArray[locationCount] =~ /([\-]|[\+\-]?[\d]+[\.]?[\d]*|[\+\-]?[\*]+)/u))
+							puts "資料有缺漏，請檢查原始網頁內容。" 
+
+							locationCount += 1
+						end 
+
+					else
+						puts "資料不如預期是10的倍數，資料可能有多有少。必須檢查原始網頁內容。"
+						locationCount += (10 - (locationCount % 10))
+					end 
+				end 
+
+			end 
+
+
+			detailData = "市場名稱,品種名稱,處理別,上價,中價,下價,平均價,增減%,交易量,增減%,"
+			countParseArray = 0
+			sizeParseArray = parseArray.size 
+			while countParseArray < (sizeParseArray - 1)
+				detailData << (parseArray[countParseArray] + ",")
+				countParseArray += 1
+			end 
+			detailData << parseArray[countParseArray]
+
+			filteredDataArray << [overviewData, detailData]
+		}
+	elsif queryType == 2 # 2 means fruit
+		rawDataArray.each{ |element|
+			element[2] = element[2].gsub!("市場 產品 上價 中價 下價 平均價\n(元/公斤) 跟前一\n交易日\n比較% 交易量\n(公斤) 跟前一\n交易日\n比較%\n","").gsub(",","")
+			#element[2] = element[2].gsub("\n"," ") 不需要這麼早處理, 因為還有正負號的問題
+			element[2] = element[2].gsub(/(?<=[\n])[\d]{3}[ ]/u,"") # 刪除地區市場代碼
+			element[2] = element[2].gsub(/(?<=[[\n][\u4E00-\u9FFF]+[ ]([[a-zA-Z0-9]{2}][ ][\u4E00-\u9FFF]+)?[[[[\d]+[\.]?[\d]*][ ]]{4}]][\-\+])[ ](?=([\-]?[\d]+[\.]?[\d]*)[ ]((?![\+\-][ ]?[\d]+\.?\d*)|([\d]+[\.]?[\d]*[ ](([\-\+]?[ ]?[\d]+[\.]?[\d]*)|([\-\+]?[\*]+))))(\n|$))/u,"")#2016/05/25 written: 為了面對1996/04/01的LG芹菜，在鳳山區青梗的交易量增減%欄位出現+***這樣的內容。也有面對當產品名稱欄位沒有資料時，也能正確選出平均價與前一交易日增減%欄位正負好與數字之間的空白。本行用途只是刪掉平均價與前一交易日增減％欄位 正負號與數字之間的空白。
+			element[2] = element[2].gsub(/(?<=[[\+\-]?])[ ](?=[\d]+[\.]?[\d]*(\n|$))/u,"") #刪掉交易量與前一交易日增減％欄位 正負號與數字之間的空白
+			element[2] = element[2].gsub(/[\n ]/u,",") # 用逗號取代有出現換行符號或空白符號的地方
+			puts "element[2]: "+ element[2] #debug 印出乾淨的各市場交易價格
+		}
+	elsif queryType == 3 # means flowers
+	end
+
+	return filteredDataArray	
+end 
+
 def crawl_data_and_filter(q_time, q_machanize, query_type)
 
 	if query_type == 1 # vegetable
-		q_addr = "http://amis.afa.gov.tw/v-asp/v101r.asp"
+		#q_addr = "http://210.69.71.171/veg/VegProdDayTransInfo.aspx"
+		q_addr = "amis.afa.gov.tw/veg/VegProdDayTransInfo.aspx"
 	elsif query_type == 2 # fruit
 		q_addr = "http://amis.afa.gov.tw/t-asp/v103r.asp"
 	elsif query_type == 3 # flowers
@@ -84,9 +327,7 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 	m_mpno = q_machanize[0]
 	m_mpname = q_machanize[1]
 
-	req = Net::HTTP::Post.new(target_site.request_uri)
-	req.delete "User-Agent"
-	req.add_field "User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.93 Safari/537.36"
+
 
 	if query_type == 2
 		# for fruits
@@ -127,7 +368,8 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 		# for vegetable and flowers
 		req.set_form_data('myy' => m_year, 'mmm' => m_month, 'mdd' => m_day, 'mhidden1' => 'false', 'mpno' => m_mpno, 'mpnoname' => m_mpname)
 	# req.set_form_data('myy' => '102', 'mmm' => '06', 'mdd' => '12', 'mhidden1' => 'false', 'mpno' => 'FD', 'mpnoname' => '花胡瓜')
-		# 蔬菜查詢網址不會檢查名稱
+		
+		
 	end
 
 	count_retry = 0
@@ -137,29 +379,33 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 			#respond = Net::HTTP.post_form(target_site, {'myy' => '100', 'mmm' => '11', 'mdd' => '10', 'mhidden1' => 'false', 'mpno' => 'FB', 'mpnoname' => '康乃馨' })
 			http.request(req)
 		end
+
 	rescue Timeout::Error, Errno::EINVAL, Errno::ECONNRESET, EOFError,
 		   Errno::EHOSTUNREACH, Errno::ECONNREFUSED, SocketError, #for DNS-server unvailable
 	       Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError => e
 		puts "Timeout:Error or something happened."
 		puts "We will retry."
 		count_retry += 1
-		sleep 10 # sleep one second for later retry
+		sleep 10 # sleep ten second for later retry
 		puts "Now will start #{count_retry} retry"
 		retry #if count_retry < 5 # only retry 5 times.
 	end
 	count_retry = 0 # count retry times when every single crawling
-	
-	return false,nil if respond.body.encode('UTF-8', 'BIG5', :invalid => :replace, :undef => :replace, :replace => ' ').slice(/\<table[^$]*\<\/table\>/u).nil?
+
+
+
+	return false,nil if respond.body.encode('UTF-8', 'BIG5', :invalid => :replace, :undef => :replace, :replace => ' ').slice(/(\<table[^$]*\<\/table\>)|(\<div[\s]id\=\"ctl00_contentPlaceHolder_panel\"\>[^$]*\<\/div\>)/u).nil?
+	#puts "response: "+response #debug
+	#return false,nil if response.encode('UTF-8', 'BIG5', :invalid => :replace, :undef => :replace, :replace => ' ').slice(/(\<table[^$]*\<\/table\>)|(\<div[\s]id\=\"ctl00_contentPlaceHolder_panel\"\>[^$]*\<\/div\>)/u).nil?
 	
 	sleep 7
 	puts "Behave like human."
 
 
 	table_string = String.new
-	table_string << respond.body.encode('UTF-8', 'BIG5', :invalid => :replace, :undef => :replace, :replace => ' ').slice(/\<table[^$]*\<\/table\>/u)
-	# puts "table_string"+table_string #debug
+	table_string << respond.body.encode('UTF-8', 'BIG5', :invalid => :replace, :undef => :replace, :replace => ' ').slice(/(\<table[^$]*\<\/table\>)|(\<div[\s]id\=)/u)
+	#table_string << response.encode('UTF-8', 'BIG5', :invalid => :replace, :undef => :replace, :replace => ' ').slice(/(\<table[^$]*\<\/table\>)|(\<div[\s]id\=)/u)
 	table_array = Array.new( table_string.split(/[\s]+\<\/div\>\<div[\s]align\=\"left\"\>[\s]+/u) )
-
 
 
 
@@ -666,6 +912,17 @@ puts "mpno_list: "+recv_mpno_list.to_s#debug
 puts "====" #debug
 puts "mpname_list: "+recv_mpname_list.to_s #debug
 
+# mpname and its mpno transfer from array to hash: recvMerchandizeHash
+counter_mpname_list = 0
+recvMerchandizeHash = Hash.new
+recv_mpno_list.each{ | number |
+	recvMerchandizeHash[number] = recv_mpname_list[counter_mpname_list]
+	counter_mpname_list += 1
+}
+counter_mpname_list = 0
+# mpname and its mpno transfer from array to hash: recvMerchandizeHash
+
+
 qi_time = Array.new
 result_array = Array.new #store result for writing to file.
 
@@ -693,6 +950,7 @@ begin
 		qi_time << q_day.to_s
 	end
 
+=begin
 	qi_machanize = Array.new
 	count_mpno = 0
 	recv_mpno_list.each{ |mpno|
@@ -718,10 +976,19 @@ begin
 		count_mpno += 1
 		puts "===================================="
 	}
+=end 
+	infoArrayToPrint = [argv_start_date, argv_end_date, count_day, total_days_will_be_processing, q_year, q_month, q_day, total_mpno_number]
+	tmp_array = crawl_data(q_type, recvMerchandizeHash, qi_time, infoArrayToPrint) #open browser and send requests through browser to collect data we want.
+	infoArrayToPrint.clear
+	infoArrayToPrint = [q_year, q_month, q_day]
+	result_array = filter_data(q_type, tmp_array, infoArrayToPrint)
+	puts "===================================="
+	infoArrayToPrint.clear
 
 	qi_time.clear # clear query time array
 	q_date += 1
 	count_day += 1 # for counting we have procceed how many days.
+
 
 	puts "寫入查詢結果中，請勿中斷程式......"
 
