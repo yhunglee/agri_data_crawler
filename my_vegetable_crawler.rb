@@ -65,7 +65,117 @@ def read_items_from_file query_type
 	return array_mpno, array_mpno_name
 end
 
-def get_remote_item_list
+def get_remote_item_list(queryType)
+	if( queryType == 1 ) # 1 means vegetable
+		qAddr = "http://210.69.71.171/Selector/VegProductSelector.aspx"
+	elsif( queryType == 2 ) # 2 means fruit
+		qAddr = "http://210.69.71.171/Selector/FruitProductSelector.aspx"
+	elsif( queryType == 3 ) # 3 means flowers
+		qAddr = "http://210.69.71.171/Selector/FlowerProductSelector.aspx"
+	else
+		puts "Error: unknown queryType at method: get_remote_item_list."
+		exit
+	end
+
+	keyArray = Array.new
+	valueString = String.new
+	valueArray = Array.new
+
+	headless = Headless.new
+	headless.start
+	browser = Watir::Browser.start(qAddr) if ( (!browser) || !(browser.exist?))
+
+	if( queryType == 1 ) # 1 means vegetable 
+		browser.execute_script('window.document.getElementById("radlProductType_2").checked=true;')
+		begin
+			browser.select(id: 'lstProduct').wait_while_present(5)
+			#puts "options' values: " + browser.select(id: 'lstProduct').options 
+			#puts "select texts: " + browser.select(id: 'lstProduct').text
+		rescue Watir::Exception::UnknownObjectException
+			puts "Watir::Exception::UnknownObjectException raised. We will retry."
+			retry
+		rescue Watir::Wait::TimeoutError
+			puts "Watir::Exception::TimeoutException raised. "
+			optionArray = browser.select(id: 'lstProduct').options.to_a
+			optionArray.each{ |element|
+				# Get item code
+				#puts "option value: "+ element.value.to_s
+				keyArray << element.value
+			}
+
+			#puts "select texts: " + browser.select(id: 'lstProduct').text
+			# get item name (and/or (kind and/or processing type) ).
+			valueString = browser.select(id: 'lstProduct').text.clone()
+			valueString = valueString.gsub(/[a-zA-Z0-9]+[ ](?=[a-zA-Z0-9 \u4E00-\u9FFF]+([\n]|$))/u,"")
+			tmpvalueArray = valueString.split("\n")
+			tmpvalueArray.each{ |element|
+				valueArray << element.split(" ")
+			}
+			puts "valueArray: " + valueArray.to_s #debug
+			# get item name (and/or (kind and/or processing type) ).
+		end
+	elsif( queryType == 2 )	# 2 means fruit
+
+		browser.execute_script('window.document.getElementById("radlProductType_2").checked=true;')
+		begin
+			browser.select(id: 'lstProduct').wait_while_present(5)
+			#puts "options' values: " + browser.select(id: 'lstProduct').options 
+			#puts "select texts: " + browser.select(id: 'lstProduct').text
+		rescue Watir::Exception::UnknownObjectException
+			puts "Watir::Exception::UnknownObjectException raised. We will retry."
+			retry
+		rescue Watir::Wait::TimeoutError
+			puts "Watir::Exception::TimeoutException raised. "
+			optionArray = browser.select(id: 'lstProduct').options.to_a
+			optionArray.each{ |element|
+				# Get item code
+				#puts "option value: "+ element.value.to_s
+				keyArray << element.value
+			}
+
+			#puts "select texts: " + browser.select(id: 'lstProduct').text
+			# get item name (and/or (kind and/or processing type) ).
+			valueString = browser.select(id: 'lstProduct').text.clone()
+			valueString = valueString.gsub(/[a-zA-Z0-9]+[ ](?=[a-zA-Z0-9 \u4E00-\u9FFF]+([\n]|$))/u,"")
+			tmpvalueArray = valueString.split("\n")
+			tmpvalueArray.each{ |element|
+				valueArray << element.split(" ")
+			}
+			puts "valueArray: " + valueArray.to_s #debug
+			# get item name (and/or (kind and/or processing type) ).
+		end
+	elsif( queryType == 3 ) # 3 means flowers
+		browser.execute_script('window.document.getElementById("rdoListProductType_1").checked=true;')
+		begin
+			browser.select(id: 'lstbProduct').wait_while_present(5)
+			#puts "options' values: " + browser.select(id: 'lstProduct').options 
+			#puts "select texts: " + browser.select(id: 'lstProduct').text
+		rescue Watir::Exception::UnknownObjectException
+			puts "Watir::Exception::UnknownObjectException raised. We will retry."
+			retry
+		rescue Watir::Wait::TimeoutError
+			puts "Watir::Exception::TimeoutException raised. "
+			optionArray = browser.select(id: 'lstbProduct').options.to_a
+			optionArray.each{ |element|
+				# Get item code
+				#puts "option value: "+ element.value.to_s
+				keyArray << element.value
+			}
+
+			#puts "select texts: " + browser.select(id: 'lstProduct').text
+			# get item name (and/or (kind and/or processing type) ).
+			valueString = browser.select(id: 'lstbProduct').text.clone()
+			valueString = valueString.gsub(/[a-zA-Z0-9]+[ ](?=[a-zA-Z0-9 \u4E00-\u9FFF]+([\n]|$))/u,"")
+			tmpvalueArray = valueString.split("\n")
+			tmpvalueArray.each{ |element|
+				valueArray << element.split(" ")
+			}
+			puts "valueArray: " + valueArray.to_s #debug
+			# get item name (and/or (kind and/or processing type) ).
+		end
+	end 
+	browser.close
+	headless.destroy 
 end
 
 def update_item_list
@@ -119,7 +229,14 @@ def crawl_data(query_type, q_merchandize, q_time, infoToPrint)
 		browser.execute_script('window.document.getElementById("ctl00_contentPlaceHolder_txtProduct").title="' + key + ' ' + value + '";') # Setting product code and name for examining query
 		browser.execute_script('window.document.getElementById("ctl00_contentPlaceHolder_txtProduct").value="' + key + ' ' + value + '";') # Setting value of product code and name for posting a request 
 		browser.execute_script('window.document.getElementById("ctl00_contentPlaceHolder_hfldProductNo").value="' + key + '";') # Setting value of product number for posting a request
-		browser.execute_script('window.document.getElementById("ctl00_contentPlaceHolder_hfldProductType").value="S";') # Setting value of product type for posting a request
+
+		if( queryType == 1 || queryType == 3) # 1 means vegetable, and 3 means flowers
+			# vegetable and flowers 用大項產品的方式查詢
+			browser.execute_script('window.document.getElementById("ctl00_contentPlaceHolder_hfldProductType").value="B";') # Setting value of product type for posting a request
+		elsif( queryType == 2) # 2 means fruit.
+			# fruit 用細項產品的方式查詢
+			browser.execute_script('window.document.getElementById("ctl00_contentPlaceHolder_hfldProductType").value="S";') # Setting value of product type for posting a request
+		end 
 		
 		# The reason I preserve the following code is to remind everybody that set() won't work for all hidden inputs if DOM tree isn't at ready state.
 		#browser.text_field(id: 'ctl00_contentPlaceHolder_txtSTransDate').set('105/05/17')
@@ -383,6 +500,7 @@ def filter_data(queryType, rawDataArray, infoToPrint)
 	return filteredDataArray	
 end 
 
+=begin
 def crawl_data_and_filter(q_time, q_machanize, query_type)
 
 	if query_type == 1 # vegetable
@@ -791,7 +909,8 @@ def crawl_data_and_filter(q_time, q_machanize, query_type)
 	 # sleep 2 # sleep 2 seconds for decreasing payload of amis_website
 	 return true,string_array 
 end
-
+=end 
+=begin
 def query_results_transform( q_type, results )
 # use to get summary and market-based information of every item.
 # 2014/03/04 written: not complete
@@ -913,6 +1032,7 @@ def query_results_transform( q_type, results )
 	end
 	return summary, marketBased_info
 end
+=end
 
 unless ARGV.length > 2 && ARGV.length < 5
 	puts "Available command: ruby my_vegetable_crawler.rb <Start Date> <End Date> <Output file> [vegetable|fruit|flowers]"
@@ -1003,6 +1123,8 @@ counter_mpname_list = 0
 # mpname and its mpno transfer from array to hash: recvMerchandizeHash
 
 
+get_remote_item_list(q_type)
+
 qi_time = Array.new
 result_array = Array.new #store result for writing to file.
 
@@ -1057,6 +1179,8 @@ begin
 		puts "===================================="
 	}
 =end 
+
+=begin
 	infoArrayToPrint = [argv_start_date, argv_end_date, count_day, total_days_will_be_processing, q_year, q_month, q_day, total_mpno_number]
 	tmp_array = crawl_data(q_type, recvMerchandizeHash, qi_time, infoArrayToPrint) #open browser and send requests through browser to collect data we want.
 	infoArrayToPrint.clear
@@ -1082,6 +1206,7 @@ begin
 			f.puts(element)
 		}
 	} # write detail-version information
+=end
 
 =begin
 	summary_result_array = Array.new
@@ -1103,10 +1228,12 @@ begin
 	}
 	# 2014/03/04 written: write market-based information of every item whose exclude summary-version.
 =end
+
+=begin
 	result_array.clear
 	puts "寫入完畢."
 	puts "===================================="
-
+=end
 	#可使用stdout重導向寫到檔案, at g0v hackth3n
 
 
