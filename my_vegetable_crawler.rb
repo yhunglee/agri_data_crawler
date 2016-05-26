@@ -18,7 +18,8 @@ def read_items_from_file query_type
 	elsif query_type == 2
 		file_name = "txt_at_amis_fruit.txt"
 	elsif query_type == 3
-		file_name = "txt_at_amis_flowers.txt"
+		#file_name = "txt_at_amis_flowers.txt"
+		file_name = "test_txt_at_amis_flowers.txt"
 	else
 		puts "Error: unknown query_type at method: read_items_from_file."
 		exit
@@ -176,14 +177,14 @@ def filter_data(queryType, rawDataArray, infoToPrint)
 			element[2] = element[2].gsub!("市場 產品 上價 中價 下價 平均價\n(元/公斤) 跟前一\n交易日\n比較% 交易量\n(公斤) 跟前一\n交易日\n比較%\n","").gsub(",","")
 			#element[2] = element[2].gsub("\n"," ") 不需要這麼早處理, 因為還有正負號的問題
 			element[2] = element[2].gsub(/(?<=[\n])[\d]{3}[ ]/u,"") # 刪除地區市場代碼
-			element[2] = element[2].gsub(/(?<=[[\n][\u4E00-\u9FFF]+[ ]([[a-zA-Z0-9]{2}][ ][\u4E00-\u9FFF]+)?[[[[\d]+[\.]?[\d]*][ ]]{4}]][\-\+])[ ](?=([\-]?[\d]+[\.]?[\d]*)[ ]((?![\+\-][ ]?[\d]+\.?\d*)|([\d]+[\.]?[\d]*[ ](([\-\+]?[ ]?[\d]+[\.]?[\d]*)|([\-\+]?[\*]+))))(\n|$))/u,"")#2016/05/25 written: 為了面對1996/04/01的LG芹菜，在鳳山區青梗的交易量增減%欄位出現+***這樣的內容。也有面對當產品名稱欄位沒有資料時，也能正確選出平均價與前一交易日增減%欄位正負好與數字之間的空白。本行用途只是刪掉平均價與前一交易日增減％欄位 正負號與數字之間的空白。
+			element[2] = element[2].gsub(/(?<=[[\n][\u4E00-\u9FFF]+[ ]([[a-zA-Z0-9]{2}][ ][\u4E00-\u9FFF]+)?[[[[\d]+[\.]?[\d]*][ ]]{4}]][\-\+])[ ](?=([\-]?[\d]+[\.]?[\d]*)[ ]((?![\+\-][ ]?[\d]+\.?\d*)|([\d]+[\.]?[\d]*[ ](([\-\+]?[ ]?[\d]+[\.]?[\d]*)|([\-\+]?[\*]+))))(\n|$))/u,"")#2016/05/25 written: 為了面對1996/04/01的LG芹菜，在鳳山區青梗的交易量增減%欄位出現+***這樣的內容。也有面對當產品名稱欄位沒有資料時，也能正確選出平均價與前一交易日增減%欄位正負號與數字之間的空白。本行用途只是刪掉平均價與前一交易日增減％欄位 正負號與數字之間的空白。
 			element[2] = element[2].gsub(/(?<=[[\+\-]?])[ ](?=[\d]+[\.]?[\d]*(\n|$))/u,"") #刪掉交易量與前一交易日增減％欄位 正負號與數字之間的空白
 			element[2] = element[2].gsub(/[\n ]/u,",") # 用逗號取代有出現換行符號或空白符號的地方
 			puts "element[2]: "+ element[2] #debug 印出乾淨的各市場交易價格
 			searchArray = element[2].partition(/(?<=小計,)([\d]+[\.]?[\d]*,){2}(?=[\u4E00-\u9FFF]{2,3})/u) # 選出總交易量和總平均價的資料
 			arrayOfTotalTradeQuantityAndAveragePrice = searchArray[1].split(",")
 			overviewData = "交易日期:" + currentYear.to_s + "年" + currentMonth.to_s + "月" + currentDay.to_s + "日,產品名稱:" + element[0] + element[1] + ",總交易量:" + arrayOfTotalTradeQuantityAndAveragePrice[1] + "公斤,總平均價:" + arrayOfTotalTradeQuantityAndAveragePrice[0] + "/公斤"
-			parseArray = searchArray[2].gsub(/(?<=[\u4E00-\u9FFF]),([a-zA-Z0-9]{1,4}),[\u4E00-\u9FFF]+(?=,(([\u4E00-\u9FFFF])|([\d]+[\.]?[\d]*)))/u,"").split(",") # 去除產品代碼與產品名稱。最後再用逗號分離每個欄位資料
+			parseArray = searchArray[2].gsub(/(?<=[\u4E00-\u9FFF]),([a-zA-Z0-9]{1,4}),[\u4E00-\u9FFF]+(?=,(([\(\)\<\>\u4E00-\u9FFF])|([\d]+[\.]?[\d]*)))/u,"").split(",") # 去除產品代碼與產品名稱。最後再用逗號分離每個欄位資料
 			puts "parseArray: "+parseArray.to_s #debug
 
 			# insert empty string for processing type.
@@ -288,6 +289,95 @@ def filter_data(queryType, rawDataArray, infoToPrint)
 			filteredDataArray << [overviewData, detailData]
 		}
 	elsif queryType == 3 # means flowers
+		rawDataArray.each{ |element|
+			#puts "element[2]: "+ element[2] #debug
+			element[2] = element[2].gsub!("市場 產品 最高價 上價 中價 下價 平均價 增減% 交易量 增減% 殘貨量\n","").gsub(",","")
+			element[2] = element[2].gsub(/(?<=[\n])[\d]{3}[ ]/u,"") # 刪除地區市場代碼
+			element[2] = element[2].gsub(/(?<=[[\n][\u4E00-\u9FFF]+[ ]([[a-zA-Z0-9]{5}][ ][\u4E00-\u9FFF]+)?[[[[\d]+[\.]?[\d]*][ ]]{5}]][\-\+])[ ](?=([\-]?[\d]+[\.]?[\d]*)[ ]((?![\+\-][ ]?[\d]+\.?\d*)|([\d]+[\.]?[\d]*[ ](([\-\+]?[ ]?[\d]+[\.]?[\d]*)|([\-\+]?[\*]+)){2}))(\n|$))/u,"")#2016/05/26 written: 為了面對在花卉類出現蔬菜類1996/04/01的LG芹菜，在鳳山區青梗的交易量增減%欄位出現+***這樣的內容。也有面對當產品名稱欄位沒有資料時，也能正確選出平均價與增減%欄位正負號與數字之間的空白。本行用途只是刪掉平均價與前一交易日增減％欄位 正負號與數字之間的空白。
+			element[2] = element[2].gsub(/(?<=[[\+\-]?])[ ](?=[\d]+[\.]?[\d]*[ ][\d]+[\.]?[\d]*(\n|$))/u,"") #刪掉交易量與增減％欄位 正負號與數字之間的空白
+			element[2] = element[2].gsub(/[\n ]/u,",") # 用逗號取代有出現換行符號或空白符號的地方
+			#puts "element[2]: "+ element[2] #debug
+			searchArray = element[2].partition(/(?<=小計,)([\d]+[\.]?[\d]*,){3}(?=[\u4E00-\u9FFF]{4})/u) # 選出總交易量和總平均價和殘貨量的資料
+			# puts "searchArray: " + searchArray.to_s #debug
+			arrayOfTotalTradeQuantityAndAveragePriceAndRestQuantity = searchArray[1].split(",")
+			overviewData = "交易日期:" + currentYear.to_s + "年" + currentMonth.to_s + "月" + currentDay.to_s + "日,總平均價:" +arrayOfTotalTradeQuantityAndAveragePriceAndRestQuantity[0]  + "元/把,總交易量:" + arrayOfTotalTradeQuantityAndAveragePriceAndRestQuantity[1] + "公斤,總殘貨量:" + arrayOfTotalTradeQuantityAndAveragePriceAndRestQuantity[2] + "把,產品名稱:" + element[0] + element[1]
+			parseArray = searchArray[2].gsub(/(?<=[\u4E00-\u9FFF]),([a-zA-Z0-9]{5}),[\u4E00-\u9FFF\(\)\<\>]+(?=,(([\(\)\<\>\u4E00-\u9FFF])|([\d]+[\.]?[\d]*)))/u,"").split(",") # 去除產品代碼與產品名稱。最後再用逗號分離每個欄位資料. 花卉類當中有1)IY087 進口樺木(假葉), 2)FH185 嘉蘭<火焰百合>, 這兩種資料，所以加上\(\)\<\> 。
+			puts "parseArray: "+parseArray.to_s #debug
+
+				
+			# insert empty string for processing type.
+			locationCount = 0
+			tableSize = parseArray.size
+			while locationCount < tableSize
+				if tableSize == 11
+					#do nothing
+					puts "parseArray fit size 11 and its content: " + parseArray.to_s #debug
+					break
+				elsif tableSize < 11
+					nextOnePosition = locationCount + 1 
+					# if( nil != (parseArray[nextOnePosition] =~ /((\"\")|[\(\)\<\>\u4E00-\u9FFF]+)/u) ) 
+					# This situation shouldn't happen.
+					# end
+						
+					if( nil != (parseArray[nextOnePosition] =~ /([\-]|[\+\-]?[\d]+[\.]?[\d]*|[\+\-]?[\*]+)/u ) )
+						parseArray.insert(nextOnePosition,"\"\"")
+						tableSize += 1
+					#else situation shouldn't happen
+					end 
+					break
+				elsif tableSize > 11
+
+					if locationCount % 11 == 0
+						precedingLocation = locationCount - 1
+						nextOnePosition = locationCount + 1 
+
+						if( nil != (parseArray[locationCount] =~ /[\u4E00-\u9FFF]+/u) )
+							if ( nil != (parseArray[precedingLocation] =~ /([\-]|[\+\-]?[\d]+[\.]?[\d]*|[\+\-]?[\*]+)/u))
+
+								if( nil != (parseArray[nextOnePosition] =~ /((\"\")|[\(\)\<\>\u4E00-\u9FFF]+)/u) )
+									locationCount += 11
+
+								elsif( nil != (parseArray[nextOnePosition] =~ /([\-]|[\+\-]?[\d]+[\.]?[\d]*|[\+\-]?[\*]+)/u ) )
+									parseArray.insert(nextOnePosition, "\"\"" )
+									tableSize += 1
+									locationCount += 11
+								end
+							elsif( nil != (parseArray[precedingLocation] =~ /((\"\")|[\u4E00-\u9FFF]+)/u ) )	
+								# locationCount 位置可能是產品名稱
+								# 在這裡不應該發生，如果發生，一定有缺資料。
+								puts "資料有缺漏，請檢查原始網頁內容。" 
+
+								if( nil != (parseArray[nextOnePosition] =~ /([\-]|[\+\-]?[\d]+[\.]?[\d]*|[\+\-]?[\*]+)/u) )
+									locationCount += 10
+								end
+
+							end 
+						elsif( nil != (parseArray[locationCount] =~ /([\-]|[\+\-]?[\d]+[\.]?[\d]*|[\+\-]?[\*]+)/u))
+							puts "資料有缺漏，請檢查原始網頁內容。" 
+
+							locationCount += 1
+						end 
+
+					else
+						puts "資料不如預期是11的倍數，資料可能有多有少。必須檢查原始網頁內容。"
+						locationCount += (11 - (locationCount % 11))
+					end 
+				end 
+
+			end 
+
+
+			detailData = "市場名稱,產品名稱,最高價,上價,中價,下價,平均價,增減%,交易量,增減%,殘貨量,"
+			countParseArray = 0
+			sizeParseArray = parseArray.size 
+			while countParseArray < (sizeParseArray - 1)
+				detailData << (parseArray[countParseArray] + ",")
+				countParseArray += 1
+			end 
+			detailData << parseArray[countParseArray]
+
+			filteredDataArray << [overviewData, detailData]
+		}
 	end
 
 	return filteredDataArray	
