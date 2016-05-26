@@ -171,7 +171,7 @@ def filter_data(queryType, rawDataArray, infoToPrint)
 	currentDay = infoToPrint[2]
 
 	filteredDataArray = Array.new
-	if queryType == 1 # 1 means vegetable
+	if queryType == 1 || queryType == 2 # 1 means vegetable, and 2 means fruit
 		rawDataArray.each{ |element|
 			element[2] = element[2].gsub!("市場 產品 上價 中價 下價 平均價\n(元/公斤) 跟前一\n交易日\n比較% 交易量\n(公斤) 跟前一\n交易日\n比較%\n","").gsub(",","")
 			#element[2] = element[2].gsub("\n"," ") 不需要這麼早處理, 因為還有正負號的問題
@@ -180,10 +180,10 @@ def filter_data(queryType, rawDataArray, infoToPrint)
 			element[2] = element[2].gsub(/(?<=[[\+\-]?])[ ](?=[\d]+[\.]?[\d]*(\n|$))/u,"") #刪掉交易量與前一交易日增減％欄位 正負號與數字之間的空白
 			element[2] = element[2].gsub(/[\n ]/u,",") # 用逗號取代有出現換行符號或空白符號的地方
 			puts "element[2]: "+ element[2] #debug 印出乾淨的各市場交易價格
-			searchArray = element[2].partition(/(?<=小計,)([\d]+[\.]?[\d]*,){2}(?=[\u4E00-\u9FFF]{2,3})/u)
+			searchArray = element[2].partition(/(?<=小計,)([\d]+[\.]?[\d]*,){2}(?=[\u4E00-\u9FFF]{2,3})/u) # 選出總交易量和總平均價的資料
 			arrayOfTotalTradeQuantityAndAveragePrice = searchArray[1].split(",")
 			overviewData = "交易日期:" + currentYear.to_s + "年" + currentMonth.to_s + "月" + currentDay.to_s + "日,產品名稱:" + element[0] + element[1] + ",總交易量:" + arrayOfTotalTradeQuantityAndAveragePrice[1] + "公斤,總平均價:" + arrayOfTotalTradeQuantityAndAveragePrice[0] + "/公斤"
-			parseArray = searchArray[2].gsub(/(?<=[\u4E00-\u9FFF]),([a-zA-Z0-9]{1,4}),[\u4E00-\u9FFF]+(?=,(([\u4E00-\u9FFFF])|([\d]+[\.]?[\d]*)))/u,"").split(",")
+			parseArray = searchArray[2].gsub(/(?<=[\u4E00-\u9FFF]),([a-zA-Z0-9]{1,4}),[\u4E00-\u9FFF]+(?=,(([\u4E00-\u9FFFF])|([\d]+[\.]?[\d]*)))/u,"").split(",") # 去除產品代碼與產品名稱。最後再用逗號分離每個欄位資料
 			puts "parseArray: "+parseArray.to_s #debug
 
 			# insert empty string for processing type.
@@ -286,16 +286,6 @@ def filter_data(queryType, rawDataArray, infoToPrint)
 			detailData << parseArray[countParseArray]
 
 			filteredDataArray << [overviewData, detailData]
-		}
-	elsif queryType == 2 # 2 means fruit
-		rawDataArray.each{ |element|
-			element[2] = element[2].gsub!("市場 產品 上價 中價 下價 平均價\n(元/公斤) 跟前一\n交易日\n比較% 交易量\n(公斤) 跟前一\n交易日\n比較%\n","").gsub(",","")
-			#element[2] = element[2].gsub("\n"," ") 不需要這麼早處理, 因為還有正負號的問題
-			element[2] = element[2].gsub(/(?<=[\n])[\d]{3}[ ]/u,"") # 刪除地區市場代碼
-			element[2] = element[2].gsub(/(?<=[[\n][\u4E00-\u9FFF]+[ ]([[a-zA-Z0-9]{2}][ ][\u4E00-\u9FFF]+)?[[[[\d]+[\.]?[\d]*][ ]]{4}]][\-\+])[ ](?=([\-]?[\d]+[\.]?[\d]*)[ ]((?![\+\-][ ]?[\d]+\.?\d*)|([\d]+[\.]?[\d]*[ ](([\-\+]?[ ]?[\d]+[\.]?[\d]*)|([\-\+]?[\*]+))))(\n|$))/u,"")#2016/05/25 written: 為了面對1996/04/01的LG芹菜，在鳳山區青梗的交易量增減%欄位出現+***這樣的內容。也有面對當產品名稱欄位沒有資料時，也能正確選出平均價與前一交易日增減%欄位正負好與數字之間的空白。本行用途只是刪掉平均價與前一交易日增減％欄位 正負號與數字之間的空白。
-			element[2] = element[2].gsub(/(?<=[[\+\-]?])[ ](?=[\d]+[\.]?[\d]*(\n|$))/u,"") #刪掉交易量與前一交易日增減％欄位 正負號與數字之間的空白
-			element[2] = element[2].gsub(/[\n ]/u,",") # 用逗號取代有出現換行符號或空白符號的地方
-			puts "element[2]: "+ element[2] #debug 印出乾淨的各市場交易價格
 		}
 	elsif queryType == 3 # means flowers
 	end
