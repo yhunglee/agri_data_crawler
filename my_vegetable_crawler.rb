@@ -7,6 +7,27 @@ require 'net/http'
 require 'date'
 require 'watir-webdriver'
 require 'headless'
+FILE_OF_VEGETABLE = "txt_at_amis_vegetable.txt"
+FILE_OF_FRUIT = "txt_at_amis_fruit.txt"
+FILE_OF_FLOWERS = "txt_at_amis_flowers.txt"
+FILE_PREFIX_OF_OLD_VEGETABLE = "txt_at_amis_vegetable-OLD-"
+FILE_SUFFIX_OF_OLD_VEGETABLE = ".txt"
+FILE_PREFIX_OF_OLD_FRUIT = "txt_at_amis_fruit-OLD-"
+FILE_SUFFIX_OF_OLD_FRUIT = ".txt"
+FILE_PREFIX_OF_OLD_FLOWERS = "txt_at_amis_flowers-OLD-"
+FILE_SUFFIX_OF_OLD_FLOWERS = ".txt"
+PATH_OF_DATA_FORMAT_AT_EVERY_SITE_DIRECTORY = "./data_format_at_every_site/"
+PATH_OF_QUERY_RESULTS_DIRECTORY = "./query_results/"
+ADDRESS_OF_VEGETABLE_PRODUCT_ITEMS = "http://210.69.71.171/Selector/VegProductSelector.aspx"
+ADDRESS_OF_FRUIT_PRODUCT_ITEMS = "http://210.69.71.171/Selector/FruitProductSelector.aspx"
+ADDRESS_OF_FLOWERS_PRODUCT_ITEMS = "http://210.69.71.171/Selector/FlowerProductSelector.aspx"
+FILE_OF_CHANGELOG_VEGETABLE = "CHANGELOG-VEGETABLE.txt"
+FILE_OF_CHANGELOG_FRUIT = "CHANGELOG-FRUIT.txt"
+FILE_OF_CHANGELOG_FLOWERS = "CHANGELOG-FLOWERS.txt"
+FILE_OF_TMPCHANGELOG = "tmpchangelog.txt"
+ADDRESS_OF_VEGETABLE_QUERY = "210.69.71.171/veg/VegProdDayTransInfo.aspx"
+ADDRESS_OF_FRUIT_QUERY = "210.69.71.171/fruit/FruitProdDayTransInfo.aspx"
+ADDRESS_OF_FLOWERS_QUERY = "210.69.71.171/flower/FlowerProdDayTransInfo.aspx"
 
 def read_items_from_file query_type
 
@@ -14,17 +35,20 @@ def read_items_from_file query_type
 	array_mpno_name = Array.new
 	if query_type == 1
 		#file_name = "txt_at_amis_vegetable.txt"
-		file_name = "test_txt_at_amis_vegetable.txt"
+		#file_name = "test_txt_at_amis_vegetable.txt"
+		file_name = FILE_OF_VEGETABLE 
 	elsif query_type == 2
-		file_name = "txt_at_amis_fruit.txt"
+		#file_name = "txt_at_amis_fruit.txt"
+		file_name = FILE_OF_FRUIT 
 	elsif query_type == 3
 		#file_name = "txt_at_amis_flowers.txt"
-		file_name = "test_txt_at_amis_flowers.txt"
+		#file_name = "test_txt_at_amis_flowers.txt"
+		file_name = FILE_OF_FLOWERS 
 	else
 		puts "Error: unknown query_type at method: read_items_from_file."
 		exit
 	end
-	File.open("./data_format_at_every_site/"+file_name, "r"){ |f|
+	File.open(PATH_OF_DATA_FORMAT_AT_EVERY_SITE_DIRECTORY + file_name, "r"){ |f|
 		while line = f.gets
 			# puts "line: "+line #debug
 			content = line.split("\t")
@@ -67,11 +91,11 @@ end
 
 def get_remote_item_list(queryType)
 	if( queryType == 1 ) # 1 means vegetable
-		qAddr = "http://210.69.71.171/Selector/VegProductSelector.aspx"
+		qAddr = ADDRESS_OF_VEGETABLE_PRODUCT_ITEMS 
 	elsif( queryType == 2 ) # 2 means fruit
-		qAddr = "http://210.69.71.171/Selector/FruitProductSelector.aspx"
+		qAddr = ADDRESS_OF_FRUIT_PRODUCT_ITEMS 
 	elsif( queryType == 3 ) # 3 means flowers
-		qAddr = "http://210.69.71.171/Selector/FlowerProductSelector.aspx"
+		qAddr = ADDRESS_OF_FLOWERS_PRODUCT_ITEMS 
 	else
 		puts "Error: unknown queryType at method: get_remote_item_list."
 		exit
@@ -87,7 +111,7 @@ def get_remote_item_list(queryType)
 
 	if( queryType == 1 ) # 1 means vegetable 
 		# vegetable 使用大項產品的清單
-		#browser.execute_script('window.document.getElementById("radlProductType_1").checked=true;')
+		#browser.execute_script('window.document.getElementById("radlProductType_1").checked=true;') # 雖然我們可以用這個選擇大項產品，但因為該表格的選項有綁定click事件，去驅動抓取現有產品名稱清單，所以從原本的設定項目checked，改成使用click事件
 		browser.execute_script('window.document.getElementById("radlProductType_1").click();')
 		begin
 			browser.select(id: 'lstProduct').wait_while_present(5)
@@ -105,7 +129,6 @@ def get_remote_item_list(queryType)
 				keyArray << element.value
 			}
 
-			#puts "select texts: " + browser.select(id: 'lstProduct').text
 			# get item name (and/or (kind and/or processing type) ).
 			valueString = browser.select(id: 'lstProduct').text.clone()
 			valueString = valueString.gsub(/[a-zA-Z0-9]+[ ](?=[a-zA-Z0-9 \u4E00-\u9FFF]+([\n]|$))/u,"")
@@ -118,7 +141,7 @@ def get_remote_item_list(queryType)
 		end
 	elsif( queryType == 2 )	# 2 means fruit
 		# fruit 使用細項產品的清單
-		#browser.execute_script('window.document.getElementById("radlProductType_2").checked=true;')
+		#browser.execute_script('window.document.getElementById("radlProductType_2").checked=true;') # 雖然我們可以用這個選擇細項產品，但因為該表格的選項有綁定click事件，去驅動抓取現有產品名稱清單，所以從原本的設定項目checked，改成使用click事件
 		browser.execute_script('window.document.getElementById("radlProductType_2").click();')
 		begin
 			browser.select(id: 'lstProduct').wait_while_present(5)
@@ -136,7 +159,6 @@ def get_remote_item_list(queryType)
 				keyArray << element.value
 			}
 
-			#puts "select texts: " + browser.select(id: 'lstProduct').text
 			# get item name (and/or (kind and/or processing type) ).
 			valueString = browser.select(id: 'lstProduct').text.clone()
 			valueString = valueString.gsub(/[a-zA-Z0-9]+[ ](?=[a-zA-Z0-9 \u4E00-\u9FFF]+([\n]|$))/u,"")
@@ -144,12 +166,12 @@ def get_remote_item_list(queryType)
 			tmpvalueArray.each{ |element|
 				valueArray << element.split(" ")
 			}
-			puts "valueArray: " + valueArray.to_s #debug
+			#puts "valueArray: " + valueArray.to_s #debug
 			# get item name (and/or (kind and/or processing type) ).
 		end
 	elsif( queryType == 3 ) # 3 means flowers
 		# flowers 使用分類產品的清單
-		#browser.execute_script('window.document.getElementById("rdoListProductType_1").checked=true;')
+		#browser.execute_script('window.document.getElementById("rdoListProductType_1").checked=true;') # 雖然我們可以用這個選擇大項產品，但因為該表格的選項有綁定click事件，去驅動抓取現有產品名稱清單，所以從原本的設定項目checked，改成使用click事件
 		browser.execute_script('window.document.getElementById("radlProductType_1").click();')
 		begin
 			browser.select(id: 'lstbProduct').wait_while_present(5)
@@ -167,7 +189,6 @@ def get_remote_item_list(queryType)
 				keyArray << element.value
 			}
 
-			#puts "select texts: " + browser.select(id: 'lstProduct').text
 			# get item name (and/or (kind and/or processing type) ).
 			valueString = browser.select(id: 'lstbProduct').text.clone()
 			valueString = valueString.gsub(/[a-zA-Z0-9]+[ ](?=[a-zA-Z0-9 \u4E00-\u9FFF]+([\n]|$))/u,"")
@@ -175,7 +196,7 @@ def get_remote_item_list(queryType)
 			tmpvalueArray.each{ |element|
 				valueArray << element.split(" ")
 			}
-			puts "valueArray: " + valueArray.to_s #debug
+			#puts "valueArray: " + valueArray.to_s #debug
 			# get item name (and/or (kind and/or processing type) ).
 		end
 	end
@@ -299,17 +320,17 @@ def update_item_list(queryType, localItemsHash, remoteItemsHash)
 	# Generate CHANGELOG-<QUERTYPE>.txt
 	if( false == changeSignCollectionHash.empty? )
 		if( queryType == 1 ) # 1 means vegetable
-			changelogFile = "CHANGELOG-VEGETABLE.txt"
+			changelogFile = FILE_OF_CHANGELOG_VEGETABLE 
 		elsif( queryType == 2 ) # 2 means fruit
-			changelogFile = "CHANGELOG-FRUIT.txt"
+			changelogFile = FILE_OF_CHANGELOG_FRUIT 
 		elsif( queryType == 3 ) # 3 means flowers
-			changelogFile = "CHANGELOG-FLOWERS.txt"
+			changelogFile = FILE_OF_CHANGELOG_FLOWERS 
 		end 
-		tmpchangelog = "tmpchangelog.txt"
-		if( File.exist?("./data_format_at_every_site/"+changelogFile) )
-			File.copy_stream("./data_format_at_every_site/"+changelogFile, "./data_format_at_every_site/"+tmpchangelog)
+		tmpchangelog = FILE_OF_TMPCHANGELOG 
+		if( File.exist?(PATH_OF_DATA_FORMAT_AT_EVERY_SITE_DIRECTORY + changelogFile) )
+			File.copy_stream(PATH_OF_DATA_FORMAT_AT_EVERY_SITE_DIRECTORY + changelogFile, PATH_OF_DATA_FORMAT_AT_EVERY_SITE_DIRECTORY + tmpchangelog)
 		end 
-		originalFilePointer = File.open("./data_format_at_every_site/"+changelogFile, "w")
+		originalFilePointer = File.open(PATH_OF_DATA_FORMAT_AT_EVERY_SITE_DIRECTORY + changelogFile, "w")
 		originalFilePointer.puts("==============", Date.today.to_s, "")
 		setForChangeNameOrKindOrProcessingType = [1,2,3]
 		changeSignCollectionHash.each_pair{ |key,value|
@@ -350,14 +371,14 @@ def update_item_list(queryType, localItemsHash, remoteItemsHash)
 			end 
 
 		}
-		if( File.exist?("./data_format_at_every_site/"+tmpchangelog) )
+		if( File.exist?(PATH_OF_DATA_FORMAT_AT_EVERY_SITE_DIRECTORY + tmpchangelog) )
 			originalFilePointer.puts("==========================")
-			originalFilePointer.write("#{File.open("./data_format_at_every_site/"+tmpchangelog,"r").read}")
+			originalFilePointer.write("#{File.open(PATH_OF_DATA_FORMAT_AT_EVERY_SITE_DIRECTORY + tmpchangelog,"r").read}")
 		end 
 		
 		originalFilePointer.close
-		if( File.exist?("./data_format_at_every_site/"+tmpchangelog) )
-			File.delete("./data_format_at_every_site/"+tmpchangelog)
+		if( File.exist?(PATH_OF_DATA_FORMAT_AT_EVERY_SITE_DIRECTORY + tmpchangelog) )
+			File.delete(PATH_OF_DATA_FORMAT_AT_EVERY_SITE_DIRECTORY + tmpchangelog)
 		end 
 	end 
 	# Generate CHANGELOG-<QUERTYPE>.txt
@@ -365,19 +386,19 @@ def update_item_list(queryType, localItemsHash, remoteItemsHash)
 	# Generate new file for updated targets
 	if( false == changeSignCollectionHash.empty? )
 		if( queryType == 1 ) # 1 means vegetable
-			originFile = "txt_at_amis_vegetable.txt"
-			changeToOldName = "txt_at_amis_vegetable-OLD-" + Date.today.to_s + ".txt"
+			originFile = FILE_OF_VEGETABLE 
+			changeToOldName = FILE_PREFIX_OF_OLD_VEGETABLE + Date.today.to_s + FILE_SUFFIX_OF_OLD_VEGETABLE 
 		elsif( queryType == 2 ) # 2 means fruit
-			originFile = "txt_at_amis_fruit.txt"
-			changeToOldName = "txt_at_amis_fruit-OLD-" + Date.today.to_s + ".txt"
+			originFile = FILE_OF_FRUIT 
+			changeToOldName = FILE_PREFIX_OF_OLD_FRUIT + Date.today.to_s + FILE_SUFFIX_OF_OLD_FRUIT
 		elsif( queryType == 3 ) # 3 means flowers
-			originFile = "txt_at_amis_flowers.txt"
-			changeToOldName = "txt_at_amis_flowers-OLD-" + Date.today.to_s + ".txt"
+			originFile = FILE_OF_FLOWERS 
+			changeToOldName = FILE_PREFIX_OF_OLD_FLOWERS + Date.today.to_s + FILE_SUFFIX_OF_OLD_FLOWERS 
 		end
-	        File.rename("./data_format_at_every_site/"+originFile, "./data_format_at_every_site/"+changeToOldName)
+	        File.rename(PATH_OF_DATA_FORMAT_AT_EVERY_SITE_DIRECTORY + originFile, PATH_OF_DATA_FORMAT_AT_EVERY_SITE_DIRECTORY + changeToOldName)
 
 		keyArrayOfRemoteItems = Array.new(remoteItemsHash.keys).sort!
-		File.open("./data_format_at_every_site/"+originFile,"w"){ |f|
+		File.open(PATH_OF_DATA_FORMAT_AT_EVERY_SITE_DIRECTORY + originFile,"w"){ |f|
 			keyArrayOfRemoteItems.each{ |element|
 				valueArrayOfRemoteItems = remoteItemsHash[element]
 				writeString = ( nil == writeString)? String.new() : writeString.clear
@@ -395,9 +416,7 @@ def update_item_list(queryType, localItemsHash, remoteItemsHash)
 	updatedItemsHash = Hash.new
 	remoteItemsHash.each_key{ |key|
 		newerValueString = (nil == newerValueString)? String.new() : newerValueString.clear
-		#valueArrayToString.each{ |value|
-		#	newerValueString += (value + " ")
-		#}
+
 		valueArray = remoteItemsHash[key]
 		valueArray.each{|value|
 			newerValueString += (value + " ")
@@ -411,15 +430,15 @@ end
 def crawl_data(query_type, q_merchandize, q_time, infoToPrint)
 	if query_type == 1 # vegetable
 		#q_addr = "http://amis.afa.gov.tw/v-asp/v101r.asp" #210.69.71.16
-		q_addr = "210.69.71.171/veg/VegProdDayTransInfo.aspx"
+		q_addr = ADDRESS_OF_VEGETABLE_QUERY 
 		#q_addr = "amis.afa.gov.tw/veg/VegProdDayTransInfo.aspx"
 	elsif query_type == 2 # fruit
 		#q_addr = "http://amis.afa.gov.tw/t-asp/v103r.asp" #210.69.71.16
-		q_addr = "210.69.71.171/fruit/FruitProdDayTransInfo.aspx"
+		q_addr = ADDRESS_OF_FRUIT_QUERY 
 		#q_addr = "amis.afa.gov.tw/fruit/FruitProdDayTransInfo.aspx"
 	elsif query_type == 3 # flowers
 		#q_addr = "http://amis.afa.gov.tw/l-asp/v101r.asp" #210.69.71.16
-		q_addr = "210.69.71.171/flower/FlowerProdDayTransInfo.aspx"
+		q_addr = ADDRESS_OF_FLOWERS_QUERY 
 		#q_addr = "210.69.71.171/flower/FlowerProdDayTransInfo.aspx"
 	else
 		puts "Error: unknown query_type at method: crawl_data"
@@ -1411,7 +1430,6 @@ begin
 	}
 =end 
 
-=begin
 	infoArrayToPrint = [argv_start_date, argv_end_date, count_day, total_days_will_be_processing, q_year, q_month, q_day, total_mpno_number]
 	tmp_array = crawl_data(q_type, updatedItemsHash, qi_time, infoArrayToPrint) #open browser and send requests through browser to collect data we want.
 	infoArrayToPrint.clear
@@ -1427,17 +1445,16 @@ begin
 
 	puts "寫入查詢結果中，請勿中斷程式......"
 
-	if !(Dir.exist? "./query_results")
-		Dir.mkdir "./query_results"
+	if !(Dir.exist? PATH_OF_QUERY_RESULTS_DIRECTORY)
+		Dir.mkdir PATH_OF_QUERY_RESULTS_DIRECTORY
 	end # if there is no directory named query_results, it will create an one.
 
 	result_array.flatten!
-	File.open("./query_results/"+argv_output_file,"a"){ |f|
+	File.open(PATH_OF_QUERY_RESULTS_DIRECTORY + argv_output_file,"a"){ |f|
 		result_array.each{|element|
 			f.puts(element)
 		}
 	} # write detail-version information
-=end
 
 =begin
 	summary_result_array = Array.new
@@ -1460,11 +1477,9 @@ begin
 	# 2014/03/04 written: write market-based information of every item whose exclude summary-version.
 =end
 
-=begin
 	result_array.clear
 	puts "寫入完畢."
 	puts "===================================="
-=end
 	#可使用stdout重導向寫到檔案, at g0v hackth3n
 
 
