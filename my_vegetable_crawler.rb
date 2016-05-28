@@ -121,7 +121,7 @@ def get_remote_item_list(queryType)
 			puts "Watir::Exception::UnknownObjectException raised. We will retry."
 			retry
 		rescue Watir::Wait::TimeoutError
-			puts "Watir::Exception::TimeoutException raised. "
+			puts "等待的遠端清單已經出現"
 			optionArray = browser.select(id: 'lstProduct').options.to_a
 			optionArray.each{ |element|
 				# Get item code
@@ -151,7 +151,7 @@ def get_remote_item_list(queryType)
 			puts "Watir::Exception::UnknownObjectException raised. We will retry."
 			retry
 		rescue Watir::Wait::TimeoutError
-			puts "Watir::Exception::TimeoutException raised. "
+			puts "等待的遠端清單已經出現"
 			optionArray = browser.select(id: 'lstProduct').options.to_a
 			optionArray.each{ |element|
 				# Get item code
@@ -181,7 +181,7 @@ def get_remote_item_list(queryType)
 			puts "Watir::Exception::UnknownObjectException raised. We will retry."
 			retry
 		rescue Watir::Wait::TimeoutError
-			puts "Watir::Exception::TimeoutException raised. "
+			puts "等待的遠端清單已經出現"
 			optionArray = browser.select(id: 'lstbProduct').options.to_a
 			optionArray.each{ |element|
 				# Get item code
@@ -212,14 +212,10 @@ def get_remote_item_list(queryType)
 	# Assign code as key of a hash. Assign name and type as value of a hash.
 	return codeAndNameAndTypeHash
 end
+def check_difference_between_localItem_and_remoteItem( queryType, localItemsHash, remoteItemsHash, changeSignCollectionHash)
 
-def update_item_list(queryType, localItemsHash, remoteItemsHash)
-# compare item lists between local file and remote website, and then do three things:
-# 1) generate newer a hash of item lists and return it.
-# 2) generate a changelog file for item list of the query type, which this time we use. Format of the file name is CHANGELOG-<QUERYTYPE>.txt
-# 3) copy old item list of query type of this time to <OLDNAME>-OLD-<DATE>.txt . And generate new file for new list of query type, and please use names coded in header of this script.
-	changeSignCollectionHash = Hash.new
 
+	puts "開始檢查本機與遠端清單更動的項目"
 	# Note whether remote website's items has different with local file.
 	localItemsHash.each_key{ |key|
 		localItemsHash[key] = localItemsHash[key].split(" ")
@@ -316,9 +312,14 @@ def update_item_list(queryType, localItemsHash, remoteItemsHash)
 		end 
 	}
 	# Note whether remote website's items has different with local file.
-	
+	puts "結束檢查本機與遠端清單更動的項目"
+end
+
+def generate_changelog_for_item_lists( queryType, localItemsHash, remoteItemsHash, changeSignCollectionHash)
+
 	# Generate CHANGELOG-<QUERTYPE>.txt
 	if( false == changeSignCollectionHash.empty? )
+	        puts "開始更新本機本次查詢清單種類的CHANGELOG."
 		if( queryType == 1 ) # 1 means vegetable
 			changelogFile = FILE_OF_CHANGELOG_VEGETABLE 
 		elsif( queryType == 2 ) # 2 means fruit
@@ -379,12 +380,18 @@ def update_item_list(queryType, localItemsHash, remoteItemsHash)
 		originalFilePointer.close
 		if( File.exist?(PATH_OF_DATA_FORMAT_AT_EVERY_SITE_DIRECTORY + tmpchangelog) )
 			File.delete(PATH_OF_DATA_FORMAT_AT_EVERY_SITE_DIRECTORY + tmpchangelog)
-		end 
+		end
+	        puts "更新完畢本機本次查詢清單種類的CHANGELOG."
 	end 
 	# Generate CHANGELOG-<QUERTYPE>.txt
-	
+
+end 
+
+def generate_new_file_for_updated_targets( queryType, remoteItemsHash, changeSignCollectionHash)
+
 	# Generate new file for updated targets
 	if( false == changeSignCollectionHash.empty? )
+		puts "開始更新本機查詢清單"
 		if( queryType == 1 ) # 1 means vegetable
 			originFile = FILE_OF_VEGETABLE 
 			changeToOldName = FILE_PREFIX_OF_OLD_VEGETABLE + Date.today.to_s + FILE_SUFFIX_OF_OLD_VEGETABLE 
@@ -409,9 +416,14 @@ def update_item_list(queryType, localItemsHash, remoteItemsHash)
 			}	
 			 
 		}
+		puts "更新完畢本機查詢清單"
 	end 
 	# Generate new file for updated targets
-	
+end 
+
+def generate_newer_hash_of_item_list(remoteItemsHash)
+
+	puts "開始產生適合遠距查詢的新清單"
 	# Generate a newer hash of items lists and return it.
 	updatedItemsHash = Hash.new
 	remoteItemsHash.each_key{ |key|
@@ -423,8 +435,26 @@ def update_item_list(queryType, localItemsHash, remoteItemsHash)
 		}
 		updatedItemsHash[key] = newerValueString
 	}
+
+	puts "結束產生適合遠距查詢的新清單"
 	return updatedItemsHash
 	# Generate a newer hash of items lists and return it.
+end 
+
+def update_item_list(queryType, localItemsHash, remoteItemsHash)
+# compare item lists between local file and remote website, and then do three things:
+# 1) generate newer a hash of item lists and return it.
+# 2) generate a changelog file for item list of the query type, which this time we use. Format of the file name is CHANGELOG-<QUERYTYPE>.txt
+# 3) copy old item list of query type of this time to <OLDNAME>-OLD-<DATE>.txt . And generate new file for new list of query type, and please use names coded in header of this script.
+	changeSignCollectionHash = Hash.new
+
+	check_difference_between_localItem_and_remoteItem( queryType, localItemsHash, remoteItemsHash, changeSignCollectionHash)
+	generate_changelog_for_item_lists( queryType, localItemsHash, remoteItemsHash, changeSignCollectionHash)
+
+	generate_new_file_for_updated_targets( queryType, remoteItemsHash, changeSignCollectionHash)
+
+	updatedItemsHash = generate_newer_hash_of_item_list(remoteItemsHash)
+	return updatedItemsHash 
 end
 
 def crawl_data(query_type, q_merchandize, q_time, infoToPrint)
@@ -476,10 +506,10 @@ def crawl_data(query_type, q_merchandize, q_time, infoToPrint)
 		browser.execute_script('window.document.getElementById("ctl00_contentPlaceHolder_txtProduct").value="' + key + ' ' + value + '";') # Setting value of product code and name for posting a request 
 		browser.execute_script('window.document.getElementById("ctl00_contentPlaceHolder_hfldProductNo").value="' + key + '";') # Setting value of product number for posting a request
 
-		if( queryType == 1 || queryType == 3) # 1 means vegetable, and 3 means flowers
+		if( query_type == 1 || query_type == 3) # 1 means vegetable, and 3 means flowers
 			# vegetable and flowers 用大項產品的方式查詢
 			browser.execute_script('window.document.getElementById("ctl00_contentPlaceHolder_hfldProductType").value="B";') # Setting value of product type for posting a request
-		elsif( queryType == 2) # 2 means fruit.
+		elsif( query_type == 2) # 2 means fruit.
 			# fruit 用細項產品的方式查詢
 			browser.execute_script('window.document.getElementById("ctl00_contentPlaceHolder_hfldProductType").value="S";') # Setting value of product type for posting a request
 		end 
@@ -500,7 +530,8 @@ def crawl_data(query_type, q_merchandize, q_time, infoToPrint)
 		begin 
 			browser.div(id: 'ctl00_contentPlaceHolder_panel').wait_until_present # wait for ajax response
 			Watir::Wait.until{
-				browser.span(id: 'ctl00_contentPlaceHolder_lblProducts').text.include?(key + " " + value)
+				#browser.span(id: 'ctl00_contentPlaceHolder_lblProducts').text.include?(key + " " + value) # 因為蔬菜類的FA0 其他花類，網頁上的「其他花類」後面會有多一個空白符號或其他符號，導致無法如原本預期的運作，所以改成只偵測是否有產品代碼
+				browser.span(id: 'ctl00_contentPlaceHolder_lblProducts').text.include?(key)# + " " + value)
 			}
 			browser.div(id: 'ctl00_contentPlaceHolder_panel').tables.[](2).wait_until_present # wait for ajax response is ready to present 
 			response = [key, value, browser.div(id: 'ctl00_contentPlaceHolder_panel').tables.[](2).text] # store ajax response into variable.
