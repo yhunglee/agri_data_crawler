@@ -86,7 +86,9 @@ def get_remote_item_list(queryType)
 	browser = Watir::Browser.start(qAddr) if ( (!browser) || !(browser.exist?))
 
 	if( queryType == 1 ) # 1 means vegetable 
-		browser.execute_script('window.document.getElementById("radlProductType_2").checked=true;')
+		# vegetable 使用大項產品的清單
+		#browser.execute_script('window.document.getElementById("radlProductType_1").checked=true;')
+		browser.execute_script('window.document.getElementById("radlProductType_1").click();')
 		begin
 			browser.select(id: 'lstProduct').wait_while_present(5)
 			#puts "options' values: " + browser.select(id: 'lstProduct').options 
@@ -111,12 +113,13 @@ def get_remote_item_list(queryType)
 			tmpvalueArray.each{ |element|
 				valueArray << element.split(" ")
 			}
-			puts "valueArray: " + valueArray.to_s #debug
+			#puts "valueArray: " + valueArray.to_s #debug
 			# get item name (and/or (kind and/or processing type) ).
 		end
 	elsif( queryType == 2 )	# 2 means fruit
-
-		browser.execute_script('window.document.getElementById("radlProductType_2").checked=true;')
+		# fruit 使用細項產品的清單
+		#browser.execute_script('window.document.getElementById("radlProductType_2").checked=true;')
+		browser.execute_script('window.document.getElementById("radlProductType_2").click();')
 		begin
 			browser.select(id: 'lstProduct').wait_while_present(5)
 			#puts "options' values: " + browser.select(id: 'lstProduct').options 
@@ -145,7 +148,9 @@ def get_remote_item_list(queryType)
 			# get item name (and/or (kind and/or processing type) ).
 		end
 	elsif( queryType == 3 ) # 3 means flowers
-		browser.execute_script('window.document.getElementById("rdoListProductType_1").checked=true;')
+		# flowers 使用分類產品的清單
+		#browser.execute_script('window.document.getElementById("rdoListProductType_1").checked=true;')
+		browser.execute_script('window.document.getElementById("radlProductType_1").click();')
 		begin
 			browser.select(id: 'lstbProduct').wait_while_present(5)
 			#puts "options' values: " + browser.select(id: 'lstProduct').options 
@@ -173,12 +178,234 @@ def get_remote_item_list(queryType)
 			puts "valueArray: " + valueArray.to_s #debug
 			# get item name (and/or (kind and/or processing type) ).
 		end
-	end 
+	end
+	
 	browser.close
 	headless.destroy 
+
+	# Assign code as key of a hash. Assign name and type as value of a hash.
+	codeAndNameAndTypeHash = Hash.new
+	keyArray.each_index{|idx|
+		codeAndNameAndTypeHash[ (keyArray[idx]) ] = valueArray[idx]
+	}
+	# Assign code as key of a hash. Assign name and type as value of a hash.
+	return codeAndNameAndTypeHash
 end
 
-def update_item_list
+def update_item_list(queryType, localItemsHash, remoteItemsHash)
+# compare item lists between local file and remote website, and then do three things:
+# 1) generate newer a hash of item lists and return it.
+# 2) generate a changelog file for item list of the query type, which this time we use. Format of the file name is CHANGELOG-<QUERYTYPE>.txt
+# 3) copy old item list of query type of this time to <OLDNAME>-OLD-<DATE>.txt . And generate new file for new list of query type, and please use names coded in header of this script.
+	changeSignCollectionHash = Hash.new
+
+	# Note whether remote website's items has different with local file.
+	localItemsHash.each_key{ |key|
+		localItemsHash[key] = localItemsHash[key].split(" ")
+	} # transform type of value of localItemsHash from String to Array of String.
+
+	remoteItemsHash.each_pair{ |key,value|
+		if localItemsHash.has_key?(key)
+			valueOfLocalItems = localItemsHash[key]
+			sizeOfValueOfLocalItems = valueOfLocalItems.length
+			sizeOfValue = value.length
+			if sizeOfValueOfLocalItems == sizeOfValue
+				# may have changed name and/or kind, processing type. Or have no changed anything.
+				valueOfLocalItems.each_index{ |index|
+					if( false == (valueOfLocalItems[index].eql?(value[index])) )
+						if index == 0
+							changeSign = 1 # means name has changed
+						elsif index == 1
+							changeSign = 2 # means kind has changed
+						elsif index == 2
+							changeSign = 3 # means processing type has changed
+						end 
+						changeSignArray = ( nil == changeSignCollectionHash[key] )? (Array.new) : changeSignCollectionHash[key]
+						changeSignArray << changeSign
+						changeSignCollectionHash[key] = changeSignArray 
+					#else situation => do nothing
+					end 
+				}
+
+			elsif sizeOfValueOfLocalItems > sizeOfValue 
+				# may have changed/removed name, kind or processing type
+				differNumber = sizeOfValueOfLocalItems - sizeOfValue 
+				valueOfLocalItems.each_index{ |index|
+					# 不考慮一個處理別分項合併到另一產品主項的情況，只考慮處理別分項合併到品種分項。
+					# 產品主項>品種分項>處理別分項。
+					if( (index + differNumber) == (sizeOfValueOfLocalItems - 1 ) )
+						changeSign = 5 # means kind and/or processing type removed and remote website has removed processing type.
+						changeSignArray = ( nil == changeSignCollectionHash[key] )? (Array.new) : changeSignCollectionHash[key]
+						changeSignArray << changeSign
+						changeSignCollectionHash[key] = changeSignArray 
+
+						break
+					else
+					       # if index + differNumber < sizeOfValueOfLocalItems - 1	
+						if( false == (valueOfLocalItems[index].eql?(value[index])) ) 
+							if index == 0
+								changeSign = 4 # means name changed and remote item's name, kind and/or processing type may have been removed or modified contrast to local file.
+							elsif index == 1
+								changeSign = 5 # means kind changed and remote item's kind and/or processing type may have been removed or modified contrast to local file.
+							end 
+							changeSignArray = ( nil == changeSignCollectionHash[key] )? (Array.new) : changeSignCollectionHash[key]
+							changeSignArray << changeSign
+							changeSignCollectionHash[key] = changeSignArray 
+						end 
+					end 
+				}
+			elsif sizeOfValueOfLocalItems < sizeOfValue 
+				# may have changed/added name, kind or processing type
+				differNumber = sizeOfValue - sizeOfValueOfLocalItems
+				value.each_index{ |index|
+					if( (index + differNumber) == (sizeOfValue - sizeOfValueOfLocalItems) )
+						changeSign = 7 # means 修改品名或可能新增處理別
+						changeSignArray = ( nil == changeSignCollectionHash[key] )? (Array.new) : changeSignCollectionHash[key]
+						changeSignArray << changeSign
+						changeSignCollectionHash[key] = changeSignArray 
+						break
+					else
+						if( false == (value[index].eql?(valueOfLocalItems[index])) )
+							if index == 0
+								changeSign = 6 # means 產品名稱改名，而且可能新增品種分項或處理別分項
+							elsif index == 1 
+								changeSign = 7 # means 品種改名，而且可能新增處理別分項
+							end 
+							changeSignArray = ( nil == changeSignCollectionHash[key] )? (Array.new) : changeSignCollectionHash[key]
+							changeSignArray << changeSign
+							changeSignCollectionHash[key] = changeSignArray 
+						end 
+					end 
+				}
+			end 
+		else
+			#if localItemsHash has no this key
+			changeSignArray = Array.new
+			changeSign = 8 # means 新增產品
+			changeSignArray << changeSign 
+			changeSignCollectionHash[key] = changeSignArray
+		end 
+	}
+	localItemsHash.each_key{|key|
+		if( !remoteItemsHash.has_key?(key) )
+			changeSignArray = Array.new
+			changeSign = 9 # means 移除產品
+			changeSignArray << changeSign 
+			changeSignCollectionHash[key] = changeSignArray
+		end 
+	}
+	# Note whether remote website's items has different with local file.
+	
+	# Generate CHANGELOG-<QUERTYPE>.txt
+	if( false == changeSignCollectionHash.empty? )
+		if( queryType == 1 ) # 1 means vegetable
+			changelogFile = "CHANGELOG-VEGETABLE.txt"
+		elsif( queryType == 2 ) # 2 means fruit
+			changelogFile = "CHANGELOG-FRUIT.txt"
+		elsif( queryType == 3 ) # 3 means flowers
+			changelogFile = "CHANGELOG-FLOWERS.txt"
+		end 
+		tmpchangelog = "tmpchangelog.txt"
+		if( File.exist?("./data_format_at_every_site/"+changelogFile) )
+			File.copy_stream("./data_format_at_every_site/"+changelogFile, "./data_format_at_every_site/"+tmpchangelog)
+		end 
+		originalFilePointer = File.open("./data_format_at_every_site/"+changelogFile, "w")
+		originalFilePointer.puts("==============", Date.today.to_s, "")
+		setForChangeNameOrKindOrProcessingType = [1,2,3]
+		changeSignCollectionHash.each_pair{ |key,value|
+			case ((value - setForChangeNameOrKindOrProcessingType)[0])
+			when 1 # rest 1 means kind or processing type has changed
+				originalFilePointer.puts("#{key}#{(localItemsHash[key])[0]} 已經改變它的品名或處理別")
+			when 2 # rest 2 means name or processing type has changed
+				originalFilePointer.puts("#{key}#{(localItemsHash[key])[0]} 已經改變它的名稱或處理別")
+			when 3 # rest 3 means name or kind has changed
+				originalFilePointer.puts("#{key}#{(localItemsHash[key])[0]} 已經改變它的名稱或品名")
+			when nil # rest nil means name, kind and processing type have changed
+				originalFilePointer.puts("#{key}已經改變它的名稱,品名和處理別")
+			else
+				setForChangeNameOrKindOrProcessingType = [4,5]
+				case((value - setForChangeNameOrKindOrProcessingType)[0])
+				when 4 # rest 4 means kind changed and processing type may has removed.
+					originalFilePointer.puts("#{key}#{(localItemsHash[key])[0]}已經改變它的品名,處理別可能已經移除")
+				when 5 # rest 5 means name has changed and kind and/or processing type may have removed.
+					originalFilePointer.puts("#{key}#{(localItemsHash[key])[0]}已經改變它的名稱,另外它的品名和處理別可能已經修改或移除")
+				when nil
+					originalFilePointer.puts("#{key}已經改變它的名稱,品名和處理別")
+				else
+					setForChangeNameOrKindOrProcessingType = [6,7]
+					case((value - setForChangeNameOrKindOrProcessingType)[0])
+					when 6 # rest 6 means 品種改名，而且可能修改處理別分項
+						originalFilePointer.puts("#{key}#{(localItemsHash[key])[0]}已經改變它的品名,而且可能新增處理別分項")
+					when 7 # rest 7 means 產品名稱改名，而且可能新增品種分項或處理別分項
+						originalFilePointer.puts("#{key}#{(localItemsHash[key])[0]}已經改變它的名稱,另外它的品名和處理別可能已經新增品種分項或處理別")
+					when nil # rest nil means 已經改變產品名稱,品名和處理別
+						originalFilePointer.puts("#{key}已經改變它的名稱,品名和處理別")
+					end 
+				end 	
+			end 
+			if(value.include?(8) && remoteItemsHash.has_key?(key) ) # means 新增產品
+				originalFilePointer.puts("在本次執行發現新增#{key}#{(remoteItemsHash[key])[0]}項目")
+			elsif(value.include?(9) && localItemsHash.has_key?(key) ) # means刪除產品
+				originalFilePointer.puts("在本次執行發現已刪除#{key}#{(localItemsHash[key])[0]}項目")
+			end 
+
+		}
+		if( File.exist?("./data_format_at_every_site/"+tmpchangelog) )
+			originalFilePointer.puts("==========================")
+			originalFilePointer.write("#{File.open("./data_format_at_every_site/"+tmpchangelog,"r").read}")
+		end 
+		
+		originalFilePointer.close
+		if( File.exist?("./data_format_at_every_site/"+tmpchangelog) )
+			File.delete("./data_format_at_every_site/"+tmpchangelog)
+		end 
+	end 
+	# Generate CHANGELOG-<QUERTYPE>.txt
+	
+	# Generate new file for updated targets
+	if( false == changeSignCollectionHash.empty? )
+		if( queryType == 1 ) # 1 means vegetable
+			originFile = "txt_at_amis_vegetable.txt"
+			changeToOldName = "txt_at_amis_vegetable-OLD-" + Date.today.to_s + ".txt"
+		elsif( queryType == 2 ) # 2 means fruit
+			originFile = "txt_at_amis_fruit.txt"
+			changeToOldName = "txt_at_amis_fruit-OLD-" + Date.today.to_s + ".txt"
+		elsif( queryType == 3 ) # 3 means flowers
+			originFile = "txt_at_amis_flowers.txt"
+			changeToOldName = "txt_at_amis_flowers-OLD-" + Date.today.to_s + ".txt"
+		end
+	        File.rename("./data_format_at_every_site/"+originFile, "./data_format_at_every_site/"+changeToOldName)
+
+		keyArrayOfRemoteItems = Array.new(remoteItemsHash.keys).sort!
+		File.open("./data_format_at_every_site/"+originFile,"w"){ |f|
+			keyArrayOfRemoteItems.each{ |element|
+				valueArrayOfRemoteItems = remoteItemsHash[element]
+				writeString = ( nil == writeString)? String.new() : writeString.clear
+				valueArrayOfRemoteItems.each{ |value|
+					writeString += (value + "\t")
+				}
+				f.puts("#{writeString}#{element}")
+			}	
+			 
+		}
+	end 
+	# Generate new file for updated targets
+	
+	# Generate a newer hash of items lists and return it.
+	updatedItemsHash = Hash.new
+	remoteItemsHash.each_key{ |key|
+		newerValueString = (nil == newerValueString)? String.new() : newerValueString.clear
+		#valueArrayToString.each{ |value|
+		#	newerValueString += (value + " ")
+		#}
+		valueArray = remoteItemsHash[key]
+		valueArray.each{|value|
+			newerValueString += (value + " ")
+		}
+		updatedItemsHash[key] = newerValueString
+	}
+	return updatedItemsHash
+	# Generate a newer hash of items lists and return it.
 end
 
 def crawl_data(query_type, q_merchandize, q_time, infoToPrint)
@@ -1123,7 +1350,11 @@ counter_mpname_list = 0
 # mpname and its mpno transfer from array to hash: recvMerchandizeHash
 
 
-get_remote_item_list(q_type)
+remoteItemsHash = get_remote_item_list(q_type) # get item list at remote website.
+updatedItemsHash = update_item_list(q_type, recvMerchandizeHash, remoteItemsHash) # compare item lists between local file and remote website, and then do three things:
+# 1) generate newer a hash of item lists and return it.
+# 2) generate a changelog file for item list of the query type, which this time we use. Format of the file name is CHANGELOG-<QUERYTYPE>.txt
+# 3) copy old item list of query type of this time to <OLDNAME>-<DATE>.txt . And generate new file for new list of query type, and please use names coded in header of this script.
 
 qi_time = Array.new
 result_array = Array.new #store result for writing to file.
@@ -1182,7 +1413,7 @@ begin
 
 =begin
 	infoArrayToPrint = [argv_start_date, argv_end_date, count_day, total_days_will_be_processing, q_year, q_month, q_day, total_mpno_number]
-	tmp_array = crawl_data(q_type, recvMerchandizeHash, qi_time, infoArrayToPrint) #open browser and send requests through browser to collect data we want.
+	tmp_array = crawl_data(q_type, updatedItemsHash, qi_time, infoArrayToPrint) #open browser and send requests through browser to collect data we want.
 	infoArrayToPrint.clear
 	infoArrayToPrint = [q_year, q_month, q_day]
 	result_array = filter_data(q_type, tmp_array, infoArrayToPrint)
