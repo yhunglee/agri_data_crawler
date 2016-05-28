@@ -37,6 +37,21 @@
 5. my_format_csv_to_json.rb：用於轉換CSV格式到JSON格式。由於轉換到JSON的結果果不符正統JSON及可匯入資料庫格式，現已停用，建議不使用這份程式進行轉換。
 6. my_rm_duplicate_lines.rb：以每列為單位，用以刪除重複的資料。由於已經忘記何時會用到這份程式，現已停用，建議不使用它。
 
+## 使用各程式的預先準備工作
+1. 在Mac OSX 10.10 以後的版本，必須安裝XQuartz，因為本專案會用到Headless套件去呼叫XVFB，再經由XVFB啟動火狐(Firefox)瀏覽器，所以也請確認必須先安裝火狐瀏覽器。  
+2. 不論是執行 my_vegetable_crawler.rb 檔案，或是經由 autocomplete_repeat_commands.rb 檔案執行 my_vegetable_crawler.rb 檔案，第一次執行時會遇到錯誤訊息:   
+<pre><code> ... (skip) directory /tmp/.X11-unix will not be created ... (skip) </code></pre>   
+請在終端機(Terminal)畫面輸入以下指令即可解決：  
+<pre><code> 
+mkdir /tmp/.X11-unix 
+sudo chmod 1777 /tmp/.X11-unix
+</code></pre>  解決方法資料來源網頁: [http://wineskin.urgesoftware.com/tiki-view_forum_thread.php?comments_parentId=3675](http://wineskin.urgesoftware.com/tiki-view_forum_thread.php?comments_parentId=3675)
+3. 在Linux Debian/Ubuntu 環境，則請依照[Headless gem 在 GitHub page 的指示](https://github.com/leonid-shevtsov/headless)，安裝 XVFB 和 Headless 套件。
+<pre><code>   
+sudo apt-get install xvfb
+gem install headless
+</code></pre>   
+
 ## 設定config目錄
 * 執行autocomplete_repeat_commands.rb檔案前，請在專案家目錄之下建立config目錄，並於config目錄內，新增一個純文字檔案，名稱是accountsetting.txt，以方便本機的postgresq資料庫程式。 
 * accountsetting.rb檔案內容格式是
