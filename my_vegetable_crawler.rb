@@ -224,7 +224,11 @@ def check_difference_between_localItem_and_remoteItem( queryType, localItemsHash
 	puts "開始檢查本機與遠端清單更動的項目"
 	# Note whether remote website's items has different with local file.
 	localItemsHash.each_key{ |key|
-		localItemsHash[key] = localItemsHash[key].split(" ")
+		if (localItemsHash[key].is_a?(String)) 
+			# vegetable-like cases that type of values of Hash is String
+			localItemsHash[key] = localItemsHash[key].split(" ")
+		end 
+		# if there is a type of values of Hash is Array like fruits, it won't split from String to Array.
 	} # transform type of value of localItemsHash from String to Array of String.
 
 	remoteItemsHash.each_pair{ |key,value|
