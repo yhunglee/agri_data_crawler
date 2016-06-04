@@ -714,7 +714,7 @@ def filter_data(queryType, rawDataArray, infoToPrint)
 		        arrayOfItemNameAndKindAndProcessingType = element[1].split(" ")
 			if arrayOfItemNameAndKindAndProcessingType.size == 1
 				overviewData += (arrayOfItemNameAndKindAndProcessingType[0] + ",\"\",\"\"")
-			elsif arrayOfItemNameAndKindAndProcessingType == 2
+			elsif arrayOfItemNameAndKindAndProcessingType.size == 2
 				overviewData += (arrayOfItemNameAndKindAndProcessingType[0] + "," + arrayOfItemNameAndKindAndProcessingType[1] + ",\"\"" )
 			end 
 			overviewData += (",總交易量:" + arrayOfTotalTradeQuantityAndAveragePrice[1] + "公斤,總平均價:" + arrayOfTotalTradeQuantityAndAveragePrice[0] + "元/公斤")
