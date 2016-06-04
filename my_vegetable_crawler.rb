@@ -120,7 +120,8 @@ def get_remote_item_list(queryType)
 		#browser.execute_script('window.document.getElementById("radlProductType_1").checked=true;') # 雖然我們可以用這個選擇大項產品，但因為該表格的選項有綁定click事件，去驅動抓取現有產品名稱清單，所以從原本的設定項目checked，改成使用click事件
 		browser.execute_script('window.document.getElementById("radlProductType_1").click();')
 		begin
-			browser.select(id: 'lstProduct').wait_while_present(5)
+			puts "等待遠端清單30秒"
+			browser.select(id: 'lstProduct').wait_while_present(30)
 			#puts "options' values: " + browser.select(id: 'lstProduct').options 
 			#puts "select texts: " + browser.select(id: 'lstProduct').text
 		rescue Watir::Exception::UnknownObjectException
@@ -150,7 +151,8 @@ def get_remote_item_list(queryType)
 		#browser.execute_script('window.document.getElementById("radlProductType_2").checked=true;') # 雖然我們可以用這個選擇細項產品，但因為該表格的選項有綁定click事件，去驅動抓取現有產品名稱清單，所以從原本的設定項目checked，改成使用click事件
 		browser.execute_script('window.document.getElementById("radlProductType_2").click();')
 		begin
-			browser.select(id: 'lstProduct').wait_while_present(5)
+			puts "等待遠端清單30秒"
+			browser.select(id: 'lstProduct').wait_while_present(30)
 			#puts "options' values: " + browser.select(id: 'lstProduct').options 
 			#puts "select texts: " + browser.select(id: 'lstProduct').text
 		rescue Watir::Exception::UnknownObjectException
@@ -181,7 +183,8 @@ def get_remote_item_list(queryType)
 		#browser.execute_script('window.document.getElementById("rdoListProductType_1").checked=true;') # 雖然我們可以用這個選擇大項產品，但因為該表格的選項有綁定click事件，去驅動抓取現有產品名稱清單，所以從原本的設定項目checked，改成使用click事件
 		browser.execute_script('window.document.getElementById("radlProductType_1").click();')
 		begin
-			browser.select(id: 'lstbProduct').wait_while_present(5)
+			puts "等待遠端清單30秒"
+			browser.select(id: 'lstbProduct').wait_while_present(30)
 			#puts "options' values: " + browser.select(id: 'lstProduct').options 
 			#puts "select texts: " + browser.select(id: 'lstProduct').text
 		rescue Watir::Exception::UnknownObjectException
@@ -464,6 +467,7 @@ def update_item_list(queryType, localItemsHash, remoteItemsHash)
 
 	generate_new_file_for_updated_targets( queryType, remoteItemsHash, changeSignCollectionHash)
 
+	changeSignCollectionHash.clear
 	updatedItemsHash = generate_newer_hash_of_item_list(remoteItemsHash)
 	return updatedItemsHash 
 end
