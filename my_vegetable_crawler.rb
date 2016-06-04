@@ -1558,7 +1558,7 @@ begin
 	infoArrayToPrint = [argv_start_date, argv_end_date, count_day, total_days_will_be_processing, q_year, q_month, q_day, total_mpno_number]
 	tmp_array = crawl_data(q_type, updatedItemsHash, qi_time, infoArrayToPrint) #open browser and send requests through browser to collect data we want.
 	infoArrayToPrint.clear
-	infoArrayToPrint = [q_year, q_month, q_day]
+	infoArrayToPrint = [qi_time[0], qi_time[1], qi_time[2]] # [year, month, day]
 	result_array = filter_data(q_type, tmp_array, infoArrayToPrint)
 	puts "===================================="
 	infoArrayToPrint.clear
