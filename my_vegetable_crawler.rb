@@ -541,7 +541,13 @@ def crawl_data(query_type, q_merchandize, q_time, infoToPrint)
 		browser.button(id: 'ctl00_contentPlaceHolder_btnQuery', name: 'ctl00$contentPlaceHolder$btnQuery').wait_until_present # waiting submit button ready to click
 		browser.button(id: 'ctl00_contentPlaceHolder_btnQuery', name: 'ctl00$contentPlaceHolder$btnQuery').click # click the submit button
 
-		browser.image(alt: 'Process').wait_while_present # waiting when image of ajax procedure presenting
+		begin 
+			browser.image(alt: 'Process').wait_while_present # waiting when image of ajax procedure presenting
+		rescue Watir::Wait::TimeoutError
+			puts "Timeout for image processing of ajax. We will retry."
+			retry
+		end 
+
 		begin 
 			browser.div(id: 'ctl00_contentPlaceHolder_panel').wait_until_present # wait for ajax response
 			Watir::Wait.until{
