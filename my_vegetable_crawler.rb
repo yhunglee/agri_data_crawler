@@ -596,8 +596,8 @@ def filter_data(queryType, rawDataArray, infoToPrint)
 			element[2] = element[2].gsub(/(?<=[\n])[\d]{3}[ ]/u,"") # 刪除地區市場代碼
 			element[2] = element[2].gsub(/(?<=[[\n][\u4E00-\u9FFF]+[ ]([[a-zA-Z0-9]{2}][ ][\u4E00-\u9FFF]+)?[[[[\d]+[\.]?[\d]*][ ]]{4}]][\-\+])[ ](?=([\-]?[\d]+[\.]?[\d]*)[ ]((?![\+\-][ ]?[\d]+\.?\d*)|([\d]+[\.]?[\d]*[ ](([\-\+]?[ ]?[\d]+[\.]?[\d]*)|([\-\+]?[\*]+))))(\n|$))/u,"")#2016/05/25 written: 為了面對1996/04/01的LG芹菜，在鳳山區青梗的交易量增減%欄位出現+***這樣的內容。也有面對當產品名稱欄位沒有資料時，也能正確選出平均價與前一交易日增減%欄位正負號與數字之間的空白。本行用途只是刪掉平均價與前一交易日增減％欄位 正負號與數字之間的空白。
 			element[2] = element[2].gsub(/(?<=[[\+\-]?])[ ](?=[\d]+[\.]?[\d]*(\n|$))/u,"") #刪掉交易量與前一交易日增減％欄位 正負號與數字之間的空白
-			element[2] = element[2].gsub(/[\n ]/u,",") # 用逗號取代有出現換行符號或空白符號的地方
-			element[2] = element[2].gsub(/[,]{2,}/u,",") # 用一個逗號取代連續二個以上逗號的地方
+			element[2] = element[2].gsub(/[\n ]+/u,",") # 用逗號取代有出現換行符號或空白符號的地方
+			#element[2] = element[2].gsub(/[,]{2,}/u,",") # 用一個逗號取代連續二個以上逗號的地方
 			puts "element[2]: "+ element[2] #debug 印出乾淨的各市場交易價格
 			searchArray = element[2].partition(/(?<=小計,)([\d]+[\.]?[\d]*,){2}(?=[\u4E00-\u9FFF]{2,3})/u) # 選出總交易量和總平均價的資料
 			arrayOfTotalTradeQuantityAndAveragePrice = searchArray[1].split(",")
@@ -715,8 +715,8 @@ def filter_data(queryType, rawDataArray, infoToPrint)
 			element[2] = element[2].gsub(/(?<=[\n])[\d]{3}[ ]/u,"") # 刪除地區市場代碼
 			element[2] = element[2].gsub(/(?<=[[\n][\u4E00-\u9FFF]+[ ]([[a-zA-Z0-9]{2}][ ][\u4E00-\u9FFF]+)?[[[[\d]+[\.]?[\d]*][ ]]{4}]][\-\+])[ ](?=([\-]?[\d]+[\.]?[\d]*)[ ]((?![\+\-][ ]?[\d]+\.?\d*)|([\d]+[\.]?[\d]*[ ](([\-\+]?[ ]?[\d]+[\.]?[\d]*)|([\-\+]?[\*]+))))(\n|$))/u,"")#2016/05/25 written: 為了面對1996/04/01的LG芹菜，在鳳山區青梗的交易量增減%欄位出現+***這樣的內容。也有面對當產品名稱欄位沒有資料時，也能正確選出平均價與前一交易日增減%欄位正負號與數字之間的空白。本行用途只是刪掉平均價與前一交易日增減％欄位 正負號與數字之間的空白。
 			element[2] = element[2].gsub(/(?<=[[\+\-]?])[ ](?=[\d]+[\.]?[\d]*(\n|$))/u,"") #刪掉交易量與前一交易日增減％欄位 正負號與數字之間的空白
-			element[2] = element[2].gsub(/[\n ]/u,",") # 用逗號取代有出現換行符號或空白符號的地方
-			element[2] = element[2].gsub(/[,]{2,}/u,",") # 用一個逗號取代連續二個以上逗號的地方
+			element[2] = element[2].gsub(/[\n ]+/u,",") # 用逗號取代有出現換行符號或空白符號的地方
+			#element[2] = element[2].gsub(/[,]{2,}/u,",") # 用一個逗號取代連續二個以上逗號的地方
 			puts "element[2]: "+ element[2] #debug 印出乾淨的各市場交易價格
 			searchArray = element[2].partition(/(?<=小計,)([\d]+[\.]?[\d]*,){2}(?=[\u4E00-\u9FFF]{2,3})/u) # 選出總交易量和總平均價的資料
 			arrayOfTotalTradeQuantityAndAveragePrice = searchArray[1].split(",")
@@ -796,8 +796,8 @@ def filter_data(queryType, rawDataArray, infoToPrint)
 			element[2] = element[2].gsub(/(?<=[\n])[\d]{3}[ ]/u,"") # 刪除地區市場代碼
 			element[2] = element[2].gsub(/(?<=[[\n][\u4E00-\u9FFF]+[ ]([[a-zA-Z0-9]{5}][ ][\u4E00-\u9FFF]+)?[[[[\d]+[\.]?[\d]*][ ]]{5}]][\-\+])[ ](?=([\-]?[\d]+[\.]?[\d]*)[ ]((?![\+\-][ ]?[\d]+\.?\d*)|([\d]+[\.]?[\d]*[ ](([\-\+]?[ ]?[\d]+[\.]?[\d]*)|([\-\+]?[\*]+)){2}))(\n|$))/u,"")#2016/05/26 written: 為了面對在花卉類出現蔬菜類1996/04/01的LG芹菜，在鳳山區青梗的交易量增減%欄位出現+***這樣的內容。也有面對當產品名稱欄位沒有資料時，也能正確選出平均價與增減%欄位正負號與數字之間的空白。本行用途只是刪掉平均價與前一交易日增減％欄位 正負號與數字之間的空白。
 			element[2] = element[2].gsub(/(?<=[[\+\-]?])[ ](?=[\d]+[\.]?[\d]*[ ][\d]+[\.]?[\d]*(\n|$))/u,"") #刪掉交易量與增減％欄位 正負號與數字之間的空白
-			element[2] = element[2].gsub(/[\n ]/u,",") # 用逗號取代有出現換行符號或空白符號的地方
-			element[2] = element[2].gsub(/[,]{2,}/u,",") # 用一個逗號取代連續二個以上逗號的地方
+			element[2] = element[2].gsub(/[\n ]+/u,",") # 用逗號取代有出現換行符號或空白符號的地方
+			#element[2] = element[2].gsub(/[,]{2,}/u,",") # 用一個逗號取代連續二個以上逗號的地方
 			#puts "element[2]: "+ element[2] #debug
 			searchArray = element[2].partition(/(?<=小計,)([\d]+[\.]?[\d]*,){3}(?=[\u4E00-\u9FFF]{4})/u) # 選出總交易量和總平均價和殘貨量的資料
 			# puts "searchArray: " + searchArray.to_s #debug
