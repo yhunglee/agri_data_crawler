@@ -541,14 +541,16 @@ def crawl_data(query_type, q_merchandize, q_time, infoToPrint)
 		browser.button(id: 'ctl00_contentPlaceHolder_btnQuery', name: 'ctl00$contentPlaceHolder$btnQuery').wait_until_present # waiting submit button ready to click
 		browser.button(id: 'ctl00_contentPlaceHolder_btnQuery', name: 'ctl00$contentPlaceHolder$btnQuery').click # click the submit button
 
+=begin
 		begin 
 			browser.image(alt: 'Process').wait_while_present # waiting when image of ajax procedure presenting
 		rescue Watir::Wait::TimeoutError
 			puts "Timeout for image processing of ajax. We will retry."
 			retry
 		end 
-
+=end
 		begin 
+			browser.image(alt: 'Process').wait_while_present # waiting when image of ajax procedure presenting
 			browser.div(id: 'ctl00_contentPlaceHolder_panel').wait_until_present # wait for ajax response
 			Watir::Wait.until{
 				#browser.span(id: 'ctl00_contentPlaceHolder_lblProducts').text.include?(key + " " + value) # 因為蔬菜類的FA0 其他花類，網頁上的「其他花類」後面會有多一個空白符號或其他符號，導致無法如原本預期的運作，所以改成只偵測是否有產品代碼
