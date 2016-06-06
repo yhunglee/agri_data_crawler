@@ -212,16 +212,18 @@ def parse_to_separate_csv_format( loadedFullContent, handle_type )
 				beProcessString = loadedFullContent[i].gsub("市場名稱,天氣,上價,中價,下價,平均價,增減%,交易量,增減%,", "") # for erase unuse column name.
 
 				beProcessString = beProcessString.chomp.gsub(/,(?<=[[:digit:]],)0(?=(,|$))/u, "") # erase data of increasing or decreasing transaction average price and quantity. And get separate data from each column. 本行指令是去除在交易平均價與數量兩者增減幅度的欄位值，1.單純只有零, 2.只有負號的標點符號。
-				beProcessString = beProcessString.chomp.gsub(/(,(?<=[[:digit:]],)[\+\-]\d+\.?\d*(?=(,(\d+|[\u4E00-\u9FFF]+|[\"]{2})|$)))|(,-(?=(,|$)))/u, "")# 為了避免誤刪台中市的蔬菜交易量偶爾會出現負值的情況, 所以先去除一部分在交易平均價與數量兩者增減幅度的欄位值，本行指令去除的是帶有正負號的數值和只有負號，不使用逗號取代。erase data of increasing or decreasing transaction average price and quantity. And get separate data from each column. \u4E00-\u9FFF是中日韓認同表意文字主區.  20160501 add: 為了讓1996年2月10日51百香果在高雄市交易價格的bug和1996年4月23日C1椪柑在台北一之後沒有交易市場與天氣資訊的bug, 輪流被解決, 這行可以先刪掉C1椪柑的交易量增減%資料,所以改寫成這樣.
+				beProcessString = beProcessString.chomp.gsub(/(,(?<=[[:digit:]],)[\+\-]\d+\.?\d*(?=(,(\d+|[\d]*[\(\)\<\>\u3100-\u312F\u4E00-\u9FFF]+|[\"]{2})|$)))|(,-(?=(,|$)))/u, "")# 為了避免誤刪台中市的蔬菜交易量偶爾會出現負值的情況, 所以先去除一部分在交易平均價與數量兩者增減幅度的欄位值，本行指令去除的是帶有正負號的數值和只有負號，不使用逗號取代。erase data of increasing or decreasing transaction average price and quantity. And get separate data from each column. \u4E00-\u9FFF是中日韓認同表意文字主區.  20160501 add: 為了讓1996年2月10日51百香果在高雄市交易價格的bug和1996年4月23日C1椪柑在台北一之後沒有交易市場與天氣資訊的bug, 輪流被解決, 這行可以先刪掉C1椪柑的交易量增減%資料,所以改寫成這樣. 20160605 add: 為了解決代號71蕃茄一般的用字，它使用注音的「ㄧ」，所以加入\u3100-\u312F的範圍
 				beProcessStringArray = beProcessString.chomp.gsub(/,[\-\+][\*]+/u, "").split(",") # erase data of increasing or decreasing transaction average price and quantity. And get separate data from each column. 本行指令是去除在交易平均價與數量兩者增減幅度的欄位值，1.單純只有正負符號的星號*, 2.只有負號的標點符號。
 				# beProcessStringArray = beProcessString.gsub("\"\",","").split(",") # 20160501: 刪掉程式在1996年2月10日,51百香果的高雄市交易資料中，多出的雙引號. 因後續遇到1996年4月23日C1椪柑的bug, 所以隱藏這行,讓2月10日的51百香果高雄市交易資料bug在下面whileloop解決。
 
+=begin
 				# 20160501: for fixing data bug of fruit file Jan1996.csv: C1椪柑 at 1996年1月2日, 有兩個東勢區的資料，其中第二個沒標出名字. 
 				item_size = beProcessStringArray.size
 				k = 0
 				beProcessStringArray.delete("\"\"") #20160501: 解決1996年2月10日,51百香果在高雄市交易價格多出來的雙引號bug; 也解決1996年8月11日O2梨 秋水梨在東勢區的下一筆交易價格多出兩個雙引號的bug,也解決1996年8月16日O4梨 新興梨在嘉義市多出兩個雙引號的bug 
 				while k < item_size do
-					if( nil != (beProcessStringArray[k] =~ /[\u4E00-\u9FFF]+/u) && nil != (beProcessStringArray[k+1] =~ /\d+\.?\d*/u) && nil != (beProcessStringArray[k-1] =~ /\d+\.?\d*/u) )
+					if( nil != (beProcessStringArray[k] =~ /[\d]*[\(\)\<\>\u3100-\u312F\u4E00-\u9FFF]+/u) && nil != (beProcessStringArray[k+1] =~ /\d+\.?\d*/u) && nil != (beProcessStringArray[k-1] =~ /\d+\.?\d*/u) )
+						# 20160605: 因為71蕃茄 一般使用注音符號的「ㄧ」，所以加入\u3100-\u312F的範圍
 						# 20160502:這個解決1996年8月16日O4新興梨交易價格資訊嘉義市的前一筆沒有提供交易市場資訊bug，做法是填入unknownMarket當做交易市場
 						# 20160502:這個解決1996年8月16日S1葡萄 巨峰沒有交易市場的bug
 						# 20160501: for fixing data bug of fruit file Jan1996.csv: C1椪柑 at 1996年1月2日, 有兩個東勢區的資料，其中第二個沒標出名字. 
@@ -239,6 +241,16 @@ def parse_to_separate_csv_format( loadedFullContent, handle_type )
 				end 
 				# 20160501: for fixing data bug of fruit file Jan1996.csv: C1椪柑 at 1996年1月2日, 有兩個東勢區的資料，其中第二個沒標出名字.
 				#puts "beProcessStringArray:" + beProcessStringArray.to_s #debug
+=end
+
+				# 20160606 add: to meet status of new version of the flower website lacking off weather information.
+				item_sum = beProcessStringArray.size
+				for j in 0...item_sum do
+					if beProcessStringArray[j] == "\"\""
+						beProcessStringArray[j] = "unknownWeather"
+					end 
+				end 
+				# 20160606 add: to meet status of new version of the flower website lacking off weather information.
 
 				# erase data of increase/decrease percentage of transaction average price and quantity.
 				item_sum = beProcessStringArray.size 
