@@ -713,7 +713,7 @@ def filter_data(queryType, rawDataArray, infoToPrint)
 			element[2] = element[2].gsub!("市場 產品 上價 中價 下價 平均價\n(元/公斤) 跟前一\n交易日\n比較% 交易量\n(公斤) 跟前一\n交易日\n比較%\n","").gsub(",","")
 			#element[2] = element[2].gsub("\n"," ") 不需要這麼早處理, 因為還有正負號的問題
 			element[2] = element[2].gsub(/(?<=[\n])[\d]{3}[ ]/u,"") # 刪除地區市場代碼
-			element[2] = element[2].gsub(/(?<=[[\n][\u4E00-\u9FFF]+[ ]([[a-zA-Z0-9]{2}][ ][\u4E00-\u9FFF]+)?[[[[\d]+[\.]?[\d]*][ ]]{4}]][\-\+])[ ](?=([\-]?[\d]+[\.]?[\d]*)[ ]((?![\+\-][ ]?[\d]+\.?\d*)|([\d]+[\.]?[\d]*[ ](([\-\+]?[ ]?[\d]+[\.]?[\d]*)|([\-\+]?[\*]+))))(\n|$))/u,"")#2016/05/25 written: 為了面對1996/04/01的LG芹菜，在鳳山區青梗的交易量增減%欄位出現+***這樣的內容。也有面對當產品名稱欄位沒有資料時，也能正確選出平均價與前一交易日增減%欄位正負號與數字之間的空白。本行用途只是刪掉平均價與前一交易日增減％欄位 正負號與數字之間的空白。
+			element[2] = element[2].gsub(/(?<=[[\n][\u4E00-\u9FFF]+[ ]([[a-zA-Z0-9]{2}][ ][0-9]*[\(\)\<\>\u3100-\u312F\u4E00-\u9FFF]+)?[[[[\d]+[\.]?[\d]*][ ]]{4}]][\-\+])[ ](?=([\-]?[\d]+[\.]?[\d]*)[ ]((?![\+\-][ ]?[\d]+\.?\d*)|([\d]+[\.]?[\d]*[ ](([\-\+]?[ ]?[\d]+[\.]?[\d]*)|([\-\+]?[\*]+))))(\n|$))/u,"")#2016/05/25 written: 為了面對1996/04/01的LG芹菜，在鳳山區青梗的交易量增減%欄位出現+***這樣的內容。也有面對當產品名稱欄位沒有資料時，也能正確選出平均價與前一交易日增減%欄位正負號與數字之間的空白。本行用途只是刪掉平均價與前一交易日增減％欄位 正負號與數字之間的空白。20160607 add: 為了解決71 小番茄 ㄧ般和G1 蛋黃果 (仙桃)和G2 鳳眼果(乒乓)和O8 梨 4029梨的品種與處理別名稱，所以正規表示式加上注音符號,數字,左右括號和大小於的符號的範圍 
 			element[2] = element[2].gsub(/(?<=[[\+\-]?])[ ](?=[\d]+[\.]?[\d]*(\n|$))/u,"") #刪掉交易量與前一交易日增減％欄位 正負號與數字之間的空白
 			element[2] = element[2].gsub(/[\n ]+/u,",") # 用逗號取代有出現換行符號或空白符號的地方
 			#element[2] = element[2].gsub(/[,]{2,}/u,",") # 用一個逗號取代連續二個以上逗號的地方
@@ -728,7 +728,7 @@ def filter_data(queryType, rawDataArray, infoToPrint)
 				overviewData += (arrayOfItemNameAndKindAndProcessingType[0] + "," + arrayOfItemNameAndKindAndProcessingType[1] + ",\"\"" )
 			end 
 			overviewData += (",總交易量:" + arrayOfTotalTradeQuantityAndAveragePrice[1] + "公斤,總平均價:" + arrayOfTotalTradeQuantityAndAveragePrice[0] + "元/公斤")
-			parseArray = searchArray[2].gsub(/(?<=[\u4E00-\u9FFF]),([a-zA-Z0-9]{1,4}),[\u4E00-\u9FFF]+(,[\(\)\<\>\u4E00-\u9FFF]+)?(?=,([\d]+[\.]?[\d]*))/u,"").split(",") # 去除產品代碼與產品名稱與品種與處理別。最後再用逗號分離每個欄位資料
+			parseArray = searchArray[2].gsub(/(?<=[\u4E00-\u9FFF]),([a-zA-Z0-9]{1,4}),([0-9]*[\(\)\<\>\u3100-\u312F\u4E00-\u9FFF])+(,[0-9]*[\(\)\<\>\u3100-\u312F\u4E00-\u9FFF]+)?(?=,([\d]+[\.]?[\d]*))/u,"").split(",") # 去除產品代碼與產品名稱與品種與處理別。最後再用逗號分離每個欄位資料
 			puts "parseArray: "+parseArray.to_s #debug
 
 			# insert empty string for processing type.
@@ -753,7 +753,7 @@ def filter_data(queryType, rawDataArray, infoToPrint)
 						nextOnePosition = locationCount + 1 
 						nextTwoPosition = locationCount + 2
 
-						if( nil != (parseArray[locationCount] =~ /[\u4E00-\u9FFF]+/u) )
+						if( nil != (parseArray[locationCount] =~ /[0-9]*[\(\)\<\>\u3100-\u312F\u4E00-\u9FFF]+/u) )
 							if ( nil != (parseArray[precedingLocation] =~ /([\-]|[\+\-]?[\d]+[\.]?[\d]*|[\+\-]?[\*]+)/u))
 
 								if( nil != (parseArray[nextOnePosition] =~ /([\-]|[\+\-]?[\d]+[\.]?[\d]*|[\+\-]?[\*]+)/u ) )
