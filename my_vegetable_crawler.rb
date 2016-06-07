@@ -120,95 +120,125 @@ def get_remote_item_list(queryType)
 		#browser.execute_script('window.document.getElementById("radlProductType_1").checked=true;') # 雖然我們可以用這個選擇大項產品，但因為該表格的選項有綁定click事件，去驅動抓取現有產品名稱清單，所以從原本的設定項目checked，改成使用click事件
 		browser.execute_script('window.document.getElementById("radlProductType_1").click();')
 		begin
-			puts "等待遠端清單30秒"
-			browser.select(id: 'lstProduct').wait_while_present(30)
+			if( true == browser.select(id: 'lstProduct').present?  )
+				puts "等待遠端清單30秒"
+				browser.select(id: 'lstProduct').wait_while_present(30)
+			else
+				puts "等待顯示遠端清單30秒"
+				browser.select(id: 'lstProduct').wait_until_present(30)
+			end 
 			#puts "options' values: " + browser.select(id: 'lstProduct').options 
 			#puts "select texts: " + browser.select(id: 'lstProduct').text
 		rescue Watir::Exception::UnknownObjectException
-			puts "Watir::Exception::UnknownObjectException raised. We will retry."
+			puts "遠端清單尚未出現，繼續等待。Watir::Exception::UnknownObjectException raised. We will retry."
 			retry
 		rescue Watir::Wait::TimeoutError
-			puts "等待的遠端清單已經出現"
-			optionArray = browser.select(id: 'lstProduct').options.to_a
-			optionArray.each{ |element|
-				# Get item code
-				#puts "option value: "+ element.value.to_s
-				keyArray << element.value
-			}
+			if( true == browser.select(id: 'lstProduct').present? )
+				puts "等待的遠端清單已經出現"
+				optionArray = browser.select(id: 'lstProduct').options.to_a
+				optionArray.each{ |element|
+					# Get item code
+					#puts "option value: "+ element.value.to_s
+					keyArray << element.value
+				}
 
-			# get item name (and/or (kind and/or processing type) ).
-			valueString = browser.select(id: 'lstProduct').text.clone()
-			valueString = valueString.gsub(/[a-zA-Z0-9]+[ ](?=[a-zA-Z0-9 \u4E00-\u9FFF]+([\n]|$))/u,"")
-			tmpvalueArray = valueString.split("\n")
-			tmpvalueArray.each{ |element|
-				valueArray << element.split(" ")
-			}
-			#puts "valueArray: " + valueArray.to_s #debug
-			# get item name (and/or (kind and/or processing type) ).
+				# get item name (and/or (kind and/or processing type) ).
+				valueString = browser.select(id: 'lstProduct').text.clone()
+				valueString = valueString.gsub(/[a-zA-Z0-9]+[ ](?=[a-zA-Z0-9 \u4E00-\u9FFF]+([\n]|$))/u,"")
+				tmpvalueArray = valueString.split("\n")
+				tmpvalueArray.each{ |element|
+					valueArray << element.split(" ")
+				}
+				#puts "valueArray: " + valueArray.to_s #debug
+				# get item name (and/or (kind and/or processing type) ).
+			else
+				puts "遠端清單尚未出現，繼續等待30秒"
+				retry 
+			end 
 		end
 	elsif( queryType == 2 )	# 2 means fruit
 		# fruit 使用細項產品的清單
 		#browser.execute_script('window.document.getElementById("radlProductType_2").checked=true;') # 雖然我們可以用這個選擇細項產品，但因為該表格的選項有綁定click事件，去驅動抓取現有產品名稱清單，所以從原本的設定項目checked，改成使用click事件
 		browser.execute_script('window.document.getElementById("radlProductType_2").click();')
 		begin
-			puts "等待遠端清單30秒"
-			browser.select(id: 'lstProduct').wait_while_present(30)
-			#puts "options' values: " + browser.select(id: 'lstProduct').options 
-			#puts "select texts: " + browser.select(id: 'lstProduct').text
+			if( true == browser.select(id: 'lstProduct').present? )
+				puts "等待完整顯示遠端清單30秒"
+				browser.select(id: 'lstProduct').wait_while_present(30)
+				#puts "options' values: " + browser.select(id: 'lstProduct').options 
+				#puts "select texts: " + browser.select(id: 'lstProduct').text
+			else
+				puts "等待顯示遠端清單30秒"
+				browser.select(id: 'lstProduct').wait_until_present(30)
+			end 
 		rescue Watir::Exception::UnknownObjectException
-			puts "Watir::Exception::UnknownObjectException raised. We will retry."
+			puts "遠端清單尚未出現，繼續等待。Watir::Exception::UnknownObjectException raised. We will retry."
 			retry
 		rescue Watir::Wait::TimeoutError
-			puts "等待的遠端清單已經出現"
-			optionArray = browser.select(id: 'lstProduct').options.to_a
-			optionArray.each{ |element|
-				# Get item code
-				#puts "option value: "+ element.value.to_s
-				keyArray << element.value
-			}
-			puts "keyArray: " + keyArray.to_s #debug
+			if( true == browser.select(id: 'lstProduct').present? )
+				puts "等待的遠端清單已經出現"
+				optionArray = browser.select(id: 'lstProduct').options.to_a
+				optionArray.each{ |element|
+					# Get item code
+					#puts "option value: "+ element.value.to_s
+					keyArray << element.value
+				}
+				puts "keyArray: " + keyArray.to_s #debug
 
-			# get item name (and/or (kind and/or processing type) ).
-			valueString = browser.select(id: 'lstProduct').text.clone()
-			valueString = valueString.gsub(/[a-zA-Z0-9]+[ ](?=[a-zA-Z0-9 \u4E00-\u9FFF\u3100-\u312F]+([\n]|$))/u,"") # \u4E00-\u9FFF是中日韓文範圍, \u3100-\u312F是注音符號的範圍, 加上注音符號的範圍是為了解決代號71的蕃茄 一般的用字，它使用注音符號的「ㄧ」
-			tmpvalueArray = valueString.split("\n")
-			tmpvalueArray.each{ |element|
-				valueArray << element.split(" ")
-			}
-			puts "valueArray: " + valueArray.to_s #debug
-			# get item name (and/or (kind and/or processing type) ).
+				# get item name (and/or (kind and/or processing type) ).
+				valueString = browser.select(id: 'lstProduct').text.clone()
+				valueString = valueString.gsub(/[a-zA-Z0-9]+[ ](?=[a-zA-Z0-9 \u4E00-\u9FFF\u3100-\u312F]+([\n]|$))/u,"") # \u4E00-\u9FFF是中日韓文範圍, \u3100-\u312F是注音符號的範圍, 加上注音符號的範圍是為了解決代號71的蕃茄 一般的用字，它使用注音符號的「ㄧ」
+				tmpvalueArray = valueString.split("\n")
+				tmpvalueArray.each{ |element|
+					valueArray << element.split(" ")
+				}
+				puts "valueArray: " + valueArray.to_s #debug
+				# get item name (and/or (kind and/or processing type) ).
+			else
+				puts "遠端清單尚未出現，繼續等待30秒"
+				retry 
+			end 
 		end
 	elsif( queryType == 3 ) # 3 means flowers
 		# flowers 使用分類產品的清單
 		#browser.execute_script('window.document.getElementById("rdoListProductType_1").checked=true;') # 雖然我們可以用這個選擇大項產品，但因為該表格的選項有綁定click事件，去驅動抓取現有產品名稱清單，所以從原本的設定項目checked，改成使用click事件
 		browser.execute_script('window.document.getElementById("radlProductType_1").click();')
 		begin
-			puts "等待遠端清單30秒"
-			browser.select(id: 'lstbProduct').wait_while_present(30)
-			#puts "options' values: " + browser.select(id: 'lstProduct').options 
-			#puts "select texts: " + browser.select(id: 'lstProduct').text
+			if( true == browser.select(id: 'lstbProduct').present? )
+				puts "等待完整顯示遠端清單30秒"
+				browser.select(id: 'lstbProduct').wait_while_present(30)
+				#puts "options' values: " + browser.select(id: 'lstProduct').options 
+				#puts "select texts: " + browser.select(id: 'lstProduct').text
+			else 
+				puts "等待顯示遠端清單30秒"
+				browser.select(id: 'lstbProduct').wait_until_present(30)
+			end 
 		rescue Watir::Exception::UnknownObjectException
-			puts "Watir::Exception::UnknownObjectException raised. We will retry."
+			puts "遠端清單尚未出現，繼續等待。Watir::Exception::UnknownObjectException raised. We will retry."
 			retry
 		rescue Watir::Wait::TimeoutError
-			puts "等待的遠端清單已經出現"
-			optionArray = browser.select(id: 'lstbProduct').options.to_a
-			optionArray.each{ |element|
-				# Get item code
-				#puts "option value: "+ element.value.to_s
-				keyArray << element.value
-			}
+			if( true == browser.select(id: 'lstbProduct').present? ) 
+				puts "等待的遠端清單已經出現"
+				optionArray = browser.select(id: 'lstbProduct').options.to_a
+				optionArray.each{ |element|
+					# Get item code
+					#puts "option value: "+ element.value.to_s
+					keyArray << element.value
+				}
 
-			# get item name (and/or (kind and/or processing type) ).
-			valueString = browser.select(id: 'lstbProduct').text.clone()
-			valueString = valueString.gsub(/[a-zA-Z0-9]+[ ](?=[a-zA-Z0-9 \u4E00-\u9FFF]+([\n]|$))/u,"")
-			tmpvalueArray = valueString.split("\n")
-			tmpvalueArray.each{ |element|
-				valueArray << element.split(" ")
-			}
-			#puts "valueArray: " + valueArray.to_s #debug
-			# get item name (and/or (kind and/or processing type) ).
-		end
+				# get item name (and/or (kind and/or processing type) ).
+				valueString = browser.select(id: 'lstbProduct').text.clone()
+				valueString = valueString.gsub(/[a-zA-Z0-9]+[ ](?=[a-zA-Z0-9 \u4E00-\u9FFF]+([\n]|$))/u,"")
+				tmpvalueArray = valueString.split("\n")
+				tmpvalueArray.each{ |element|
+					valueArray << element.split(" ")
+				}
+				#puts "valueArray: " + valueArray.to_s #debug
+				# get item name (and/or (kind and/or processing type) ).
+			else
+				puts "遠端清單尚未出現，繼續等待30秒"
+				retry 
+			end
+		end 
 	end
 	
 	browser.close
