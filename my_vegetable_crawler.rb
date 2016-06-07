@@ -728,7 +728,7 @@ def filter_data(queryType, rawDataArray, infoToPrint)
 				overviewData += (arrayOfItemNameAndKindAndProcessingType[0] + "," + arrayOfItemNameAndKindAndProcessingType[1] + ",\"\"" )
 			end 
 			overviewData += (",總交易量:" + arrayOfTotalTradeQuantityAndAveragePrice[1] + "公斤,總平均價:" + arrayOfTotalTradeQuantityAndAveragePrice[0] + "元/公斤")
-			parseArray = searchArray[2].gsub(/(?<=[\u4E00-\u9FFF]),([a-zA-Z0-9]{1,4}),([0-9]*[\(\)\<\>\u3100-\u312F\u4E00-\u9FFF])+(,[0-9]*[\(\)\<\>\u3100-\u312F\u4E00-\u9FFF]+)?(?=,([\d]+[\.]?[\d]*))/u,"").split(",") # 去除產品代碼與產品名稱與品種與處理別。最後再用逗號分離每個欄位資料
+			parseArray = searchArray[2].gsub(/(?<=[\u4E00-\u9FFF]),([a-zA-Z0-9]{1,4}),([0-9]*[\(\)\<\>\u3100-\u312F\u4E00-\u9FFF])+(,[0-9]*[\(\)\<\>\u3100-\u312F\u4E00-\u9FFF]+)?(?=,([\d]+[\.]?[\d]*))/u,"").split(",") # 去除產品代碼與產品名稱與品種與處理別。最後再用逗號分離每個欄位資料. 20160607 add: 為了解決71 小番茄 ㄧ般和G1 蛋黃果 (仙桃)和G2 鳳眼果(乒乓)和O8 梨 4029梨的品種與處理別名稱，所以正規表示式加上注音符號,數字,左右括號和大小於的符號的範圍
 			puts "parseArray: "+parseArray.to_s #debug
 
 			# insert empty string for processing type.
@@ -753,7 +753,7 @@ def filter_data(queryType, rawDataArray, infoToPrint)
 						nextOnePosition = locationCount + 1 
 						nextTwoPosition = locationCount + 2
 
-						if( nil != (parseArray[locationCount] =~ /[0-9]*[\(\)\<\>\u3100-\u312F\u4E00-\u9FFF]+/u) )
+						if( nil != (parseArray[locationCount] =~ /[0-9]*[\(\)\<\>\u3100-\u312F\u4E00-\u9FFF]+/u) )# 20160607 add: 為了解決71 小番茄 ㄧ般和G1 蛋黃果 (仙桃)和G2 鳳眼果(乒乓)和O8 梨 4029梨的品種與處理別名稱，所以正規表示式加上注音符號,數字,左右括號和大小於的符號的範圍
 							if ( nil != (parseArray[precedingLocation] =~ /([\-]|[\+\-]?[\d]+[\.]?[\d]*|[\+\-]?[\*]+)/u))
 
 								if( nil != (parseArray[nextOnePosition] =~ /([\-]|[\+\-]?[\d]+[\.]?[\d]*|[\+\-]?[\*]+)/u ) )
