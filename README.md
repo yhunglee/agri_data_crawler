@@ -1,5 +1,5 @@
 # 臺灣農產品市場大盤價格情報（原名：臺灣農產品價格情報）  
-因為原本的網站在20160523要改版了，所以將製作新的資料解析器。  
+因為原本的網站在20160531改版了，新的花卉原始資料網頁將不含天氣資料。  
 
 ## 聲明
 1. 本軟體專案僅是提供市場交易資料和簡易獲取交易資料的工具，並無意圖影響交易市場行情。若有其他軟體專案、開發者或不特定之個人和團體，基於本軟體專案或是本軟體專案衍生的各種軟體專案、活動，進行影響交易市場行情之一切行為，本軟體專案概不負責。
@@ -42,15 +42,14 @@
 2. 不論是執行 my_vegetable_crawler.rb 檔案，或是經由 autocomplete_repeat_commands.rb 檔案執行 my_vegetable_crawler.rb 檔案，第一次執行時會遇到錯誤訊息:   
 <pre><code> ... (skip) directory /tmp/.X11-unix will not be created ... (skip) </code></pre>   
 請在終端機(Terminal)畫面輸入以下指令即可解決：  
-<pre><code> 
-mkdir /tmp/.X11-unix 
+<pre><code> mkdir /tmp/.X11-unix 
 sudo chmod 1777 /tmp/.X11-unix
 </code></pre>  解決方法資料來源網頁: [http://wineskin.urgesoftware.com/tiki-view_forum_thread.php?comments_parentId=3675](http://wineskin.urgesoftware.com/tiki-view_forum_thread.php?comments_parentId=3675)
 3. 在Linux Debian/Ubuntu 環境，則請依照[Headless gem 在 GitHub page 的指示](https://github.com/leonid-shevtsov/headless)，安裝 XVFB 和 Headless 套件。
-<pre><code>   
-sudo apt-get install xvfb
+<pre><code>sudo apt-get install xvfb  
 gem install headless
 </code></pre>   
+4. 目前的程式碼僅適用Firefox 46含先前的版本，Firefox 47 以後的版本因目前 Marionette 軟體忽略 UnhandledAlertError，而 my_vegetable_crawler.rb 需要使用 UnhandledAlertError ，所以暫時無法使用。  
 
 ## 設定config目錄
 * 執行autocomplete_repeat_commands.rb檔案前，請在專案家目錄之下建立config目錄，並於config目錄內，新增一個純文字檔案，名稱是accountsetting.txt，以方便本機的postgresq資料庫程式。 
