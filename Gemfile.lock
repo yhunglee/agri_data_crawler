@@ -5,7 +5,7 @@ GEM
       ffi (~> 1.0, >= 1.0.11)
     ffi (1.9.10)
     headless (2.2.3)
-    pg (0.18.2)
+    pg (0.18.4)
     rubyzip (1.2.0)
     selenium-webdriver (2.53.0)
       childprocess (~> 0.5)
