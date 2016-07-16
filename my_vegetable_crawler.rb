@@ -633,7 +633,7 @@ def filter_data(queryType, rawDataArray, infoToPrint)
 			element[2] = element[2].gsub(/[\n ]+/u,",") # 用逗號取代有出現換行符號或空白符號的地方
 			#element[2] = element[2].gsub(/[,]{2,}/u,",") # 用一個逗號取代連續二個以上逗號的地方
 			puts "element[2]: "+ element[2] #debug 印出乾淨的各市場交易價格
-			searchArray = element[2].partition(/(?<=小計,)([\d]+[\.]?[\d]*,){2}(?=[\u4E00-\u9FFF]{2,3})/u) # 選出總交易量和總平均價的資料
+			searchArray = element[2].partition(/(?<=小計,)([\-]?[\d]+[\.]?[\d]*,){2}(?=[\u4E00-\u9FFF]{2,3})/u) # 選出總交易量和總平均價的資料 # 加入 [\-]?，因為2016/06/30 有品項的小計後面欄位出現 -
 			arrayOfTotalTradeQuantityAndAveragePrice = searchArray[1].split(",")
 			element[1] = element[1].strip # remove whitespaces after the name
 			overviewData = "交易日期:" + currentYear.to_s + "年" + currentMonth.to_s + "月" + currentDay.to_s + "日,產品名稱:" + element[0] + element[1] + ",總交易量:" + arrayOfTotalTradeQuantityAndAveragePrice[1] + "公斤,總平均價:" + arrayOfTotalTradeQuantityAndAveragePrice[0] + "元/公斤"
