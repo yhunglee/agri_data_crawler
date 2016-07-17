@@ -34,6 +34,7 @@ FILE_OF_TMPCHANGELOG = "tmpchangelog.txt"
 ADDRESS_OF_VEGETABLE_QUERY = "http://amis.afa.gov.tw/veg/VegProdDayTransInfo.aspx"
 ADDRESS_OF_FRUIT_QUERY = "http://amis.afa.gov.tw/fruit/FruitProdDayTransInfo.aspx"
 ADDRESS_OF_FLOWERS_QUERY = "http://amis.afa.gov.tw/flower/FlowerProdDayTransInfo.aspx"
+WAIT_TIME_FOR_REMOTE_ITEMS = 60 # seconds
 
 def read_items_from_file query_type
 
@@ -123,11 +124,11 @@ def get_remote_item_list(queryType)
 		browser.execute_script('window.document.getElementById("radlProductType_1").click();')
 		begin
 			if( true == browser.select(id: 'lstProduct').present?  )
-				puts "等待遠端清單30秒"
-				browser.select(id: 'lstProduct').wait_while_present(30)
+				puts "等待遠端清單 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
+				browser.select(id: 'lstProduct').wait_while_present(WAIT_TIME_FOR_REMOTE_ITEMS)
 			else
-				puts "等待顯示遠端清單30秒"
-				browser.select(id: 'lstProduct').wait_until_present(30)
+				puts "等待遠端清單 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
+				browser.select(id: 'lstProduct').wait_until_present(WAIT_TIME_FOR_REMOTE_ITEMS)
 			end 
 			#puts "options' values: " + browser.select(id: 'lstProduct').options 
 			#puts "select texts: " + browser.select(id: 'lstProduct').text
@@ -154,7 +155,7 @@ def get_remote_item_list(queryType)
 				#puts "valueArray: " + valueArray.to_s #debug
 				# get item name (and/or (kind and/or processing type) ).
 			else
-				puts "遠端清單尚未出現，繼續等待30秒"
+				puts "遠端清單尚未出現，繼續等待 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
 				retry 
 			end 
 		end
@@ -164,13 +165,13 @@ def get_remote_item_list(queryType)
 		browser.execute_script('window.document.getElementById("radlProductType_2").click();')
 		begin
 			if( true == browser.select(id: 'lstProduct').present? )
-				puts "等待完整顯示遠端清單30秒"
-				browser.select(id: 'lstProduct').wait_while_present(30)
+				puts "等待遠端清單 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
+				browser.select(id: 'lstProduct').wait_while_present(WAIT_TIME_FOR_REMOTE_ITEMS)
 				#puts "options' values: " + browser.select(id: 'lstProduct').options 
 				#puts "select texts: " + browser.select(id: 'lstProduct').text
 			else
-				puts "等待顯示遠端清單30秒"
-				browser.select(id: 'lstProduct').wait_until_present(30)
+				puts "等待遠端清單 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
+				browser.select(id: 'lstProduct').wait_until_present(WAIT_TIME_FOR_REMOTE_ITEMS)
 			end 
 		rescue Watir::Exception::UnknownObjectException
 			puts "遠端清單尚未出現，繼續等待。Watir::Exception::UnknownObjectException raised. We will retry."
@@ -196,7 +197,7 @@ def get_remote_item_list(queryType)
 				puts "valueArray: " + valueArray.to_s #debug
 				# get item name (and/or (kind and/or processing type) ).
 			else
-				puts "遠端清單尚未出現，繼續等待30秒"
+				puts "遠端清單尚未出現，繼續等待 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
 				retry 
 			end 
 		end
@@ -206,12 +207,12 @@ def get_remote_item_list(queryType)
 		browser.execute_script('window.document.getElementById("radlProductType_1").click();')
 		begin
 			if( true == browser.select(id: 'lstbProduct').present? )
-				puts "等待完整顯示遠端清單30秒"
+				puts "等待遠端清單 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
 				browser.select(id: 'lstbProduct').wait_while_present(30)
 				#puts "options' values: " + browser.select(id: 'lstProduct').options 
 				#puts "select texts: " + browser.select(id: 'lstProduct').text
 			else 
-				puts "等待顯示遠端清單30秒"
+				puts "等待遠端清單 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
 				browser.select(id: 'lstbProduct').wait_until_present(30)
 			end 
 		rescue Watir::Exception::UnknownObjectException
@@ -237,7 +238,7 @@ def get_remote_item_list(queryType)
 				#puts "valueArray: " + valueArray.to_s #debug
 				# get item name (and/or (kind and/or processing type) ).
 			else
-				puts "遠端清單尚未出現，繼續等待30秒"
+				puts "遠端清單尚未出現，繼續等待 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
 				retry 
 			end
 		end 
