@@ -123,13 +123,13 @@ def get_remote_item_list(queryType)
 		#browser.execute_script('window.document.getElementById("radlProductType_1").checked=true;') # 雖然我們可以用這個選擇大項產品，但因為該表格的選項有綁定click事件，去驅動抓取現有產品名稱清單，所以從原本的設定項目checked，改成使用click事件
 		browser.execute_script('window.document.getElementById("radlProductType_1").click();')
 		begin
-			if( true == browser.select(id: 'lstProduct').present?  )
-				puts "等待遠端清單 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
-				browser.select(id: 'lstProduct').wait_while_present(WAIT_TIME_FOR_REMOTE_ITEMS)
-			else
-				puts "等待遠端清單 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
+			if( false == browser.select(id: 'lstProduct').present?  )
+				puts "等待取得遠端清單區塊 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
 				browser.select(id: 'lstProduct').wait_until_present(WAIT_TIME_FOR_REMOTE_ITEMS)
+				
 			end 
+			puts "等待顯示遠端清單 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
+			browser.select(id: 'lstProduct').wait_while_present(WAIT_TIME_FOR_REMOTE_ITEMS)
 			#puts "options' values: " + browser.select(id: 'lstProduct').options 
 			#puts "select texts: " + browser.select(id: 'lstProduct').text
 		rescue Watir::Exception::UnknownObjectException
@@ -168,15 +168,12 @@ def get_remote_item_list(queryType)
 		#browser.execute_script('window.document.getElementById("radlProductType_2").checked=true;') # 雖然我們可以用這個選擇細項產品，但因為該表格的選項有綁定click事件，去驅動抓取現有產品名稱清單，所以從原本的設定項目checked，改成使用click事件
 		browser.execute_script('window.document.getElementById("radlProductType_2").click();')
 		begin
-			if( true == browser.select(id: 'lstProduct').present? )
-				puts "等待遠端清單 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
-				browser.select(id: 'lstProduct').wait_while_present(WAIT_TIME_FOR_REMOTE_ITEMS)
-				#puts "options' values: " + browser.select(id: 'lstProduct').options 
-				#puts "select texts: " + browser.select(id: 'lstProduct').text
-			else
-				puts "等待遠端清單 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
+			if( false == browser.select(id: 'lstProduct').present? )
+				puts "等待取得遠端清單區塊 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
 				browser.select(id: 'lstProduct').wait_until_present(WAIT_TIME_FOR_REMOTE_ITEMS)
 			end 
+			puts "等待顯示遠端清單 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
+			browser.select(id: 'lstProduct').wait_while_present(WAIT_TIME_FOR_REMOTE_ITEMS)
 		rescue Watir::Exception::UnknownObjectException
 			puts "遠端清單尚未出現，繼續等待。Watir::Exception::UnknownObjectException raised. We will retry."
 			retry
@@ -214,15 +211,12 @@ def get_remote_item_list(queryType)
 		#browser.execute_script('window.document.getElementById("rdoListProductType_1").checked=true;') # 雖然我們可以用這個選擇大項產品，但因為該表格的選項有綁定click事件，去驅動抓取現有產品名稱清單，所以從原本的設定項目checked，改成使用click事件
 		browser.execute_script('window.document.getElementById("radlProductType_1").click();')
 		begin
-			if( true == browser.select(id: 'lstbProduct').present? )
-				puts "等待遠端清單 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
-				browser.select(id: 'lstbProduct').wait_while_present(WAIT_TIME_FOR_REMOTE_ITEMS)
-				#puts "options' values: " + browser.select(id: 'lstProduct').options 
-				#puts "select texts: " + browser.select(id: 'lstProduct').text
-			else 
-				puts "等待遠端清單 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
+			if( false == browser.select(id: 'lstbProduct').present? )
+				puts "等待取得遠端清單區塊 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
 				browser.select(id: 'lstbProduct').wait_until_present(WAIT_TIME_FOR_REMOTE_ITEMS)
 			end 
+			puts "等待顯示遠端清單 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
+			browser.select(id: 'lstbProduct').wait_while_present(WAIT_TIME_FOR_REMOTE_ITEMS)
 		rescue Watir::Exception::UnknownObjectException
 			puts "遠端清單尚未出現，繼續等待。Watir::Exception::UnknownObjectException raised. We will retry."
 			retry
