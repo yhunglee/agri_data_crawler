@@ -640,9 +640,17 @@ def filter_data(queryType, rawDataArray, infoToPrint)
 			element[2] = element[2].gsub(/[\n ]+/u,",") # 用逗號取代有出現換行符號或空白符號的地方
 			#element[2] = element[2].gsub(/[,]{2,}/u,",") # 用一個逗號取代連續二個以上逗號的地方
 			puts "element[2]: "+ element[2] #debug 印出乾淨的各市場交易價格
-			searchArray = element[2].partition(/(?<=小計,)(([\-],)|([\-]?[\d]+[\.]?[\d]*,)){2}(?=[\u4E00-\u9FFF]{2,3})/u) # 選出總交易量和總平均價的資料 # 加入 [\-]?，因為2016/06/30 有品項的小計後面欄位出現 - , #20160901: 因為LL1茼蒿 小計出現平均價是'-'的資料，所以改寫原本的正規表示式
+			searchArray = element[2].partition(/(?<=小計,)(([\-],)|([\-]?[\d]+[\.]?[\d]*,)){2}(?=[\u3000\u4E00-\u9FFF]{2,3})/u) # 選出總交易量和總平均價的資料 # 加入 [\-]?，因為2016/06/30 有品項的小計後面欄位出現 - , #20160901: 因為LL1茼蒿 小計出現平均價是'-'的資料，所以改寫原本的正規表示式  #20161016 add: 因為20161015 MG巴西蘑菇出現第一筆資料是「桃　農」交易市場，所以RE新增全形空白的unicode: \u3000
 			arrayOfTotalTradeQuantityAndAveragePrice = searchArray[1].split(",")
 			element[1] = element[1].strip # remove whitespaces after the name
+=begin
+			#debug block
+			puts "searchArray: #{searchArray.to_s}" #debug
+			puts "element[0]: #{element[0]}" #debug
+			puts "element[1]: #{element[1]}" #debug
+			puts "arrayOfTotalTradeQuantityAndAveragePrice[0]: #{arrayOfTotalTradeQuantityAndAveragePrice[0]}" #debug
+			puts "arrayOfTotalTradeQuantityAndAveragePrice[1]: #{arrayOfTotalTradeQuantityAndAveragePrice[1]}" #debug
+=end
 			overviewData = "交易日期:" + currentYear.to_s + "年" + currentMonth.to_s + "月" + currentDay.to_s + "日,產品名稱:" + element[0] + element[1] + ",總交易量:" + arrayOfTotalTradeQuantityAndAveragePrice[1] + "公斤,總平均價:" + (arrayOfTotalTradeQuantityAndAveragePrice[0] == '-' ? 0.to_s : arrayOfTotalTradeQuantityAndAveragePrice[0]) + "元/公斤" # 20160901: 因為LL1茼蒿 小記出現平均價是'-'的資料，所以加入判斷式自行轉換成0
 			parseArray = searchArray[2].gsub(/(?<=[\u3000\u4E00-\u9FFF]),([a-zA-Z0-9]{1,4}),[\u3000\u4E00-\u9FFF]+(?=,(([\(\)\<\>\u3000\u4E00-\u9FFF])|([\d]+[\.]?[\d]*)))/u,"").split(",") # 去除產品代碼與產品名稱。最後再用逗號分離每個欄位資料 #20160730 add: 因為桃園改成「桃　農」交易市場，所以RE新增全形空白的unicode: \u3000
 			puts "parseArray: "+parseArray.to_s #debug
