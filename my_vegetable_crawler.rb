@@ -548,7 +548,7 @@ def crawl_data(query_type, q_merchandize, q_time, infoToPrint)
 	#browser.goto(q_addr)
 
 	# For firefox 48 and onward version
-	browser = Watir::Browser.new(:firefox, marionette: true) if ( (!browser) || !(browser.exist?) )
+	browser = Watir::Browser.new(:firefox) if ( (!browser) || !(browser.exist?) )
 	browser.goto(q_addr)
 
 	startDate = infoToPrint[0]
