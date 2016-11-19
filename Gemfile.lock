@@ -3,16 +3,16 @@ GEM
   specs:
     childprocess (0.5.9)
       ffi (~> 1.0, >= 1.0.11)
-    ffi (1.9.10)
+    ffi (1.9.14)
     headless (2.2.3)
     pg (0.18.4)
     rubyzip (1.2.0)
-    selenium-webdriver (2.53.0)
+    selenium-webdriver (3.0.1)
       childprocess (~> 0.5)
       rubyzip (~> 1.0)
       websocket (~> 1.0)
-    watir-webdriver (0.9.1)
-      selenium-webdriver (>= 2.46.2)
+    watir (6.0.2)
+      selenium-webdriver (~> 3.0)
     websocket (1.2.3)
 
 PLATFORMS
@@ -21,7 +21,7 @@ PLATFORMS
 DEPENDENCIES
   headless
   pg (~> 0.18.2)
-  watir-webdriver
+  watir (~> 6.0.0)
 
 BUNDLED WITH
    1.11.2

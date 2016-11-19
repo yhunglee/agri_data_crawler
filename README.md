@@ -1,5 +1,6 @@
 # 臺灣農產品市場大盤價格情報（原名：臺灣農產品價格情報）  
-因為原本的網站在20160531改版了，從20160531開始抓取的花卉原始資料網頁將不含天氣資料。  
+因為原本的網站在20160531改版了，從20160531開始抓取的花卉原始資料網頁將不含天氣資料。   
+即將從Firefox 47，轉向支援Firefox 48及48後續版本的瀏覽器，Firefox 47及更早之前的版本將不會再支援。預計升級到watir 6.0套件和使用geckodriver 0.11.1及後續版本。   
 
 ## 聲明
 1. 本軟體專案僅是提供市場交易資料和簡易獲取交易資料的工具，並無意圖影響交易市場行情。若有其他軟體專案、開發者或不特定之個人和團體，基於本軟體專案或是本軟體專案衍生的各種軟體專案、活動，進行影響交易市場行情之一切行為，本軟體專案概不負責。
@@ -50,6 +51,7 @@ sudo chmod 1777 /tmp/.X11-unix
 gem install headless
 </code></pre>   
 4. 目前的程式碼僅適用Firefox 46含先前的版本，Firefox 47 以後的版本因目前 Marionette 軟體忽略 UnhandledAlertError，而 my_vegetable_crawler.rb 需要使用 UnhandledAlertError ，所以暫時無法使用。  
+5. 預計將轉向支援Firefox 48及後續版本的瀏覽器，目前本分支正在進行籌備與撰寫程式的工作。
 
 ## 設定config目錄
 * 執行autocomplete_repeat_commands.rb檔案前，請在專案家目錄之下建立config目錄，並於config目錄內，新增一個純文字檔案，名稱是accountsetting.txt，以方便本機的postgresq資料庫程式。 
@@ -134,6 +136,7 @@ b)偶數行只有11個欄位種類, 依序是市場名稱、天氣、上價、�
 ***
 # Transactional prices of agricultural products of wholesale markets in Taiwan   
 Because the original website of agricultural data had changed at thirty-one May 2016, we don't provide weather information inside flowers data from that day.    
+We are planning letting it to support Firefox 48 and onward versions, and we are working on this branch now. It will use watir 6.0 and geckodriver 0.11.1 versions, which include newer ones. This branch hasn't complete the work.
 
 ## Claims
 1. This software is provided as a tool only for collecting transactional prices easily and we don't have any intention to make impacts on trade markets in Taiwan. If there are some projects, developers, or interested groups and people influencing trade markets for agricultural products, this software and we won't take responsibities for them.      

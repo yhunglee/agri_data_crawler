@@ -5,7 +5,7 @@
 
 require 'net/http'
 require 'date'
-require 'watir-webdriver'
+require 'watir'
 require 'headless'
 FILE_OF_VEGETABLE = "txt_at_amis_vegetable.txt"
 FILE_OF_FRUIT = "txt_at_amis_fruit.txt"
@@ -114,9 +114,16 @@ def get_remote_item_list(queryType)
 
 	headless = Headless.new
 	headless.start
-	browser = Watir::Browser.start(qAddr) if ( (!browser) || !(browser.exist?))
+	# for firefox 46 and earlier version
+	#browser = Watir::Browser.start(qAddr) if ( (!browser) || !(browser.exist?))
+	
+	# just for a trial when debugging
 	#browser = Watir::Browser.new(:firefox, marionette: true) if ( (!browser) || !(browser.exist?))
 	#browser.goto(qAddr)
+	
+	# For firefox 48 and onward version
+	browser = Watir::Browser.new(:firefox) if ( (!browser) || !(browser.exist?) )
+	browser.goto(qAddr)
 
 	if( queryType == 1 ) # 1 means vegetable 
 		# vegetable 使用大項產品的清單
@@ -533,9 +540,16 @@ def crawl_data(query_type, q_merchandize, q_time, infoToPrint)
 
 	headless = Headless.new
 	headless.start
-	browser = Watir::Browser.start q_addr if( (!browser) || !(browser.exist?))
+	# for firefox 46 and earlier version
+	#browser = Watir::Browser.start q_addr if( (!browser) || !(browser.exist?))
+	
+	# just for a trial when debugging
 	#browser = Watir::Browser.new(:firefox, marionette: true ) if( (!browser) || !(browser.exist?))
 	#browser.goto(q_addr)
+
+	# For firefox 48 and onward version
+	browser = Watir::Browser.new(:firefox, marionette: true) if ( (!browser) || !(browser.exist?) )
+	browser.goto(q_addr)
 
 	startDate = infoToPrint[0]
 	endDate = infoToPrint[1]
