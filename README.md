@@ -51,7 +51,8 @@ sudo chmod 1777 /tmp/.X11-unix
 gem install headless
 </code></pre>   
 4. 目前的程式碼僅適用Firefox 46含先前的版本，Firefox 47 以後的版本因目前 Marionette 軟體忽略 UnhandledAlertError，而 my_vegetable_crawler.rb 需要使用 UnhandledAlertError ，所以暫時無法使用。  
-5. 預計將轉向支援Firefox 48及後續版本的瀏覽器，目前本分支正在進行籌備與撰寫程式的工作。
+5. 預計將轉向支援Firefox 48及後續版本的瀏覽器，目前本分支正在進行籌備與撰寫程式的工作。   
+6. 請從[Geckodriver在GitHub的專案網址下載](https://github.com/mozilla/geckodriver/releases)，本專案已經測試過0.11.1可以正常使用。另外，Geckodriver請放在執行機器的**$PATH**值的目錄，例如**$PATH**的值是_/usr/local/bin/:/Users/<YOURNAME>/.rvm/rubies/bin:/usr/bin_，Geckodriver檔案可以放在這三個目錄中的其中一個即可。   
 
 ## 設定config目錄
 * 執行autocomplete_repeat_commands.rb檔案前，請在專案家目錄之下建立config目錄，並於config目錄內，新增一個純文字檔案，名稱是accountsetting.txt，以方便本機的postgresq資料庫程式。 
