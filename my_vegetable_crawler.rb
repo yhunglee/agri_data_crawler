@@ -132,11 +132,11 @@ def get_remote_item_list(queryType)
 		begin
 			if( false == browser.select(id: 'lstProduct').present?  )
 				puts "等待取得遠端清單區塊 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
-				browser.select(id: 'lstProduct').wait_until_present(WAIT_TIME_FOR_REMOTE_ITEMS)
+				browser.select(id: 'lstProduct').wait_until(timeout: WAIT_TIME_FOR_REMOTE_ITEMS, &:present?)
 				
 			end 
 			puts "等待顯示遠端清單 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
-			browser.select(id: 'lstProduct').wait_while_present(WAIT_TIME_FOR_REMOTE_ITEMS)
+			browser.select(id: 'lstProduct').wait_while(timeout: WAIT_TIME_FOR_REMOTE_ITEMS, &:present?)
 			#puts "options' values: " + browser.select(id: 'lstProduct').options 
 			#puts "select texts: " + browser.select(id: 'lstProduct').text
 		rescue Watir::Exception::UnknownObjectException
@@ -177,10 +177,10 @@ def get_remote_item_list(queryType)
 		begin
 			if( false == browser.select(id: 'lstProduct').present? )
 				puts "等待取得遠端清單區塊 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
-				browser.select(id: 'lstProduct').wait_until_present(WAIT_TIME_FOR_REMOTE_ITEMS)
+				browser.select(id: 'lstProduct').wait_until(timeout: WAIT_TIME_FOR_REMOTE_ITEMS, &:present?)
 			end 
 			puts "等待顯示遠端清單 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
-			browser.select(id: 'lstProduct').wait_while_present(WAIT_TIME_FOR_REMOTE_ITEMS)
+			browser.select(id: 'lstProduct').wait_while(timeout: WAIT_TIME_FOR_REMOTE_ITEMS, &:present?)
 		rescue Watir::Exception::UnknownObjectException
 			puts "遠端清單尚未出現，繼續等待。Watir::Exception::UnknownObjectException raised. We will retry."
 			retry
@@ -220,10 +220,10 @@ def get_remote_item_list(queryType)
 		begin
 			if( false == browser.select(id: 'lstbProduct').present? )
 				puts "等待取得遠端清單區塊 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
-				browser.select(id: 'lstbProduct').wait_until_present(WAIT_TIME_FOR_REMOTE_ITEMS)
+				browser.select(id: 'lstbProduct').wait_until(timeout: WAIT_TIME_FOR_REMOTE_ITEMS, &:present?)
 			end 
 			puts "等待顯示遠端清單 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
-			browser.select(id: 'lstbProduct').wait_while_present(WAIT_TIME_FOR_REMOTE_ITEMS)
+			browser.select(id: 'lstbProduct').wait_while(timeout: WAIT_TIME_FOR_REMOTE_ITEMS, &:present?)
 		rescue Watir::Exception::UnknownObjectException
 			puts "遠端清單尚未出現，繼續等待。Watir::Exception::UnknownObjectException raised. We will retry."
 			retry
@@ -567,7 +567,7 @@ def crawl_data(query_type, q_merchandize, q_time, infoToPrint)
 		puts "本次查詢範圍是民國 "+(startDate.year - 1911).to_s+" 年 "+(startDate.month).to_s+" 月 "+(startDate.day).to_s+" 號 至 "+(endDate.year - 1911).to_s+" 年 "+(endDate.month).to_s+" 月 "+(endDate.day).to_s+" 號."
 		puts "現在處理的是第 "+currentDayCount.to_s+"/"+totalDaysWillBeProcessing.to_s+" 天"	
 		puts "現在處理的是民國 "+currentYear.to_s+" 年 "+currentMonth.to_s+" 月 "+currentDay.to_s+" 號的第 "+(currentMpNoCount + 1).to_s+"/"+totalMpNoNumber.to_s+" 個"
-		browser.radio(id: 'ctl00_contentPlaceHolder_ucSolarLunar_radlSolarLunar_0', value: 'S').when_present.set # Setting date mode for solar or lunar
+		browser.radio(id: 'ctl00_contentPlaceHolder_ucSolarLunar_radlSolarLunar_0', value: 'S').wait_until(&:present?).set # Setting date mode for solar or lunar
 		browser.execute_script('window.document.getElementById("ctl00_contentPlaceHolder_txtSTransDate").value="' + q_time[0] + '/' + q_time[1] + '/' + q_time[2] + '";') # Setting start date for query
 		browser.execute_script('window.document.getElementById("ctl00_contentPlaceHolder_txtETransDate").value="' + q_time[0] + '/' + q_time[1] + '/' + q_time[2] + '";') # Setting end date for query
 		browser.execute_script('window.document.getElementById("ctl00_contentPlaceHolder_txtMarket").value="全部市場";') # Setting value of market name
@@ -593,7 +593,7 @@ def crawl_data(query_type, q_merchandize, q_time, infoToPrint)
 		#browser.hidden(id: 'ctl00_contentPlaceHolder_hfldProductType').set(value: 'S') #if browser.hidden(id: 'ctl00_contentPlaceHolder_hfldProductType').exists? 
 		# The reason I preserve the above code is to remind everybody that set() won't work for all hidden inputs if DOM tree isn't at ready state.
 
-		browser.button(id: 'ctl00_contentPlaceHolder_btnQuery', name: 'ctl00$contentPlaceHolder$btnQuery').wait_until_present # waiting submit button ready to click
+		browser.button(id: 'ctl00_contentPlaceHolder_btnQuery', name: 'ctl00$contentPlaceHolder$btnQuery').wait_until(&:present?) # waiting submit button ready to click
 		browser.button(id: 'ctl00_contentPlaceHolder_btnQuery', name: 'ctl00$contentPlaceHolder$btnQuery').click # click the submit button
 
 =begin
@@ -605,28 +605,38 @@ def crawl_data(query_type, q_merchandize, q_time, infoToPrint)
 		end 
 =end
 		begin 
-			browser.image(alt: 'Process').wait_while_present # waiting when image of ajax procedure presenting
-			browser.div(id: 'ctl00_contentPlaceHolder_panel').wait_until_present # wait for ajax response
-			Watir::Wait.until{
-				#browser.span(id: 'ctl00_contentPlaceHolder_lblProducts').text.include?(key + " " + value) # 因為蔬菜類的FA0 其他花類，網頁上的「其他花類」後面會有多一個空白符號或其他符號，導致無法如原本預期的運作，所以改成只偵測是否有產品代碼
-				browser.span(id: 'ctl00_contentPlaceHolder_lblProducts').text.include?(key)# + " " + value)
-			}
-			browser.div(id: 'ctl00_contentPlaceHolder_panel').tables.[](2).wait_until_present # wait for ajax response is ready to present 
-			response = [key, value, browser.div(id: 'ctl00_contentPlaceHolder_panel').tables.[](2).text] # store ajax response into variable.
-			puts "response: "+response.to_s #debug
+			browser.image(alt: 'Process').wait_while(&:present?) # waiting when image of ajax procedure presenting
+			
+			# change the write convention from supporting firefox 46 and earlier version to firefox 48 and onward ones.
+			#browser.div(id: 'ctl00_contentPlaceHolder_panel').wait_until(&:present?) # wait for ajax response
+			if( browser.div(id: 'ctl00_contentPlaceHolder_panel').exists? ) # wait and check values for ajax response
+				Watir::Wait.until{
+					#browser.span(id: 'ctl00_contentPlaceHolder_lblProducts').text.include?(key + " " + value) # 因為蔬菜類的FA0 其他花類，網頁上的「其他花類」後面會有多一個空白符號或其他符號，導致無法如原本預期的運作，所以改成只偵測是否有產品代碼
+					browser.span(id: 'ctl00_contentPlaceHolder_lblProducts').text.include?(key)# + " " + value)
+				}
+				browser.div(id: 'ctl00_contentPlaceHolder_panel').tables.[](2).wait_until(&:present?) # wait for ajax response is ready to present 
+				response = [key, value, browser.div(id: 'ctl00_contentPlaceHolder_panel').tables.[](2).text] # store ajax response into variable.
+				puts "response: "+response.to_s #debug
 
-			queryResultStringArray << response 
+				queryResultStringArray << response
+			else
+
+				# When data of some fields don't exist, it must be check whether an alert window of notices exists or not. If it exists, close it and show notices in the terminal.
+				if ( browser.alert.exists? ) 
+					# check whether the notice of finding no data exists or not.
+					puts "Found no data for " + key + " " + value
+					browser.alert.close
+				end 		
+			end 
+
+
 		rescue Watir::Exception::UnknownObjectException
-			puts "Watir::Exception::UnknownObjectException raised. We will retry."
+			puts "Watir::Exception::UnknownObjectException raised because we don't find dedicate data for some fields. We will retry."
 			retry
+
 		rescue Watir::Wait::TimeoutError
 			puts "Timeout for " + key + " " + value + ". We will retry."
 			retry
-		rescue Selenium::WebDriver::Error::UnhandledAlertError
-			puts "Found no data for " + key + " " + value
-			if(browser.alert.present?)
-				browser.alert.close
-			end 
 		end
 		puts "Behave like human."
 	        sleep 7	# sleep 7 seconds
