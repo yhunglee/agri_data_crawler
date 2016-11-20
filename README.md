@@ -43,7 +43,7 @@
 2. 不論是執行 my_vegetable_crawler.rb 檔案，或是經由 autocomplete_repeat_commands.rb 檔案執行 my_vegetable_crawler.rb 檔案，第一次執行時會遇到錯誤訊息:   
 <pre><code> ... (skip) directory /tmp/.X11-unix will not be created ... (skip) </code></pre>   
 請在終端機(Terminal)畫面輸入以下指令即可解決：  
-<pre><code> mkdir /tmp/.X11-unix 
+<pre><code>mkdir /tmp/.X11-unix 
 sudo chmod 1777 /tmp/.X11-unix
 </code></pre>  解決方法資料來源網頁: [http://wineskin.urgesoftware.com/tiki-view_forum_thread.php?comments_parentId=3675](http://wineskin.urgesoftware.com/tiki-view_forum_thread.php?comments_parentId=3675)
 3. 在Linux Debian/Ubuntu 環境，則請依照[Headless gem 在 GitHub page 的指示](https://github.com/leonid-shevtsov/headless)，安裝 XVFB 和 Headless 套件。
@@ -52,7 +52,7 @@ gem install headless
 </code></pre>   
 4. 目前的程式碼僅適用Firefox 46含先前的版本，Firefox 47 以後的版本因目前 Marionette 軟體忽略 UnhandledAlertError，而 my_vegetable_crawler.rb 需要使用 UnhandledAlertError ，所以暫時無法使用。  
 5. 預計將轉向支援Firefox 48及後續版本的瀏覽器，目前本分支正在進行籌備與撰寫程式的工作。   
-6. 請從[Geckodriver在GitHub的專案網址下載](https://github.com/mozilla/geckodriver/releases)，本專案已經測試過0.11.1可以正常使用。另外，Geckodriver請放在執行機器的**$PATH**值的目錄，例如**$PATH**的值是_/usr/local/bin/:/Users/<YOURNAME>/.rvm/rubies/bin:/usr/bin_，Geckodriver檔案可以放在這三個目錄中的其中一個即可。   
+6. 請從[Geckodriver在GitHub的專案網址下載](https://github.com/mozilla/geckodriver/releases)，本專案已經測試過0.11.1可以正常使用。另外，Geckodriver請放在執行機器的**$PATH**值的目錄，例如**$PATH**的值是_/usr/local/bin/:/Users/{YOURNAME}/.rvm/rubies/bin:/usr/bin_，Geckodriver檔案可以放在這三個目錄中的其中一個即可。   
 
 ## 設定config目錄
 * 執行autocomplete_repeat_commands.rb檔案前，請在專案家目錄之下建立config目錄，並於config目錄內，新增一個純文字檔案，名稱是accountsetting.txt，以方便本機的postgresq資料庫程式。 
