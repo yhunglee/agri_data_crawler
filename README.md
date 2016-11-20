@@ -1,6 +1,6 @@
 # 臺灣農產品市場大盤價格情報（原名：臺灣農產品價格情報）  
-因為原本的網站在20160531改版了，從20160531開始抓取的花卉原始資料網頁將不含天氣資料。   
-即將從Firefox 47，轉向支援Firefox 48及48後續版本的瀏覽器，Firefox 47及更早之前的版本將不會再支援。預計升級到watir 6.0套件和使用geckodriver 0.11.1及後續版本。   
+1. 因為原本的網站在20160531改版了，從20160531開始抓取的花卉原始資料網頁將不含天氣資料。   
+2. 即將從Firefox 47，轉向支援Firefox 48及48後續版本的瀏覽器，Firefox 47及更早之前的版本將不會再支援。預計升級到watir 6.0套件和使用geckodriver 0.11.1及後續版本。    
 
 ## 聲明
 1. 本軟體專案僅是提供市場交易資料和簡易獲取交易資料的工具，並無意圖影響交易市場行情。若有其他軟體專案、開發者或不特定之個人和團體，基於本軟體專案或是本軟體專案衍生的各種軟體專案、活動，進行影響交易市場行情之一切行為，本軟體專案概不負責。
@@ -32,7 +32,7 @@
 
 ## 各程式功能說明
 1. my_vegetable_crawler.rb：用於抓取資料，可以提供蔬菜，水果和花卉的資料抓取。
-2. my_automate_operator.rb ：用於下指令給my_vegetable_crawler.rb，可指定長時間資料區段的抓取。為了讓cron task program只須用一個單一進入點，已新增流程：呼叫autocomplete_repeat_commands.rb進行短時間(一日)或長時間(一日以上)的倒入已抓取資料到postgres資料庫中。
+2. my_automate_operator.rb：用於下指令給my_vegetable_crawler.rb，可指定長時間資料區段的抓取。為了讓cron task program只須用一個單一進入點，已新增流程：呼叫autocomplete_repeat_commands.rb進行短時間(一日)或長時間(一日以上)的倒入已抓取資料到postgres資料庫中。
 3. reorganize_rawdata_to_db.rb：用於整理my_vegetable_crawler.rb產生的CSV格式檔案，以便由autocomplete_repeat_commands.rb匯入postgresql資料庫。（目前只完成整理蔬菜，尚未完成水果和花卉的整理）
 4. autocomplete_repeat_commands.rb：向reorganize_rawdata_to_db.rb下達指令，指定長時間資料區間的檔案匯入postgresql資料庫。
 5. my_format_csv_to_json.rb：用於轉換CSV格式到JSON格式。由於轉換到JSON的結果果不符正統JSON及可匯入資料庫格式，現已停用，建議不使用這份程式進行轉換。
