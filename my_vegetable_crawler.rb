@@ -122,9 +122,13 @@ def get_remote_item_list(queryType)
 	#browser.goto(qAddr)
 	
 	# For firefox 48 and onward version
-	browser = Watir::Browser.new(:firefox) if ( (!browser) || !(browser.exist?) )
-	browser.goto(qAddr)
-
+	begin 
+		browser = Watir::Browser.new(:firefox) if ( (!browser) || !(browser.exist?) )
+		browser.goto(qAddr)
+	rescue Net::ReadTimeout
+		puts "Suffering congestion. It seems our network or target site connections busy now. We will retry."
+		retry
+	end 
 	if( queryType == 1 ) # 1 means vegetable 
 		# vegetable 使用大項產品的清單
 		#browser.execute_script('window.document.getElementById("radlProductType_1").checked=true;') # 雖然我們可以用這個選擇大項產品，但因為該表格的選項有綁定click事件，去驅動抓取現有產品名稱清單，所以從原本的設定項目checked，改成使用click事件
@@ -548,8 +552,13 @@ def crawl_data(query_type, q_merchandize, q_time, infoToPrint)
 	#browser.goto(q_addr)
 
 	# For firefox 48 and onward version
-	browser = Watir::Browser.new(:firefox) if ( (!browser) || !(browser.exist?) )
-	browser.goto(q_addr)
+	begin 
+		browser = Watir::Browser.new(:firefox) if ( (!browser) || !(browser.exist?) )
+		browser.goto(q_addr)
+	rescue Net::ReadTimeout
+		puts "Suffering congestion. It seems our network or target site connections busy now. We will retry."
+		retry
+	end 
 
 	startDate = infoToPrint[0]
 	endDate = infoToPrint[1]
