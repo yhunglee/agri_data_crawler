@@ -613,12 +613,20 @@ def crawl_data(query_type, q_merchandize, q_time, infoToPrint)
 			retry
 		end 
 =end
-		begin 
+		begin
 			browser.image(alt: 'Process').wait_while(&:present?) # waiting when image of ajax procedure presenting
 			
-			# change the write convention from supporting firefox 46 and earlier version to firefox 48 and onward ones.
-			#browser.div(id: 'ctl00_contentPlaceHolder_panel').wait_until(&:present?) # wait for ajax response
-			if( browser.div(id: 'ctl00_contentPlaceHolder_panel').exists? ) # wait and check values for ajax response
+			# When data of some fields don't exist, it must be check whether an alert window of notices exists or not. If it exists, close it and show notices in the terminal.
+			if ( browser.alert.exists? ) 
+				# check whether the notice of finding no data exists or not.
+				puts "Found no data for " + key + " " + value
+				browser.alert.close
+			else
+				# If there are data for query conditions.
+
+				# change the write convention from supporting firefox 46 and earlier version to firefox 48 and onward ones.
+				browser.div(id: 'ctl00_contentPlaceHolder_panel').wait_until(&:present?) # wait for ajax response
+				#if( browser.div(id: 'ctl00_contentPlaceHolder_panel').exists? ) # wait and check values for ajax response
 				Watir::Wait.until{
 					#browser.span(id: 'ctl00_contentPlaceHolder_lblProducts').text.include?(key + " " + value) # 因為蔬菜類的FA0 其他花類，網頁上的「其他花類」後面會有多一個空白符號或其他符號，導致無法如原本預期的運作，所以改成只偵測是否有產品代碼
 					browser.span(id: 'ctl00_contentPlaceHolder_lblProducts').text.include?(key)# + " " + value)
@@ -628,16 +636,15 @@ def crawl_data(query_type, q_merchandize, q_time, infoToPrint)
 				puts "response: "+response.to_s #debug
 
 				queryResultStringArray << response
-			else
 
-				# When data of some fields don't exist, it must be check whether an alert window of notices exists or not. If it exists, close it and show notices in the terminal.
-				if ( browser.alert.exists? ) 
-					# check whether the notice of finding no data exists or not.
-					puts "Found no data for " + key + " " + value
-					browser.alert.close
-				end 		
-			end 
+			end 	
 
+		rescue Selenium::WebDriver::Error::UnknownError
+			# We add this exception handling because watir-6.0 doesn't compromise Selenium::WebDriver::Error::UnknownError with Watir::Exception::UnknownObjectException. 
+			# In the version of supporting firefox 46 and olderones of this program and gem watir-webdriver 0.9.1, Watir::Exception::UnknowObjectException is the one and only used for handling the situation of finding no specified elements on webpages.
+			# But when using watir-6.0 and its latest version,  Watir::Exception::UnknownObjectException and Selenium::WebDriver::Error::UnknownError are used for handling the situation of finding no assigned elements in webpages. Remarks, Selenium::WebDriver::Error::UnknownError can also be used other ones according information I get from Internet.
+			puts "We haven't found the assigned element in the webpage, so we will recheck."
+			retry 
 
 		rescue Watir::Exception::UnknownObjectException
 			puts "Watir::Exception::UnknownObjectException raised because we don't find dedicate data for some fields. We will retry."
