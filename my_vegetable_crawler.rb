@@ -146,6 +146,12 @@ def get_remote_item_list(queryType)
 			browser.select(id: 'lstProduct').wait_while(timeout: WAIT_TIME_FOR_REMOTE_ITEMS, &:present?)
 			#puts "options' values: " + browser.select(id: 'lstProduct').options 
 			#puts "select texts: " + browser.select(id: 'lstProduct').text
+		rescue Selenium::WebDriver::Error::StaleElementReferenceError
+			# Because it doesn't find the element when waiting element id: lstProduct and generates the StaleElementReferenceError, we reclick the checkbox of list again.
+			
+			browser.execute_script('window.document.getElementById("radlProductType_1").click();')
+			retry
+
 		rescue Watir::Exception::UnknownObjectException
 			puts "遠端清單尚未出現，繼續等待。Watir::Exception::UnknownObjectException raised. We will retry."
 			retry
@@ -188,6 +194,11 @@ def get_remote_item_list(queryType)
 			end 
 			puts "等待顯示遠端清單 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
 			browser.select(id: 'lstProduct').wait_while(timeout: WAIT_TIME_FOR_REMOTE_ITEMS, &:present?)
+		rescue Selenium::WebDriver::Error::StaleElementReferenceError
+			# Because it doesn't find the element when waiting element id: lstProduct and generates the StaleElementReferenceError, we reclick the checkbox of list again.
+			browser.execute_script('window.document.getElementById("radlProductType_2").click();')
+			retry
+
 		rescue Watir::Exception::UnknownObjectException
 			puts "遠端清單尚未出現，繼續等待。Watir::Exception::UnknownObjectException raised. We will retry."
 			retry
@@ -231,6 +242,11 @@ def get_remote_item_list(queryType)
 			end 
 			puts "等待顯示遠端清單 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
 			browser.select(id: 'lstbProduct').wait_while(timeout: WAIT_TIME_FOR_REMOTE_ITEMS, &:present?)
+		rescue Selenium::WebDriver::Error::StaleElementReferenceError
+			# Because it doesn't find the element when waiting element id: lstbProduct and generates the StaleElementReferenceError, we reclick the checkbox of list again.
+			browser.execute_script('window.document.getElementById("radlProductType_1").click();')
+			retry 
+
 		rescue Watir::Exception::UnknownObjectException
 			puts "遠端清單尚未出現，繼續等待。Watir::Exception::UnknownObjectException raised. We will retry."
 			retry
