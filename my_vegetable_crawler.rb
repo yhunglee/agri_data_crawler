@@ -36,6 +36,9 @@ ADDRESS_OF_FRUIT_QUERY = "http://amis.afa.gov.tw/fruit/FruitProdDayTransInfo.asp
 ADDRESS_OF_FLOWERS_QUERY = "http://amis.afa.gov.tw/flower/FlowerProdDayTransInfo.aspx"
 WAIT_TIME_FOR_REMOTE_ITEMS = 30 # seconds
 
+class AlertForNoDataException < Exception
+end 
+
 def read_items_from_file query_type
 
 	array_mpno = Array.new
@@ -619,25 +622,31 @@ def crawl_data(query_type, q_merchandize, q_time, infoToPrint)
 			# When data of some fields don't exist, it must be check whether an alert window of notices exists or not. If it exists, close it and show notices in the terminal.
 			if ( browser.alert.exists? ) 
 				# check whether the notice of finding no data exists or not.
-				puts "Found no data for " + key + " " + value
 				browser.alert.close
+				raise AlertForNoDataException, "Found no data for " + key + " " + value
 			else
 				# If there are data for query conditions.
 
+				#browser.div(id: 'ctl00_contentPlaceHolder_panel').wait_until(&:present?) # wait for ajax response
 				# change the write convention from supporting firefox 46 and earlier version to firefox 48 and onward ones.
-				browser.div(id: 'ctl00_contentPlaceHolder_panel').wait_until(&:present?) # wait for ajax response
-				#if( browser.div(id: 'ctl00_contentPlaceHolder_panel').exists? ) # wait and check values for ajax response
+				if( browser.div(id: 'ctl00_contentPlaceHolder_panel').exists? == false  ) # wait and check values for ajax response
+					browser.div(id: 'ctl00_contentPlaceHolder_panel').wait_until(&:present?) # wait for ajax response
+				end 
+
 				Watir::Wait.until{
 					#browser.span(id: 'ctl00_contentPlaceHolder_lblProducts').text.include?(key + " " + value) # 因為蔬菜類的FA0 其他花類，網頁上的「其他花類」後面會有多一個空白符號或其他符號，導致無法如原本預期的運作，所以改成只偵測是否有產品代碼
 					browser.span(id: 'ctl00_contentPlaceHolder_lblProducts').text.include?(key)# + " " + value)
 				}
+
+				# Don't add check statement for existence of browser.div(id: 'ctl00_contentPlaceHolder_panel').tables.[](2) because it will skip execution of the below line when it exists. It doesn't contain information when the moment it just starts to exist.
 				browser.div(id: 'ctl00_contentPlaceHolder_panel').tables.[](2).wait_until(&:present?) # wait for ajax response is ready to present 
-				response = [key, value, browser.div(id: 'ctl00_contentPlaceHolder_panel').tables.[](2).text] # store ajax response into variable.
-				puts "response: "+response.to_s #debug
 
-				queryResultStringArray << response
+			end 
 
-			end 	
+		rescue Selenium::WebDriver::Error::StaleElementReferenceError
+			puts "Encounter Selenium::WebDriver::Error::StaleElementReferenceError. We will reclick the submit button to try again"
+			browser.button(id: 'ctl00_contentPlaceHolder_btnQuery', name: 'ctl00$contentPlaceHolder$btnQuery').click # reclick the submit button
+			retry 
 
 		rescue Selenium::WebDriver::Error::UnknownError
 			# We add this exception handling because watir-6.0 doesn't compromise Selenium::WebDriver::Error::UnknownError with Watir::Exception::UnknownObjectException. 
@@ -653,6 +662,17 @@ def crawl_data(query_type, q_merchandize, q_time, infoToPrint)
 		rescue Watir::Wait::TimeoutError
 			puts "Timeout for " + key + " " + value + ". We will retry."
 			retry
+		rescue AlertForNoDataException => e
+			puts e.message
+			
+		else
+			# If there is no *exception occurred, it will execute below code.
+
+			response = [key, value, browser.div(id: 'ctl00_contentPlaceHolder_panel').tables.[](2).text] # store ajax response into variable.
+			puts "response: "+response.to_s #debug
+
+			queryResultStringArray << response
+
 		end
 		puts "Behave like human."
 	        sleep 7	# sleep 7 seconds
