@@ -131,6 +131,11 @@ def get_remote_item_list(queryType)
 	rescue Net::ReadTimeout
 		puts "Suffering congestion. It seems our network or target site connections busy now. We will retry."
 		retry
+	rescue Selenium::WebDriver::Error::UnknownError
+		puts "The uncontrolled browser exists, and we will close and restart it."
+		browser.close
+
+		retry 
 	end 
 	if( queryType == 1 ) # 1 means vegetable 
 		# vegetable 使用大項產品的清單
@@ -595,7 +600,15 @@ def crawl_data(query_type, q_merchandize, q_time, infoToPrint)
 		puts "本次查詢範圍是民國 "+(startDate.year - 1911).to_s+" 年 "+(startDate.month).to_s+" 月 "+(startDate.day).to_s+" 號 至 "+(endDate.year - 1911).to_s+" 年 "+(endDate.month).to_s+" 月 "+(endDate.day).to_s+" 號."
 		puts "現在處理的是第 "+currentDayCount.to_s+"/"+totalDaysWillBeProcessing.to_s+" 天"	
 		puts "現在處理的是民國 "+currentYear.to_s+" 年 "+currentMonth.to_s+" 月 "+currentDay.to_s+" 號的第 "+(currentMpNoCount + 1).to_s+"/"+totalMpNoNumber.to_s+" 個"
-		browser.radio(id: 'ctl00_contentPlaceHolder_ucSolarLunar_radlSolarLunar_0', value: 'S').wait_until(&:present?).set # Setting date mode for solar or lunar
+		begin 
+			browser.radio(id: 'ctl00_contentPlaceHolder_ucSolarLunar_radlSolarLunar_0', value: 'S').wait_until(&:present?).set # Setting date mode for solar or lunar
+		rescue Selenium::WebDriver::Error::UnknownError
+			$stderr.puts "There is no radio element to set. We will wait 3 seconds to set."
+
+			puts "There is no radio element to set. We will wait 3 seconds to set."
+			sleep 3
+			retry 
+		end 
 		browser.execute_script('window.document.getElementById("ctl00_contentPlaceHolder_txtSTransDate").value="' + q_time[0] + '/' + q_time[1] + '/' + q_time[2] + '";') # Setting start date for query
 		browser.execute_script('window.document.getElementById("ctl00_contentPlaceHolder_txtETransDate").value="' + q_time[0] + '/' + q_time[1] + '/' + q_time[2] + '";') # Setting end date for query
 		browser.execute_script('window.document.getElementById("ctl00_contentPlaceHolder_txtMarket").value="全部市場";') # Setting value of market name
@@ -621,8 +634,16 @@ def crawl_data(query_type, q_merchandize, q_time, infoToPrint)
 		#browser.hidden(id: 'ctl00_contentPlaceHolder_hfldProductType').set(value: 'S') #if browser.hidden(id: 'ctl00_contentPlaceHolder_hfldProductType').exists? 
 		# The reason I preserve the above code is to remind everybody that set() won't work for all hidden inputs if DOM tree isn't at ready state.
 
-		browser.button(id: 'ctl00_contentPlaceHolder_btnQuery', name: 'ctl00$contentPlaceHolder$btnQuery').wait_until(&:present?) # waiting submit button ready to click
-		browser.button(id: 'ctl00_contentPlaceHolder_btnQuery', name: 'ctl00$contentPlaceHolder$btnQuery').click # click the submit button
+		begin 
+			browser.button(id: 'ctl00_contentPlaceHolder_btnQuery', name: 'ctl00$contentPlaceHolder$btnQuery').wait_until(&:present?) # waiting submit button ready to click
+			browser.button(id: 'ctl00_contentPlaceHolder_btnQuery', name: 'ctl00$contentPlaceHolder$btnQuery').click # click the submit button
+		rescue Selenium::WebDriver::Error::UnknownError
+			$stderr.puts "There are no button to click. We will wait 3 seconds to retry."
+			puts "There are no button to click. We will wait 3 seconds to retry."
+			sleep 3
+			retry
+
+		end 
 
 =begin
 		begin 
@@ -680,7 +701,9 @@ def crawl_data(query_type, q_merchandize, q_time, infoToPrint)
 			retry
 		rescue AlertForNoDataException => e
 			puts e.message
-			
+		rescue Errno::ECONNREFUSED => e
+			$stderr.puts e.message
+			retry	
 		else
 			# If there is no *exception occurred, it will execute below code.
 
