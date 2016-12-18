@@ -1,6 +1,6 @@
 # 臺灣農產品市場大盤價格情報（原名：臺灣農產品價格情報）  
 1. 因為原本的網站在20160531改版了，從20160531開始抓取的花卉原始資料網頁將不含天氣資料。   
-2. 支援Firefox 48及48後續版本的瀏覽器，Firefox 47及更早之前的版本將不會再支援。請升級 watir 到 6.0套件和使用geckodriver 0.11.1及後續版本。    
+2. 支援Firefox 48及48後續版本的瀏覽器，Firefox 47及更早之前的版本將不會再支援。請升級 watir 到 6.0套件和使用geckodriver 0.11.1及後續版本。欲使用支援Firefox 46及更早之前版本，請用 git 切換本專案的分支(branch)使用。    
 
 ## 聲明
 1. 本軟體專案僅是提供市場交易資料和簡易獲取交易資料的工具，並無意圖影響交易市場行情。若有其他軟體專案、開發者或不特定之個人和團體，基於本軟體專案或是本軟體專案衍生的各種軟體專案、活動，進行影響交易市場行情之一切行為，本軟體專案概不負責。
@@ -45,7 +45,8 @@
 請在終端機(Terminal)畫面輸入以下指令即可解決：  
 <pre><code>mkdir /tmp/.X11-unix 
 sudo chmod 1777 /tmp/.X11-unix
-</code></pre>  解決方法資料來源網頁: [http://wineskin.urgesoftware.com/tiki-view_forum_thread.php?comments_parentId=3675](http://wineskin.urgesoftware.com/tiki-view_forum_thread.php?comments_parentId=3675)
+sudo chown root /tmp/.X11-unix/
+</code></pre>  解決方法資料來源網頁: [http://wineskin.urgesoftware.com/tiki-view_forum_thread.php?comments_parentId=3675](http://wineskin.urgesoftware.com/tiki-view_forum_thread.php?comments_parentId=3675), [First comment at https://github.com/leonid-shevtsov/headless/issues/47](https://github.com/leonid-shevtsov/headless/issues/47)
 3. 在Linux Debian/Ubuntu 環境，則請依照[Headless gem 在 GitHub page 的指示](https://github.com/leonid-shevtsov/headless)，安裝 XVFB 和 Headless 套件。
 <pre><code>sudo apt-get install xvfb  
 gem install headless
@@ -137,7 +138,7 @@ b)偶數行只有11個欄位種類, 依序是市場名稱、天氣、上價、�
 ***
 # Transactional prices of agricultural products of wholesale markets in Taiwan   
 Because the original website of agricultural data had changed at thirty-one May 2016, we don't provide weather information inside flowers data from that day.    
-We are planning letting it to support Firefox 48 and onward versions, and we are working on this branch now. It will use watir 6.0 and geckodriver 0.11.1 versions, which include newer ones. This branch hasn't complete the work.
+This mainstream starts to support Firefox 48 and onward versions, and we are working on this branch now. It will use watir 6.0 and geckodriver 0.11.1 versions, which include newer ones. Supporting earlier firefox version such as firefox 46 is located at other branch of this project. You can use git command to change branch.
 
 ## Claims
 1. This software is provided as a tool only for collecting transactional prices easily and we don't have any intention to make impacts on trade markets in Taiwan. If there are some projects, developers, or interested groups and people influencing trade markets for agricultural products, this software and we won't take responsibities for them.      
