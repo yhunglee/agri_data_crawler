@@ -1,6 +1,6 @@
 # 臺灣農產品市場大盤價格情報（原名：臺灣農產品價格情報）  
 1. 因為原本的網站在20160531改版了，從20160531開始抓取的花卉原始資料網頁將不含天氣資料。   
-2. 即將從Firefox 47，轉向支援Firefox 48及48後續版本的瀏覽器，Firefox 47及更早之前的版本將不會再支援。預計升級到watir 6.0套件和使用geckodriver 0.11.1及後續版本。    
+2. 支援Firefox 48及48後續版本的瀏覽器，Firefox 47及更早之前的版本將不會再支援。請升級 watir 到 6.0套件和使用geckodriver 0.11.1及後續版本。    
 
 ## 聲明
 1. 本軟體專案僅是提供市場交易資料和簡易獲取交易資料的工具，並無意圖影響交易市場行情。若有其他軟體專案、開發者或不特定之個人和團體，基於本軟體專案或是本軟體專案衍生的各種軟體專案、活動，進行影響交易市場行情之一切行為，本軟體專案概不負責。
@@ -39,7 +39,7 @@
 6. my_rm_duplicate_lines.rb：以每列為單位，用以刪除重複的資料。由於已經忘記何時會用到這份程式，現已停用，建議不使用它。
 
 ## 使用各程式的預先準備工作
-1. 在Mac OSX 10.10 以後的版本，必須安裝XQuartz，因為本專案會用到Headless套件去呼叫XVFB，再經由XVFB啟動火狐(Firefox)瀏覽器，所以也請確認必須先安裝火狐瀏覽器。  
+1. 在Mac OSX 10.10 以後的版本，必須安裝XQuartz，因為本專案會用到Headless套件去呼叫XVFB，再經由XVFB啟動火狐(Firefox)瀏覽器，所以也請確認必須先安裝火狐48版以後的瀏覽器 。  
 2. 不論是執行 my_vegetable_crawler.rb 檔案，或是經由 autocomplete_repeat_commands.rb 檔案執行 my_vegetable_crawler.rb 檔案，第一次執行時會遇到錯誤訊息:   
 <pre><code> ... (skip) directory /tmp/.X11-unix will not be created ... (skip) </code></pre>   
 請在終端機(Terminal)畫面輸入以下指令即可解決：  
@@ -50,8 +50,8 @@ sudo chmod 1777 /tmp/.X11-unix
 <pre><code>sudo apt-get install xvfb  
 gem install headless
 </code></pre>   
-4. 目前的程式碼僅適用Firefox 46含先前的版本，Firefox 47 以後的版本因目前 Marionette 軟體忽略 UnhandledAlertError，而 my_vegetable_crawler.rb 需要使用 UnhandledAlertError ，所以暫時無法使用。  
-5. 預計將轉向支援Firefox 48及後續版本的瀏覽器，目前本分支正在進行籌備與撰寫程式的工作。   
+4. 支援Firefox 48及後續版本的瀏覽器，不相容更早版本的Firefox 。   
+5. 替換Linux Ubuntu系統中或是安裝其他版本的Firefox瀏覽器，可以按照[此連結](http://libre-software.net/how-to-install-firefox-on-ubuntu-linux-mint/ )的指示。   
 6. 請從[Geckodriver在GitHub的專案網址下載](https://github.com/mozilla/geckodriver/releases)，本專案已經測試過0.11.1可以正常使用。另外，Geckodriver請放在執行機器的**$PATH**值的目錄，例如**$PATH**的值是_/usr/local/bin/:/Users/{YOURNAME}/.rvm/rubies/bin:/usr/bin_，Geckodriver檔案可以放在這三個目錄中的其中一個即可。   
 
 ## 設定config目錄
@@ -183,7 +183,8 @@ sudo chmod 1777 /tmp/.X11-unix
 <pre><code>sudo apt-get install xvfb
 gem install headless
 </code></pre>     
-4. Current version of this software can only be executed with Firefox 46 and earlier release. It can't run with Firefox 47 and later ones because the Marionette software ignore the exception:UnhandledAlertError. That's what my_vegetable_crawler.rb needs, so it can't available for Firefox 47 and later ones.    
+4. This version of programs only works for firefox 48 and onwards. Earlier version of firefox browser such as 46 won't work.    
+
 
 ## Configure directory of config    
 * Before executing autocomplete_repeat_commands.rb, please create a directory named config. Then you put a new text file named accountsetting.txt under the config directory. Format of accountsetting.txt is :    
