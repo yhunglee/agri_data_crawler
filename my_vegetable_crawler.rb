@@ -35,6 +35,12 @@ ADDRESS_OF_VEGETABLE_QUERY = "http://amis.afa.gov.tw/veg/VegProdDayTransInfo.asp
 ADDRESS_OF_FRUIT_QUERY = "http://amis.afa.gov.tw/fruit/FruitProdDayTransInfo.aspx"
 ADDRESS_OF_FLOWERS_QUERY = "http://amis.afa.gov.tw/flower/FlowerProdDayTransInfo.aspx"
 WAIT_TIME_FOR_REMOTE_ITEMS = 30 # seconds
+RETRY_TIME = 5 # retry limit when encountering exceptions.
+LIMIT_OF_RETRY_OF_STALE_ELEMENT_REFERENCE_ERROR = 20 # retry limit when encountering exceptions of selenium::webdriver::error::staleelementreference .
+LIMIT_OF_RETRY_OF_UNKNOWN_OBJECT_ERROR = 20 # retry limit when encountering exceptions of watir::exception::unknownobjectexception .
+LIMIT_OF_RETRY_OF_UNKNOWN_ERROR = 20 # retry limit when encountering exceptions of selenium::webdriver::error::unknownerror .
+LIMIT_OF_RETRY_OF_TIMEOUT_ERROR = 20 # retry limit when encountering exceptions of watir::wait::timeouterror .
+LIMIT_OF_RETRY_OF_CONNECT_REFUSED_ERROR = 20 # retry limit when encountering exceptions of errno::econnrefused .
 
 class AlertForNoDataException < Exception
 end 
@@ -125,18 +131,31 @@ def get_remote_item_list(queryType)
 	#browser.goto(qAddr)
 	
 	# For firefox 48 and onward version
+	netExceptionCount = 0
+	browserUnknownExceptionCount = 0
 	begin 
 		browser = Watir::Browser.new(:firefox) if ( (!browser) || !(browser.exist?) )
 		browser.goto(qAddr)
-	rescue Net::ReadTimeout
+	rescue Net::ReadTimeout => e
 		puts "Suffering congestion. It seems our network or target site connections busy now. We will retry."
-		retry
-	rescue Selenium::WebDriver::Error::UnknownError
+		netExceptionCount += 1
+		retry unless netExceptionCount > RETRY_TIME 
+		abort e.message 
+
+	rescue Selenium::WebDriver::Error::UnknownError => e
 		puts "The uncontrolled browser exists, and we will close and restart it."
 		browser.close
+		browserUnknownExceptionCount += 1
 
-		retry 
+		retry unless browserUnknownExceptionCount > RETRY_TIME
+
+		abort e.message
+
 	end 
+
+	remoteItemListExceptionCount = 0 # for staleelementexception
+	unknownObjectExceptionCount = 0
+	timeOutExceptionCount = 0
 	if( queryType == 1 ) # 1 means vegetable 
 		# vegetable 使用大項產品的清單
 		#browser.execute_script('window.document.getElementById("radlProductType_1").checked=true;') # 雖然我們可以用這個選擇大項產品，但因為該表格的選項有綁定click事件，去驅動抓取現有產品名稱清單，所以從原本的設定項目checked，改成使用click事件
@@ -151,21 +170,30 @@ def get_remote_item_list(queryType)
 			browser.select(id: 'lstProduct').wait_while(timeout: WAIT_TIME_FOR_REMOTE_ITEMS, &:present?)
 			#puts "options' values: " + browser.select(id: 'lstProduct').options 
 			#puts "select texts: " + browser.select(id: 'lstProduct').text
-		rescue Selenium::WebDriver::Error::StaleElementReferenceError
+		rescue Selenium::WebDriver::Error::StaleElementReferenceError => e
 			# Because it doesn't find the element when waiting element id: lstProduct and generates the StaleElementReferenceError, we reclick the checkbox of list again.
 			
 			browser.execute_script('window.document.getElementById("radlProductType_1").click();')
-			retry
+			remoteItemListExceptionCount += 1
 
-		rescue Watir::Exception::UnknownObjectException
+			retry unless remoteItemListExceptionCount > LIMIT_OF_RETRY_OF_STALE_ELEMENT_REFERENCE_ERROR 
+			abort e.message
+
+		rescue Watir::Exception::UnknownObjectException => e
 			puts "遠端清單尚未出現，繼續等待。Watir::Exception::UnknownObjectException raised. We will retry."
-			retry
-		rescue Watir::Wait::TimeoutError
+			unknownObjectExceptionCount += 1
+			retry unless unknownObjectExceptionCount > LIMIT_OF_RETRY_OF_UNKNOWN_OBJECT_ERROR  
+			abort e.message 
+
+		rescue Watir::Wait::TimeoutError => e
 			if( true == browser.select(id: 'lstProduct').present? )
 				puts "等待的遠端清單已經出現"
 			else
 				puts "遠端清單尚未出現，繼續等待 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
-				retry 
+				timeOutExceptionCount += 1
+
+				retry unless timeOutExceptionCount > LIMIT_OF_RETRY_OF_TIMEOUT_ERROR 
+				abort e.message 
 			end 
 		ensure 
 			# This block will alway executed on pathways without retry.
@@ -199,20 +227,27 @@ def get_remote_item_list(queryType)
 			end 
 			puts "等待顯示遠端清單 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
 			browser.select(id: 'lstProduct').wait_while(timeout: WAIT_TIME_FOR_REMOTE_ITEMS, &:present?)
-		rescue Selenium::WebDriver::Error::StaleElementReferenceError
+		rescue Selenium::WebDriver::Error::StaleElementReferenceError => e
 			# Because it doesn't find the element when waiting element id: lstProduct and generates the StaleElementReferenceError, we reclick the checkbox of list again.
 			browser.execute_script('window.document.getElementById("radlProductType_2").click();')
-			retry
-
-		rescue Watir::Exception::UnknownObjectException
+			remoteItemListExceptionCount += 1	
+			retry unless remoteItemListExceptionCount > LIMIT_OF_RETRY_OF_STALE_ELEMENT_REFERENCE_ERROR 
+			abort e.message
+		rescue Watir::Exception::UnknownObjectException => e
 			puts "遠端清單尚未出現，繼續等待。Watir::Exception::UnknownObjectException raised. We will retry."
-			retry
-		rescue Watir::Wait::TimeoutError
+			unknownObjectExceptionCount += 1
+			retry unless unknownObjectExceptionCount > LIMIT_OF_RETRY_OF_UNKNOWN_OBJECT_ERROR 
+			abort e.message
+
+		rescue Watir::Wait::TimeoutError => e
 			if( true == browser.select(id: 'lstProduct').present? )
 				puts "等待的遠端清單已經出現"
 			else
 				puts "遠端清單尚未出現，繼續等待 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
-				retry 
+				timeOutExceptionCount += 1
+				retry unless timeOutExceptionCount > LIMIT_OF_RETRY_OF_TIMEOUT_ERROR
+				abort e.message 
+
 			end 
 		ensure
 			# This block will alway executed on pathways without retry.
@@ -247,20 +282,26 @@ def get_remote_item_list(queryType)
 			end 
 			puts "等待顯示遠端清單 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
 			browser.select(id: 'lstbProduct').wait_while(timeout: WAIT_TIME_FOR_REMOTE_ITEMS, &:present?)
-		rescue Selenium::WebDriver::Error::StaleElementReferenceError
+		rescue Selenium::WebDriver::Error::StaleElementReferenceError => e
 			# Because it doesn't find the element when waiting element id: lstbProduct and generates the StaleElementReferenceError, we reclick the checkbox of list again.
 			browser.execute_script('window.document.getElementById("radlProductType_1").click();')
-			retry 
+			remoteItemListExceptionCount += 1
+			retry unless remoteItemListExceptionCount > LIMIT_OF_RETRY_OF_STALE_ELEMENT_REFERENCE_ERROR 
+			abort e.message
 
-		rescue Watir::Exception::UnknownObjectException
+		rescue Watir::Exception::UnknownObjectException => e
 			puts "遠端清單尚未出現，繼續等待。Watir::Exception::UnknownObjectException raised. We will retry."
-			retry
-		rescue Watir::Wait::TimeoutError
+			unknownObjectExceptionCount += 1
+			retry unless unknownObjectExceptionCount > LIMIT_OF_RETRY_OF_UNKNOWN_OBJECT_ERROR
+			abort e.message 
+		rescue Watir::Wait::TimeoutError => e
 			if( true == browser.select(id: 'lstbProduct').present? ) 
 				puts "等待的遠端清單已經出現"
 			else
 				puts "遠端清單尚未出現，繼續等待 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
-				retry 
+				timeOutExceptionCount += 1
+				retry unless timeOutExceptionCount > LIMIT_OF_RETRY_OF_TIMEOUT_ERROR 
+				abort e.message 
 			end
 		ensure
 			# This block will alway executed on pathways without retry.
@@ -575,13 +616,16 @@ def crawl_data(query_type, q_merchandize, q_time, infoToPrint)
 	#browser = Watir::Browser.new(:firefox, marionette: true ) if( (!browser) || !(browser.exist?))
 	#browser.goto(q_addr)
 
+	netExceptionCount = 0
 	# For firefox 48 and onward version
 	begin 
 		browser = Watir::Browser.new(:firefox) if ( (!browser) || !(browser.exist?) )
 		browser.goto(q_addr)
-	rescue Net::ReadTimeout
+	rescue Net::ReadTimeout => e
 		puts "Suffering congestion. It seems our network or target site connections busy now. We will retry."
-		retry
+		netExceptionCount += 1
+		retry unless netExceptionCount > RETRY_TIME 
+		abort e.message 
 	end 
 
 	startDate = infoToPrint[0]
@@ -594,7 +638,11 @@ def crawl_data(query_type, q_merchandize, q_time, infoToPrint)
 	totalMpNoNumber = infoToPrint[7]
 	currentMpNoCount = 0
 
-
+	staleElementReferenceExceptionCount = 0
+	unknownObjectExceptionCount = 0
+	unknownErrorCount = 0
+	timeOutExceptionCount = 0
+        netExceptionCount = 0	
 	q_merchandize.each_pair{ |key, value|
 
 		puts "本次查詢範圍是民國 "+(startDate.year - 1911).to_s+" 年 "+(startDate.month).to_s+" 月 "+(startDate.day).to_s+" 號 至 "+(endDate.year - 1911).to_s+" 年 "+(endDate.month).to_s+" 月 "+(endDate.day).to_s+" 號."
@@ -602,12 +650,14 @@ def crawl_data(query_type, q_merchandize, q_time, infoToPrint)
 		puts "現在處理的是民國 "+currentYear.to_s+" 年 "+currentMonth.to_s+" 月 "+currentDay.to_s+" 號的第 "+(currentMpNoCount + 1).to_s+"/"+totalMpNoNumber.to_s+" 個"
 		begin 
 			browser.radio(id: 'ctl00_contentPlaceHolder_ucSolarLunar_radlSolarLunar_0', value: 'S').wait_until(&:present?).set # Setting date mode for solar or lunar
-		rescue Selenium::WebDriver::Error::UnknownError
+		rescue Selenium::WebDriver::Error::UnknownError => e1
 			$stderr.puts "There is no radio element to set. We will wait 3 seconds to set."
 
 			puts "There is no radio element to set. We will wait 3 seconds to set."
 			sleep 3
-			retry 
+			unknownErrorCount += 1
+			retry unless unknownErrorCount > LIMIT_OF_RETRY_OF_UNKNOWN_ERROR 
+			abort e1.message 
 		end 
 		browser.execute_script('window.document.getElementById("ctl00_contentPlaceHolder_txtSTransDate").value="' + q_time[0] + '/' + q_time[1] + '/' + q_time[2] + '";') # Setting start date for query
 		browser.execute_script('window.document.getElementById("ctl00_contentPlaceHolder_txtETransDate").value="' + q_time[0] + '/' + q_time[1] + '/' + q_time[2] + '";') # Setting end date for query
@@ -637,11 +687,13 @@ def crawl_data(query_type, q_merchandize, q_time, infoToPrint)
 		begin 
 			browser.button(id: 'ctl00_contentPlaceHolder_btnQuery', name: 'ctl00$contentPlaceHolder$btnQuery').wait_until(&:present?) # waiting submit button ready to click
 			browser.button(id: 'ctl00_contentPlaceHolder_btnQuery', name: 'ctl00$contentPlaceHolder$btnQuery').click # click the submit button
-		rescue Selenium::WebDriver::Error::UnknownError
+		rescue Selenium::WebDriver::Error::UnknownError => e1 
 			$stderr.puts "There are no button to click. We will wait 3 seconds to retry."
 			puts "There are no button to click. We will wait 3 seconds to retry."
 			sleep 3
-			retry
+			unknownErrorCount += 1
+			retry unless unknownErrorCount > LIMIT_OF_RETRY_OF_UNKNOWN_ERROR 
+			abort e1.message 
 
 		end 
 
@@ -680,30 +732,40 @@ def crawl_data(query_type, q_merchandize, q_time, infoToPrint)
 
 			end 
 
-		rescue Selenium::WebDriver::Error::StaleElementReferenceError
+		rescue Selenium::WebDriver::Error::StaleElementReferenceError => e1
 			puts "Encounter Selenium::WebDriver::Error::StaleElementReferenceError. We will reclick the submit button to try again"
 			browser.button(id: 'ctl00_contentPlaceHolder_btnQuery', name: 'ctl00$contentPlaceHolder$btnQuery').click # reclick the submit button
-			retry 
+			staleElementReferenceExceptionCount += 1
+			retry unless staleElementReferenceExceptionCount > LIMIT_OF_RETRY_OF_STALE_ELEMENT_REFERENCE_ERROR
+			abort e1.message 
 
-		rescue Selenium::WebDriver::Error::UnknownError
+		rescue Selenium::WebDriver::Error::UnknownError => e1 
 			# We add this exception handling because watir-6.0 doesn't compromise Selenium::WebDriver::Error::UnknownError with Watir::Exception::UnknownObjectException. 
 			# In the version of supporting firefox 46 and olderones of this program and gem watir-webdriver 0.9.1, Watir::Exception::UnknowObjectException is the one and only used for handling the situation of finding no specified elements on webpages.
 			# But when using watir-6.0 and its latest version,  Watir::Exception::UnknownObjectException and Selenium::WebDriver::Error::UnknownError are used for handling the situation of finding no assigned elements in webpages. Remarks, Selenium::WebDriver::Error::UnknownError can also be used other ones according information I get from Internet.
 			puts "We haven't found the assigned element in the webpage, so we will recheck."
-			retry 
+			unknownErrorCount += 1
+			retry unless unknownErrorCount > LIMIT_OF_RETRY_OF_UNKNOWN_ERROR 
+			abort e1.message 
 
-		rescue Watir::Exception::UnknownObjectException
+		rescue Watir::Exception::UnknownObjectException => e1
 			puts "Watir::Exception::UnknownObjectException raised because we don't find dedicate data for some fields. We will retry."
-			retry
+			unknownObjectExceptionCount += 1
+			retry unless unknownObjectExceptionCount > LIMIT_OF_RETRY_OF_UNKNOWN_OBJECT_ERROR 
+			abort e1.message
 
-		rescue Watir::Wait::TimeoutError
+		rescue Watir::Wait::TimeoutError => e1
 			puts "Timeout for " + key + " " + value + ". We will retry."
-			retry
+			timeOutExceptionCount += 1
+			retry unless timeOutExceptionCount > LIMIT_OF_RETRY_OF_TIMEOUT_ERROR 
+			abort e1.message 
 		rescue AlertForNoDataException => e
 			puts e.message
-		rescue Errno::ECONNREFUSED => e
-			$stderr.puts e.message
-			retry	
+		rescue Errno::ECONNREFUSED => e1
+			$stderr.puts e1.message
+			netExceptionCount += 1
+			retry unless netExceptionCount > LIMIT_OF_RETRY_OF_CONNECT_REFUSED_ERROR 
+			abort e1.message 
 		else
 			# If there is no *exception occurred, it will execute below code.
 
