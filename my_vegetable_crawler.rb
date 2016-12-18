@@ -1542,7 +1542,6 @@ end
 
 
 recv_mpno_list, recv_mpname_list = read_items_from_file(q_type)
-total_mpno_number = recv_mpno_list.size # for showing total number of be processced mpno
 puts "mpno_list: "+recv_mpno_list.to_s#debug
 puts "====" #debug
 puts "mpname_list: "+recv_mpname_list.to_s #debug
@@ -1563,6 +1562,7 @@ updatedItemsHash = update_item_list(q_type, recvMerchandizeHash, remoteItemsHash
 # 1) generate newer a hash of item lists and return it.
 # 2) generate a changelog file for item list of the query type, which this time we use. Format of the file name is CHANGELOG-<QUERYTYPE>.txt
 # 3) copy old item list of query type of this time to <OLDNAME>-<DATE>.txt . And generate new file for new list of query type, and please use names coded in header of this script.
+total_mpno_number = updatedItemsHash.keys.size # for showing total number of be processced mpno
 
 qi_time = Array.new
 result_array = Array.new #store result for writing to file.
