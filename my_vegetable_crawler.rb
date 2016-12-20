@@ -638,12 +638,12 @@ def crawl_data(query_type, q_merchandize, q_time, infoToPrint)
 	totalMpNoNumber = infoToPrint[7]
 	currentMpNoCount = 0
 
-	staleElementReferenceExceptionCount = 0
-	unknownObjectExceptionCount = 0
-	unknownErrorCount = 0
-	timeOutExceptionCount = 0
-        netExceptionCount = 0	
 	q_merchandize.each_pair{ |key, value|
+		staleElementReferenceExceptionCount = 0
+		unknownObjectExceptionCount = 0
+		unknownErrorCount = 0
+		timeOutExceptionCount = 0
+        	netExceptionCount = 0	
 
 		puts "本次查詢範圍是民國 "+(startDate.year - 1911).to_s+" 年 "+(startDate.month).to_s+" 月 "+(startDate.day).to_s+" 號 至 "+(endDate.year - 1911).to_s+" 年 "+(endDate.month).to_s+" 月 "+(endDate.day).to_s+" 號."
 		puts "現在處理的是第 "+currentDayCount.to_s+"/"+totalDaysWillBeProcessing.to_s+" 天"	
