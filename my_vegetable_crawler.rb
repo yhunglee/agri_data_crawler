@@ -163,19 +163,9 @@ def get_remote_item_list(queryType)
 		#browser.execute_script('window.document.getElementById("radlProductType_1").checked=true;') # 雖然我們可以用這個選擇大項產品，但因為該表格的選項有綁定click事件，去驅動抓取現有產品名稱清單，所以從原本的設定項目checked，改成使用click事件
 		browser.execute_script('window.document.getElementById("radlProductType_1").click();')
 		begin
-=begin
-			if( false == browser.select(id: 'lstProduct').present?  )
-				puts "等待取得遠端清單區塊 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
-				browser.select(id: 'lstProduct').wait_until(timeout: WAIT_TIME_FOR_REMOTE_ITEMS, &:present?)
-				
-			end 
-=end
 			puts "等待顯示遠端清單 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
                         sleep WAIT_TIME_FOR_REMOTE_ITEMS 
 			browser.select(id: 'lstProduct').wait_until(timeout: WAIT_TIME_FOR_REMOTE_ITEMS, &:present?)
-			#browser.select(id: 'lstProduct').wait_while(timeout: WAIT_TIME_FOR_REMOTE_ITEMS, &:present?)
-			#puts "options' values: " + browser.select(id: 'lstProduct').options 
-			#puts "select texts: " + browser.select(id: 'lstProduct').text
 		rescue Selenium::WebDriver::Error::StaleElementReferenceError => e
 			# Because it doesn't find the element when waiting element id: lstProduct and generates the StaleElementReferenceError, we reclick the checkbox of list again.
 			
@@ -211,17 +201,6 @@ def get_remote_item_list(queryType)
 				keyArray << element.value
 			}
 
-=begin
-			# get item name (and/or (kind and/or processing type) ).
-			valueString = browser.select(id: 'lstProduct').text.clone()
-			valueString = valueString.gsub(/[a-zA-Z0-9]+[ ](?=[a-zA-Z0-9 \u4E00-\u9FFF]+([\n]|$))/u,"")
-			tmpvalueArray = valueString.split("\n")
-			tmpvalueArray.each{ |element|
-				valueArray << element.split(" ")
-			}
-			#puts "valueArray: " + valueArray.to_s #debug
-			# get item name (and/or (kind and/or processing type) ).
-=end
                         optionArray.each { |element|
                             tmpvalue = element.text.gsub(/[a-zA-Z0-9]+[ ](?=[a-zA-Z0-9 \u4E00-\u9FFF]+([\n]|$))/u,"")
                             valueArray << tmpvalue.split(" ")
@@ -232,12 +211,6 @@ def get_remote_item_list(queryType)
 		#browser.execute_script('window.document.getElementById("radlProductType_2").checked=true;') # 雖然我們可以用這個選擇細項產品，但因為該表格的選項有綁定click事件，去驅動抓取現有產品名稱清單，所以從原本的設定項目checked，改成使用click事件
 		browser.execute_script('window.document.getElementById("radlProductType_2").click();')
 		begin
-=begin
-			if( false == browser.select(id: 'lstProduct').present? )
-				puts "等待取得遠端清單區塊 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
-				browser.select(id: 'lstProduct').wait_until(timeout: WAIT_TIME_FOR_REMOTE_ITEMS, &:present?)
-			end 
-=end
 			puts "等待顯示遠端清單 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
                         sleep WAIT_TIME_FOR_REMOTE_ITEMS
 			browser.select(id: 'lstProduct').wait_until(timeout: WAIT_TIME_FOR_REMOTE_ITEMS, &:present?)
@@ -289,7 +262,7 @@ def get_remote_item_list(queryType)
 
                         optionArray.each { |element|
                             tmpvalue = element.text.gsub(/[a-zA-Z0-9]+[ ](?=[a-zA-Z0-9 \u4E00-\u9FFF\u3100-\u312F]+([\n]|$))/u,"") # \u4E00-\u9FFF是中日韓文範圍, \u3100-\u312F是注音符號的範圍, 加上注音符號的範圍是為了解決代號71的蕃茄 一般的用字，它使用注音符號的「ㄧ」
-                            valueArray << tmpvalue.split("")
+                            valueArray << tmpvalue.split(" ")  
                         }
 		end
 	elsif( queryType == 3 ) # 3 means flowers
@@ -297,16 +270,9 @@ def get_remote_item_list(queryType)
 		#browser.execute_script('window.document.getElementById("rdoListProductType_1").checked=true;') # 雖然我們可以用這個選擇大項產品，但因為該表格的選項有綁定click事件，去驅動抓取現有產品名稱清單，所以從原本的設定項目checked，改成使用click事件
 		browser.execute_script('window.document.getElementById("radlProductType_1").click();')
 		begin
-=begin
-			if( false == browser.select(id: 'lstbProduct').present? )
-				puts "等待取得遠端清單區塊 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
-				browser.select(id: 'lstbProduct').wait_until(timeout: WAIT_TIME_FOR_REMOTE_ITEMS, &:present?)
-			end 
-=end
 			puts "等待顯示遠端清單 " + WAIT_TIME_FOR_REMOTE_ITEMS.to_s + " 秒"
                         sleep WAIT_TIME_FOR_REMOTE_ITEMS
 			browser.select(id: 'lstbProduct').wait_until(timeout: WAIT_TIME_FOR_REMOTE_ITEMS, &:present?)
-			#browser.select(id: 'lstbProduct').wait_while(timeout: WAIT_TIME_FOR_REMOTE_ITEMS, &:present?)
 		rescue Selenium::WebDriver::Error::StaleElementReferenceError => e
 			# Because it doesn't find the element when waiting element id: lstbProduct and generates the StaleElementReferenceError, we reclick the checkbox of list again.
 			browser.execute_script('window.document.getElementById("radlProductType_1").click();')
@@ -338,17 +304,6 @@ def get_remote_item_list(queryType)
 				keyArray << element.value
 			}
 
-=begin
-			# get item name (and/or (kind and/or processing type) ).
-			valueString = browser.select(id: 'lstbProduct').text.clone()
-			valueString = valueString.gsub(/[a-zA-Z0-9]+[ ](?=[a-zA-Z0-9 \u4E00-\u9FFF]+([\n]|$))/u,"")
-			tmpvalueArray = valueString.split("\n")
-			tmpvalueArray.each{ |element|
-				valueArray << element.split(" ")
-			}
-			#puts "valueArray: " + valueArray.to_s #debug
-			# get item name (and/or (kind and/or processing type) ).
-=end
                         optionArray.each { |element|
                             tmpvalue = element.text.gsub(/[a-zA-Z0-9]+[ ](?=[a-zA-Z0-9 \u4E00-\u9FFF]+([\n]|$))/u,"")
                             valueArray << tmpvalue.split(" ")
@@ -738,36 +693,6 @@ def crawl_data(query_type, q_merchandize, q_time, infoToPrint)
 =end
 		begin
 			browser.image(alt: 'Process').wait_while(&:present?) # waiting when image of ajax procedure presenting
-=begin			
-			# When data of some fields don't exist, it must be check whether an alert window of notices exists or not. If it exists, close it and show notices in the terminal.
-			if ( browser.alert.exists? ) 
-				# check whether the notice of finding no data exists or not.
-				browser.alert.ok
-				#browser.alert.close
-				raise AlertForNoDataException, "Found no data for " + key + " " + value
-			else
-				# If there are data for query conditions.
-
-				#browser.div(id: 'ctl00_contentPlaceHolder_panel').wait_until(&:present?) # wait for ajax response
-				# change the write convention from supporting firefox 46 and earlier version to firefox 48 and onward ones.
-				if( browser.div(id: 'ctl00_contentPlaceHolder_panel').exists? == false  ) # wait and check values for ajax response
-					browser.div(id: 'ctl00_contentPlaceHolder_panel').wait_until(&:present?) # wait for ajax response
-				end 
-
-				Watir::Wait.until{
-					#browser.span(id: 'ctl00_contentPlaceHolder_lblProducts').text.include?(key + " " + value) # 因為蔬菜類的FA0 其他花類，網頁上的「其他花類」後面會有多一個空白符號或其他符號，導致無法如原本預期的運作，所以改成只偵測是否有產品代碼
-					browser.span(id: 'ctl00_contentPlaceHolder_lblProducts').text.include?(key)# + " " + value)
-				}
-
-				# Don't add check statement for existence of browser.div(id: 'ctl00_contentPlaceHolder_panel').tables.[](2) because it will skip execution of the below line when it exists. It doesn't contain information when the moment it just starts to exist.
-				browser.div(id: 'ctl00_contentPlaceHolder_panel').tables.[](2).wait_until(&:present?) # wait for ajax response is ready to present 
-
-			end 
-=end 
-			# If there are data for query conditions.
-
-			#browser.div(id: 'ctl00_contentPlaceHolder_panel').wait_until(&:present?) # wait for ajax response
-			# change the write convention from supporting firefox 46 and earlier version to firefox 48 and onward ones.
 			if( browser.div(id: 'ctl00_contentPlaceHolder_panel').exists? == false  ) # wait and check values for ajax response
 			    browser.div(id: 'ctl00_contentPlaceHolder_panel').wait_until(&:present?) # wait for ajax response
 			end 
@@ -782,7 +707,6 @@ def crawl_data(query_type, q_merchandize, q_time, infoToPrint)
                 rescue Selenium::WebDriver::Error::UnexpectedAlertOpenError => e1
 			browser.alert.ok
                         puts "Found no data for " + key + " " + value
-			#browser.alert.close
 			#raise AlertForNoDataException, "Found no data for " + key + " " + value
 
 		rescue Selenium::WebDriver::Error::StaleElementReferenceError => e1
@@ -812,10 +736,6 @@ def crawl_data(query_type, q_merchandize, q_time, infoToPrint)
 			timeOutExceptionCount += 1
 			retry unless timeOutExceptionCount > LIMIT_OF_RETRY_OF_TIMEOUT_ERROR 
 			abort e1.message 
-=begin
-		rescue AlertForNoDataException => e
-			puts e.message
-=end                  
 		rescue Errno::ECONNREFUSED => e1
 			$stderr.puts e1.message
 			netExceptionCount += 1
