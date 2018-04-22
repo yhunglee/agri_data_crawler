@@ -704,9 +704,11 @@ def crawl_data(query_type, q_merchandize, q_time, infoToPrint)
 
 			# Don't add check statement for existence of browser.div(id: 'ctl00_contentPlaceHolder_panel').tables.[](2) because it will skip execution of the below line when it exists. It doesn't contain information when the moment it just starts to exist.
 			browser.div(id: 'ctl00_contentPlaceHolder_panel').tables.[](2).wait_until(&:present?) # wait for ajax response is ready to present 
-                rescue Selenium::WebDriver::Error::UnexpectedAlertOpenError => e1
-			browser.alert.ok
-                        puts "Found no data for " + key + " " + value
+		rescue Selenium::WebDriver::Error::UnexpectedAlertOpenError => e1
+			if browser.alert.exists?
+				browser.alert.ok
+			end
+            puts "Found no data for " + key + " " + value
 			#raise AlertForNoDataException, "Found no data for " + key + " " + value
 
 		rescue Selenium::WebDriver::Error::StaleElementReferenceError => e1
